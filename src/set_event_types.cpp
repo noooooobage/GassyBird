@@ -3,8 +3,13 @@
  */
 
 #include "Event.hpp"
+#include "Events/KeyPressEvent.hpp"
+#include "Events/KeyReleaseEvent.hpp"
 #include "Events/WindowResizeEvent.hpp"
 #include "Events/WindowCloseEvent.hpp"
 
 const EventType WindowResizeEvent::TYPE = (EventType)&WindowResizeEvent::TYPE;
 const EventType WindowCloseEvent::TYPE = (EventType)&WindowCloseEvent::TYPE;
+const EventType KeyPressEvent::TYPE = (EventType)&KeyPressEvent::TYPE;
+const EventType KeyReleaseEvent::TYPE = (EventType)&KeyReleaseEvent::TYPE;
+
