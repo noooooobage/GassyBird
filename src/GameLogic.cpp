@@ -9,6 +9,7 @@
 
 GameLogic::GameLogic() :
     _initialized(false),
+    _BIRD_FLIGHT_FORCE(20.0f),
     _GRAVITY(0.0f, -10.0f)
 {}
 
@@ -36,6 +37,10 @@ void GameLogic::update(const float& timeDelta) {
 
     assert(_initialized);
 
+    // if the bird is flying, then apply an upward force
+    if (_playableBirdActor.isFlying)
+        _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, _BIRD_FLIGHT_FORCE), true);
+
     // update all actors
     _playableBirdActor.update(timeDelta);
 
@@ -43,7 +48,7 @@ void GameLogic::update(const float& timeDelta) {
     _world->Step(timeDelta, 8, 3);
 }
 
-b2Body* GameLogic::getBody(const PhysicalActor& actor) {
+const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
 
     // return nullptr if actor does not have a physical body
     void* actorAddress = (void*)&actor;
@@ -52,6 +57,14 @@ b2Body* GameLogic::getBody(const PhysicalActor& actor) {
     
     // return cprresponding body pointer
     return _actorToBody.at(actorAddress);
+}
+
+void GameLogic::requestBirdStartFly() {
+    _playableBirdActor.isFlying = true;
+}
+
+void GameLogic::requestBirdStopFly() {
+    _playableBirdActor.isFlying = false;
 }
 
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position) {

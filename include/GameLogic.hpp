@@ -31,9 +31,17 @@ public:
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
-    b2Body* getBody(const PhysicalActor& actor);
+    const b2Body* getBody(const PhysicalActor& actor);
 
     PlayableBird& getPlayableBird() { return _playableBirdActor; }
+
+    /**
+     * These methods are called by the HumanView to start and stop the bird from flying. When the
+     * bird is flying, an upward force is applied to it. When it is not flying, gravity makes the
+     * bird move downward.
+     */
+    void requestBirdStartFly();
+    void requestBirdStopFly();
 
 private:
 
@@ -51,9 +59,10 @@ private:
     // physical world
     std::shared_ptr<b2World> _world;
 
-    // playable bird actor and body
+    // playable bird stuff
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
+    const float _BIRD_FLIGHT_FORCE; // upward force to apply to the bird's body when bird is flying
 
     // maps actor addresses to physical bodies
     std::unordered_map<void*, b2Body*> _actorToBody;

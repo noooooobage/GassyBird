@@ -8,11 +8,14 @@
 #include "Globals.hpp"
 
 PlayableBird::PlayableBird() :
+
     _spriteSet(false),
     _frameChangeTimer(0.0f),
     _FRAME_CHANGE_TIME_DELTA(0.05f),
     _WIDTH_METERS(1),
-    _WIDTH_PIXELS(_WIDTH_METERS * PIXELS_PER_METER)
+    _WIDTH_PIXELS(_WIDTH_METERS * PIXELS_PER_METER),
+
+    isFlying(false)
 {
     // body definition
     b2BodyDef bodyDef;

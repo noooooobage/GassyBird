@@ -35,6 +35,17 @@ public:
 
 private:
 
+    /**
+     * Called when a KeyPressEvent is triggered. Asks the logic to start, stop bird flight or make
+     * the bird poop depending on what key what pressed.
+     */
+    void keyPressHandler(const Event& event);
+    
+    /**
+     * Called when a KeyReleaseEvent is triggered.
+     */
+    void keyReleaseHandler(const Event& event);
+
     bool _initialized;
 
     // pointer to game logic; make sure it isn't nullptr before doing stuff with it
@@ -43,8 +54,8 @@ private:
     EventListener _keyPressListener;
     EventListener _keyReleaseListener;
 
-    void keyPressHandler(const Event& event);
-    void keyReleaseHandler(const Event& event);
+    // key which when pressed, will cause the bird to start flying and move upward
+    sf::Keyboard::Key _keyToFly;
 };
 
 #endif // _HUMAN_VIEW_HPP_

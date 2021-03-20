@@ -26,7 +26,9 @@ public:
      */
     void setSprite(SpriteResource* spriteResource);
 
-    b2Vec2 force;
+    // True if the bird is flying upwards, false otherwise. This is controlled by the game logic.
+    bool isFlying;
+
 private:
 
     // if the sprite has been set or not, make sure this is set before updating or drawing

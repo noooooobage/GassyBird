@@ -11,7 +11,20 @@
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
 
-HumanView::HumanView() : _initialized(false) {}
+HumanView::HumanView() :
+    _initialized(false),
+    _keyToFly(sf::Keyboard::Key::W)
+{}
+
+HumanView::~HumanView() {
+
+    // remove event listeners
+    eventMessenger.removeListener(KeyPressEvent::TYPE, _keyPressListener);
+    eventMessenger.removeListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
+    
+    // nullify pointers
+    _logic = nullptr;
+}
 
 void HumanView::init(GameLogic* logic) {
 
@@ -30,15 +43,8 @@ void HumanView::init(GameLogic* logic) {
     eventMessenger.addListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
 }
 
-HumanView::~HumanView() {
-    // nullify pointers
-    _logic = nullptr;
-}
-
 void HumanView::update(const float& timeDelta) {
     assert(_initialized);
-    b2Body* birdBody = _logic->getBody(_logic->getPlayableBird());
-    birdBody->ApplyForce(_logic->getPlayableBird().force, birdBody->GetPosition(), true);
 }
 
 void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -65,8 +71,8 @@ void HumanView::keyPressHandler(const Event& event) {
 
     const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
 
-    if(e.keyPress == KEY_TO_FLY) {
-        _logic->getPlayableBird().force = b2Vec2(0.0f, 50.0f);
+    if(e.keyPress == _keyToFly) {
+        _logic->requestBirdStartFly();
     }
 }
 
@@ -75,7 +81,7 @@ void HumanView::keyReleaseHandler(const Event& event) {
 
     const KeyReleaseEvent& e = dynamic_cast<const KeyReleaseEvent&>(event);
 
-    if(e.keyPress == KEY_TO_FLY) {
-        _logic->getPlayableBird().force = b2Vec2(0.0f, 0.0f);
+    if(e.keyPress == _keyToFly) {
+        _logic->requestBirdStopFly();
     }
 }
