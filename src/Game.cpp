@@ -54,6 +54,7 @@ void Game::init() {
         settings
     );
     _window->setActive();
+    _window->setKeyRepeatEnabled(false);
 
     // initialize resource cache
     resourceCache.init();
@@ -119,7 +120,7 @@ void Game::windowResizeHandler(const Event& e) {
     const WindowResizeEvent& event = dynamic_cast<const WindowResizeEvent&>(e);
 
     // actual window size in pixels
-    sf::Vector2i windowSize = (sf::Vector2i)_window->getSize();
+    sf::Vector2i windowSize(event.width, event.height);
 
     // Ideal size of the visible rectangle in pixels such that area is maximized and native aspect
     // ratio is maintained

@@ -19,7 +19,7 @@ void HumanView::init(GameLogic* logic) {
 
     // set the bird's sprite
     _logic->getPlayableBird().setSprite(
-            resourceCache.getResource<SpriteResource>("TEST_BIRD_SPRITE"));
+            *resourceCache.getResource<SpriteResource>("TEST_BIRD_SPRITE"));
 }
 
 HumanView::~HumanView() {
