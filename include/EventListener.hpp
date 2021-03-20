@@ -58,7 +58,7 @@ public:
      * 
      * Foo fooInstance;
      * EventListener listener;
-     * listener.init(&Foo::foo, &foo);
+     * listener.init(&Foo::foo, &fooInstance);
      */
     template <typename T>
     void init(void (T::*member_function_address)(const Event&), T* object_address) {

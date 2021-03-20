@@ -58,12 +58,12 @@ void PlayableBird::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(_sprite, states);
 }
 
-void PlayableBird::setSprite(SpriteResource* spriteResource) {
+void PlayableBird::setSprite(const SpriteResource& spriteResource) {
 
     // get the sprite resource and make sure that it has at least one texture rectangle
-    _sprite = spriteResource->sprite;
-    _textureRects = spriteResource->textureRects;
-    assert(spriteResource->textureRects.size() > 0);
+    _sprite = spriteResource.sprite;
+    _textureRects = spriteResource.textureRects;
+    assert(spriteResource.textureRects.size() > 0);
 
     // set the current frame to the first texture rectangle
     _spriteCurrentFrame = 0;

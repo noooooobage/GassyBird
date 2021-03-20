@@ -34,7 +34,7 @@ void HumanView::init(GameLogic* logic) {
 
     // set the bird's sprite
     _logic->getPlayableBird().setSprite(
-            resourceCache.getResource<SpriteResource>("TEST_BIRD_SPRITE"));
+            *resourceCache.getResource<SpriteResource>("TEST_BIRD_SPRITE"));
 
     _keyPressListener.init(&HumanView::keyPressHandler, this);
     _keyReleaseListener.init(&HumanView::keyReleaseHandler, this);

@@ -24,7 +24,7 @@ public:
     /**
      * Sets the sprite of the bird from a SpriteResource.
      */
-    void setSprite(SpriteResource* spriteResource);
+    void setSprite(const SpriteResource& spriteResource);
 
     // True if the bird is flying upwards, false otherwise. This is controlled by the game logic.
     bool isFlying;

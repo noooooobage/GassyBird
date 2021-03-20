@@ -4,10 +4,13 @@
 #include <unordered_map>
 #include <memory>
 #include <cassert>
+#include <string>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
 #include "Resource.hpp"
+#include "Resources/TextureResource.hpp"
 
 /**
  * Stores game resources, e.g. textures, fonts, etc. These resources can be accessed via a unique
@@ -64,6 +67,20 @@ public:
     }
 
 private:
+
+    /**
+     * Loads and stores a TextureResource with the given id from the given filename, which should be
+     * an image.
+     */
+    void loadTextureResource(const std::string& id, const std::string& filename);
+
+    /**
+     * Loads and stores a SpriteResource with the given id. The underlying sprite is created from
+     * the given textureResource. "Frames" of the sprite's animation are given by textureRects,
+     * which must have at least one entry.
+     */
+    void loadSpriteResource(const std::string& id, const TextureResource& textureResource,
+            const std::vector<sf::IntRect>& textureRects);
 
     bool _initialized;
 
