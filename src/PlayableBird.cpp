@@ -17,7 +17,7 @@ PlayableBird::PlayableBird() :
     // body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.linearVelocity.Set(5.0f, 10.0f);
+    bodyDef.linearVelocity.Set(0.0f, 0.0f);
     bodyDef.angularVelocity = 8.0f;
     setBodyDef(bodyDef);
 

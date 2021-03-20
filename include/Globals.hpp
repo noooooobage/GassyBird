@@ -21,7 +21,7 @@ const float PIXELS_PER_METER = 50;
 const float METERS_PER_PIXEL = 1.0f / PIXELS_PER_METER;
 
 const float PI = 3.14159265359f;
-
+const float KEY_TO_FLY = 22;
 // global objects
 extern ResourceCache resourceCache;
 extern EventMessenger eventMessenger;

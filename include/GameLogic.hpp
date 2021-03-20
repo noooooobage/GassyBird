@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 #include <box2d/box2d.h>
-
 #include "PlayableBird.hpp"
 #include "PhysicalActor.hpp"
 
@@ -32,7 +31,7 @@ public:
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
-    const b2Body* getBody(const PhysicalActor& actor);
+    b2Body* getBody(const PhysicalActor& actor);
 
     PlayableBird& getPlayableBird() { return _playableBirdActor; }
 
@@ -60,6 +59,7 @@ private:
     std::unordered_map<void*, b2Body*> _actorToBody;
 
     const b2Vec2 _GRAVITY;
+
 };
 
 #endif // _GAME_LOGIC_HPP_

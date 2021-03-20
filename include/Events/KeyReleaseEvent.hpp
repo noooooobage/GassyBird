@@ -4,7 +4,7 @@
 
 class KeyReleaseEvent: public Event {
 public:
-    KeyReleaseEvent(const sf::Keyboard::Key key) {}
+    KeyReleaseEvent(const sf::Keyboard::Key key) {keyPress = key;}
 
     const EventType& getType() const override { return TYPE; }
 

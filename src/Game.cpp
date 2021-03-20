@@ -12,6 +12,7 @@
 #include "Events/WindowResizeEvent.hpp"
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/KeyPressEvent.hpp"
+#include "Events/KeyReleaseEvent.hpp"
 
 Game::Game() :
     _initialized(false),
@@ -90,11 +91,14 @@ bool Game::update() {
             eventMessenger.triggerEvent(WindowResizeEvent(sfmlEvent));
             break;
 
-        // case sf::Event::KeyPressed:
-        //     //we trigger the event to anyone who is listening
-        //     eventMessenger.triggerEvent(KeyPressEvent(sfmlEvent.key.code));
-        //     break;
+        case sf::Event::KeyPressed:
+            //we trigger the event to anyone who is listening
+            eventMessenger.triggerEvent(KeyPressEvent(sfmlEvent.key.code));
+            break;
         
+        case sf::Event::KeyReleased:
+            eventMessenger.triggerEvent(KeyReleaseEvent(sfmlEvent.key.code));
+            break;
         }
     }
 

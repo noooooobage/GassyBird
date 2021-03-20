@@ -5,6 +5,10 @@
 
 #include "GameLogic.hpp"
 
+#include "EventListener.hpp"
+#include "Event.hpp"
+
+
 /**
  * Receives user input to control playable actors via the game logic. Also is resposible for
  * displaying visuals and sound to the user.
@@ -35,6 +39,12 @@ private:
 
     // pointer to game logic; make sure it isn't nullptr before doing stuff with it
     GameLogic* _logic;
+
+    EventListener _keyPressListener;
+    EventListener _keyReleaseListener;
+
+    void keyPressHandler(const Event& event);
+    void keyReleaseHandler(const Event& event);
 };
 
 #endif // _HUMAN_VIEW_HPP_

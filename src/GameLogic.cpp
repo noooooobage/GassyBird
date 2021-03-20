@@ -43,7 +43,7 @@ void GameLogic::update(const float& timeDelta) {
     _world->Step(timeDelta, 8, 3);
 }
 
-const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
+b2Body* GameLogic::getBody(const PhysicalActor& actor) {
 
     // return nullptr if actor does not have a physical body
     void* actorAddress = (void*)&actor;

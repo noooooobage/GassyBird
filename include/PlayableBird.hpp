@@ -26,6 +26,7 @@ public:
      */
     void setSprite(SpriteResource* spriteResource);
 
+    b2Vec2 force;
 private:
 
     // if the sprite has been set or not, make sure this is set before updating or drawing
@@ -44,6 +45,7 @@ private:
 
     const float _WIDTH_METERS; // ideal width in meters
     const float _WIDTH_PIXELS; // width in pixels after scaling
+
 };
 
 #endif // _PLAYABLE_BIRD_HPP_
