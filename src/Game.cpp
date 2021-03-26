@@ -70,7 +70,7 @@ void Game::init() {
     _menuActivity.init();
 
     // set current activity to playing activity
-    _currentActivity = &_menuActivity;
+    _currentActivity = &_playingActivity;
 
     // restart game clock
     _clock.restart();
@@ -177,11 +177,7 @@ void Game::buttonHandler(const Event& event) {
 
     const ButtonPressEvent& e = dynamic_cast<const ButtonPressEvent&>(event);
 
-    std::cout << "Processing button" << std::endl;
-    std::cout << e.xCoord << " " << e.yCoord << std::endl;
     if(_menuActivity.getButton().isInsideBounds(e.xCoord, e.yCoord)) {
-        std::cout << "Switch activity" << std::endl;
-    } else {
-        std::cout << "Same activity" << std::endl;
+        //switch activities
     }
 }

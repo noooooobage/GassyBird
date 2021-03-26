@@ -11,10 +11,9 @@ MenuActivity::MenuActivity() : _initialized(false) {
 
 void MenuActivity::init() {
     _initialized = true;
-    std::cout << "Initialized MenuActivity" << std::endl;
     _logic.init();
     // initialize views with logic
-    Button butt(350, 650, 450, 550);
+    Button butt(300, 700, 450, 550);
     _goToPlaying = butt;
     _humanView.init(&_logic);
 }
