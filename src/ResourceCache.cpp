@@ -13,6 +13,7 @@
 #include "Resource.hpp"
 #include "Resources/TextureResource.hpp"
 #include "Resources/SpriteResource.hpp"
+#include "Resources/FontResource.hpp"
 
 ResourceCache::ResourceCache() :
     _initialized(false)
@@ -56,6 +57,8 @@ void ResourceCache::init() {
             {64, 32, 16, 16}  // 14     wings up
         }
     );
+
+    loadFontResource("TEST_FONT", "../data/ARCADECLASSIC.ttf");
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {
@@ -84,4 +87,13 @@ void ResourceCache::loadSpriteResource(const std::string& id,
     // make sure a resource with the id does not already exist, then make the resource
     assert(_resources.find(id) == _resources.end());
     _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects);
+}
+
+void ResourceCache::loadFontResource(const std::string& id, const std::string& filename) {
+    sf::Font font;
+
+    font.loadFromFile(filename);
+
+    assert(_resources.find(id) == _resources.end());
+    _resources[id] = std::make_shared<FontResource>(font);
 }

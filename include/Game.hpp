@@ -7,6 +7,8 @@
 
 #include "Activity.hpp"
 #include "PlayingActivity.hpp"
+#include "MenuActivity.hpp"
+
 #include "Globals.hpp"
 #include "EventListener.hpp"
 #include "Event.hpp"
@@ -62,17 +64,20 @@ private:
      */
     void windowCloseHandler(const Event& event);
 
+    void buttonHandler(const Event& event);
+    
     bool _initialized;
 
     // event listeners
     EventListener _windowResizeListener;
     EventListener _windowCloseListener;
-
+    EventListener _buttonPressListener;
     // the render window onto which to draw
     std::shared_ptr<sf::RenderWindow> _window;
 
     // activities, for now there's only a PlayingActivity
     PlayingActivity _playingActivity;
+    MenuActivity _menuActivity;
     Activity* _currentActivity;
 
     // game clock

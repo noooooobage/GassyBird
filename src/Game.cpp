@@ -13,6 +13,7 @@
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/ButtonPressEvent.hpp"
 
 Game::Game() :
     _initialized(false),
@@ -21,10 +22,12 @@ Game::Game() :
     // init event listeners
     _windowResizeListener.init(&Game::windowResizeHandler, this);
     _windowCloseListener.init(&Game::windowCloseHandler, this);
+    _buttonPressListener.init(&Game::buttonHandler, this);
 
     // add listeners to event messenger
     eventMessenger.addListener(WindowResizeEvent::TYPE, _windowResizeListener);
     eventMessenger.addListener(WindowCloseEvent::TYPE, _windowCloseListener);
+    eventMessenger.addListener(ButtonPressEvent::TYPE, _buttonPressListener);
 }
 
 Game::~Game() {
@@ -64,6 +67,8 @@ void Game::init() {
     // init playing activity
     _playingActivity.init(*_window.get());
 
+    _menuActivity.init();
+
     // set current activity to playing activity
     _currentActivity = &_playingActivity;
 
@@ -99,6 +104,10 @@ bool Game::update() {
         
         case sf::Event::KeyReleased:
             eventMessenger.triggerEvent(KeyReleaseEvent(sfmlEvent.key.code));
+            break;
+        case sf::Event::MouseButtonPressed:
+            std::cout << sfmlEvent.mouseButton.x << std::endl;
+            eventMessenger.triggerEvent(ButtonPressEvent(sfmlEvent.mouseButton.x, sfmlEvent.mouseButton.y));
             break;
         }
     }
@@ -161,4 +170,14 @@ void Game::windowCloseHandler(const Event& e) {
     assert(e.getType() == WindowCloseEvent::TYPE);
 
     _window->close();
+}
+
+void Game::buttonHandler(const Event& event) {
+    assert(event.getType() == ButtonPressEvent::TYPE);
+
+    const ButtonPressEvent& e = dynamic_cast<const ButtonPressEvent&>(event);
+
+    if(_menuActivity.getButton().isInsideBounds(e.xCoord, e.yCoord)) {
+        //switch activities
+    }
 }

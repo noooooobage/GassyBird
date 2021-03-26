@@ -82,6 +82,8 @@ private:
     void loadSpriteResource(const std::string& id, const TextureResource& textureResource,
             const std::vector<sf::IntRect>& textureRects);
 
+    void loadFontResource(const std::string& id, const std::string& filename);
+    
     bool _initialized;
 
     // resources are stored in this maps
