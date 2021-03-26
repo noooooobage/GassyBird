@@ -2,15 +2,20 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <math.h>
 
 #include <box2d/box2d.h>
 
 #include "GameLogic.hpp"
 
 GameLogic::GameLogic() :
+
     _initialized(false),
-    _BIRD_FLIGHT_FORCE(20.0f),
-    _GRAVITY(0.0f, -10.0f)
+
+    _GRAVITY(0.0f, -25.0f),
+    _world_scroll_speed(15.0f),
+
+    _BIRD_POOP_DURATION(1.0f)
 {}
 
 GameLogic::~GameLogic() {
@@ -29,7 +34,10 @@ void GameLogic::init() {
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
 
-    // create bird body and add to world
+    // reset bird variables, and create bird body and add to world
+    _timeSinceLastPoop = 0.0f;
+    _playableBirdActor.stopFlying();
+    _playableBirdActor.stopPooping();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
 }
 
@@ -37,12 +45,8 @@ void GameLogic::update(const float& timeDelta) {
 
     assert(_initialized);
 
-    // if the bird is flying, then apply an upward force
-    if (_playableBirdActor.isFlying)
-        _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, _BIRD_FLIGHT_FORCE), true);
-
-    // update all actors
-    _playableBirdActor.update(timeDelta);
+    // update bird
+    updatePlayableBird(timeDelta);
 
     // increment physics
     _world->Step(timeDelta, 8, 3);
@@ -60,11 +64,19 @@ const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
 }
 
 void GameLogic::requestBirdStartFly() {
-    _playableBirdActor.isFlying = true;
+    _playableBirdActor.startFlying();
 }
 
 void GameLogic::requestBirdStopFly() {
-    _playableBirdActor.isFlying = false;
+    _playableBirdActor.stopFlying();
+}
+
+void GameLogic::requestBirdPoop() {
+    // only poop if the bird is not currently pooping
+    if (!_playableBirdActor.isPooping()) {
+        _playableBirdActor.startPooping();
+        _timeSinceLastPoop = 0.0f;
+    }
 }
 
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position) {
@@ -94,4 +106,26 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     _actorToBody[(void*)&actor] = body;
 
     return body;
+}
+
+void GameLogic::updatePlayableBird(const float& timeDelta) {
+
+    // update bird pooping status
+    _timeSinceLastPoop += timeDelta;
+    if (_timeSinceLastPoop >= _BIRD_POOP_DURATION)
+        _playableBirdActor.stopPooping();
+
+    // if the bird is flying, then apply an upward force opposite to gravity
+    if (_playableBirdActor.isFlying()) {
+        float targetAccel = -2.0f * _GRAVITY.y;
+        float force = _playableBirdBody->GetMass() * targetAccel;
+        _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, force), true);
+    }
+    
+    // set the bird's rotation based on its velocity
+    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _world_scroll_speed);
+    _playableBirdBody->SetTransform(_playableBirdBody->GetPosition(), angle);
+
+    // call bird's own update() method
+    _playableBirdActor.update(timeDelta);
 }
