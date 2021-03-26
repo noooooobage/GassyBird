@@ -7,6 +7,7 @@
 #include <box2d/box2d.h>
 #include "PlayableBird.hpp"
 #include "PhysicalActor.hpp"
+#include "DebugDrawer.hpp"
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -26,6 +27,12 @@ public:
      * Advances the state of the game forward in time by the amount given by timeDelta.
      */
     void update(const float& timeDelta);
+
+    /**
+     * Methods through which the debug drawer can set and exectue drawing.
+     */
+    void setDebugDrawer(DebugDrawer& debugDrawer);
+    void debugDraw();
 
     /**
      * Given a physical actor, return the corresponding body which exists in the physical world. If

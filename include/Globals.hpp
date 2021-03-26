@@ -10,6 +10,13 @@
 #include "ResourceCache.hpp"
 #include "EventMessenger.hpp"
 
+// if the program was compiled in DEBUG mode or not
+#ifdef NDEBUG
+const bool DEBUG = false;
+#else // NDEBUG
+const bool DEBUG = true;
+#endif // NDEBUG
+
 // The native resolution of the game screen. The aspect ratio of this resolution should not change
 // when the window is resized.
 const sf::Vector2i NATIVE_RESOLUTION(1200, 600);

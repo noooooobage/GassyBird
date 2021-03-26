@@ -9,7 +9,7 @@
  * can contain other Activities. This may be desirable if a UI or HUD should be displayed on top of
  * the current screen.
  */
-class Activity : public sf::Drawable {
+class Activity {
 
 public:
 
@@ -23,7 +23,7 @@ public:
     /**
      * Override of sf::Drawable::draw(). Draws the screen onto the given target.
      */
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override = 0;
+    virtual void draw(sf::RenderTarget& target) = 0;
     
 };
 

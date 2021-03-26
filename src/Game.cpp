@@ -62,7 +62,7 @@ void Game::init() {
     resourceCache.init();
 
     // init playing activity
-    _playingActivity.init();
+    _playingActivity.init(*_window.get());
 
     // set current activity to playing activity
     _currentActivity = &_playingActivity;
@@ -119,7 +119,7 @@ void Game::draw() const {
 
     // clear the window, let the current activity draw onto the window, then display the window
     _window->clear();
-    _window->draw(*_currentActivity);
+    _currentActivity->draw(*_window.get());
     _window->display();
 }
 

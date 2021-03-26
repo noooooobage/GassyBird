@@ -6,6 +6,7 @@
 #include "Activity.hpp"
 #include "GameLogic.hpp"
 #include "HumanView.hpp"
+#include "DebugDrawer.hpp"
 
 /**
  * The PlayingActivity is the core activity which is run by the game. It contains sub-activities
@@ -17,18 +18,23 @@ public:
 
     PlayingActivity();
 
-    void init();
+    /**
+     * Initializes with a render target.
+     */
+    void init(sf::RenderTarget& target);
 
     /**
      * Updates views and then game logic.
      */
     void update(const float& timeDelta) override;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void draw(sf::RenderTarget& target) override;
 
 private:
 
     bool _initialized;
+
+    DebugDrawer _debugDrawer;
 
     GameLogic _logic;
 

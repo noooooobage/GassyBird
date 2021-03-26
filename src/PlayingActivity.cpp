@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include <SFML/Graphics.hpp>
+#include <box2d/box2d.h>
 
 #include "PlayingActivity.hpp"
 #include "Globals.hpp"
@@ -10,12 +11,17 @@ PlayingActivity::PlayingActivity() :
     _initialized(false)
 {}
 
-void PlayingActivity::init() {
+void PlayingActivity::init(sf::RenderTarget& target) {
 
     _initialized = true;
 
-    // initialize logic
+    // initialize logic; if in DEBUG mode, also set its debug drawer
     _logic.init();
+    if (DEBUG) {
+        _debugDrawer.init(target);
+        _debugDrawer.SetFlags(b2Draw::e_shapeBit);
+        _logic.setDebugDrawer(_debugDrawer);
+    }
 
     // initialize views with logic
     _humanView.init(&_logic);
@@ -32,7 +38,7 @@ void PlayingActivity::update(const float& timeDelta) {
     _logic.update(timeDelta);
 }
 
-void PlayingActivity::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void PlayingActivity::draw(sf::RenderTarget& target) {
 
     assert(_initialized);
 
@@ -43,5 +49,9 @@ void PlayingActivity::draw(sf::RenderTarget& target, sf::RenderStates states) co
     target.draw(rect);
 
     // draw the human view
-    target.draw(_humanView, states);
+    target.draw(_humanView);
+
+    // if in DEBUG mode, call the logic's debug draw
+    if (DEBUG)
+        _logic.debugDraw();
 }

@@ -7,6 +7,7 @@
 #include <box2d/box2d.h>
 
 #include "GameLogic.hpp"
+#include "DebugDrawer.hpp"
 
 GameLogic::GameLogic() :
 
@@ -50,6 +51,20 @@ void GameLogic::update(const float& timeDelta) {
 
     // increment physics
     _world->Step(timeDelta, 8, 3);
+}
+
+void GameLogic::setDebugDrawer(DebugDrawer& debugDrawer) {
+    
+    assert(_initialized);
+
+    _world->SetDebugDraw(&debugDrawer);
+}
+
+void GameLogic::debugDraw() {
+
+    assert(_initialized);
+
+    _world->DebugDraw();
 }
 
 const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
