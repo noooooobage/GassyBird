@@ -36,7 +36,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
-        "../data/beach-background-big.gif"
+        "../data/beach-background-large.gif"
     );
 
     // load test bird sprite
