@@ -3,10 +3,13 @@
 
 #include <memory>
 #include <unordered_map>
+#include <list>
 
 #include <box2d/box2d.h>
 #include "PlayableBird.hpp"
+#include "NPC.hpp"
 #include "PhysicalActor.hpp"
+
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -54,6 +57,9 @@ private:
     b2Body* addToWorld(const PhysicalActor& physical,
             const b2Vec2& position = {0.0f, 0.0f});
 
+    //Spawn an NPC into the world
+    b2Body* spawnNPC();
+
     bool _initialized;
 
     // physical world
@@ -63,6 +69,9 @@ private:
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
     const float _BIRD_FLIGHT_FORCE; // upward force to apply to the bird's body when bird is flying
+
+    //NPC Stuff
+    std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles 
 
     // maps actor addresses to physical bodies
     std::unordered_map<void*, b2Body*> _actorToBody;

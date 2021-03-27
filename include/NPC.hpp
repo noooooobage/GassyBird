@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "PhysicalActor.hpp"
+#include "Resources/SpriteResource.hpp"
 
 /**
  * Parent Class of The NPC people that serve as targets and enemies to the bird.
@@ -39,6 +40,7 @@ class NPC : public PhysicalActor {
         //Variables 
 
         bool _spriteSet;                    //Track if the sprite has been set before drawing
+        bool _inScope;
 
         sf::Sprite _NPCsprite;
         std::vector<sf::IntRect> _textureRect;
@@ -55,6 +57,9 @@ class NPC : public PhysicalActor {
         const float _HEIGHT_METERS; //Unit height in meters
         const float _WIDTH_PIXELS; // store the width in pixels after scaling
         const float _HEIGHT_PIXELS; //store the height in pixels after scaling
+
+        b2FixtureDef _top; //Fixture for the head of the body
+        b2FixtureDef _bottom;  //Fixture for the torso of the body
 };
 
 #endif

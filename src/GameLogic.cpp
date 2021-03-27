@@ -95,3 +95,15 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
 
     return body;
 }
+
+//TODO: Discuss and implement the routine and procedures for spawning the NPC
+//b2Body* GameLogic::spawnNPC(){
+    //Create a new NPC
+    
+    //Get the physical properties
+    //Assert that shapes and fixtures are equal in size
+    //assign shapes to fixture
+    //add the actor and body to the map
+
+    //Add it to a list of NPCs being stored
+//}
