@@ -37,11 +37,11 @@ void PlayingActivity::draw(sf::RenderTarget& target, sf::RenderStates states) co
     assert(_initialized);
 
     // draw a blue rectangle
-    // TODO: remove this at some point
     sf::RectangleShape rect((sf::Vector2f)NATIVE_RESOLUTION);
     rect.setFillColor(sf::Color::Blue);
-    target.draw(rect);
 
+    SpriteResource& spriteResource = *resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE");
+    target.draw(spriteResource.sprite);
     // draw the human view
     target.draw(_humanView, states);
 }
