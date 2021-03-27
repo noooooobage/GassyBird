@@ -34,6 +34,7 @@ PlayableBird::PlayableBird() :
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
     addFixtureDef(fixtureDef);
+    poopsLeft = maxNumberOfPoops;
 }
 
 void PlayableBird::update(const float& timeDelta) {

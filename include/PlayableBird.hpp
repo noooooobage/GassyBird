@@ -28,7 +28,7 @@ public:
 
     // True if the bird is flying upwards, false otherwise. This is controlled by the game logic.
     bool isFlying;
-
+    int poopsLeft;
 private:
 
     // if the sprite has been set or not, make sure this is set before updating or drawing
@@ -40,7 +40,7 @@ private:
 
     // index of the frame of the sprite to draw; different frames refer to different texture rects
     int _spriteCurrentFrame;
-
+    const int maxNumberOfPoops = 2;
     // the sprite's frame will change after this amount of time in seconds passes
     const float _FRAME_CHANGE_TIME_DELTA;
     float _frameChangeTimer;

@@ -42,7 +42,7 @@ public:
      */
     void requestBirdStartFly();
     void requestBirdStopFly();
-
+    void requestBirdPoop();
 private:
 
     /**

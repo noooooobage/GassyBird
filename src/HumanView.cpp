@@ -13,7 +13,8 @@
 
 HumanView::HumanView() :
     _initialized(false),
-    _keyToFly(sf::Keyboard::Key::W)
+    _keyToFly(sf::Keyboard::Key::W),
+    _keyToPoop(sf::Keyboard::Key::S)
 {}
 
 HumanView::~HumanView() {
@@ -73,6 +74,9 @@ void HumanView::keyPressHandler(const Event& event) {
 
     if(e.keyPress == _keyToFly) {
         _logic->requestBirdStartFly();
+    } else if (e.keyPress == _keyToPoop) {
+        std::cout << "poop" << std::endl;
+        _logic->requestBirdPoop();
     }
 }
 

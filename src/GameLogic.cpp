@@ -67,6 +67,12 @@ void GameLogic::requestBirdStopFly() {
     _playableBirdActor.isFlying = false;
 }
 
+void GameLogic::requestBirdPoop() {
+    if(_playableBirdActor.poopsLeft > 0) {
+        _playableBirdActor.poopsLeft--;
+        //create a poop 
+    }
+}
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position) {
 
     // make sure that the actor hasn't already been added

@@ -56,6 +56,7 @@ private:
 
     // key which when pressed, will cause the bird to start flying and move upward
     sf::Keyboard::Key _keyToFly;
+    sf::Keyboard::Key _keyToPoop;
 };
 
 #endif // _HUMAN_VIEW_HPP_
