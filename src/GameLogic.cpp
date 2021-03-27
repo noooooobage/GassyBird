@@ -69,6 +69,8 @@ void GameLogic::debugDraw() {
 
 const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
 
+    assert(_initialized);
+
     // return nullptr if actor does not have a physical body
     void* actorAddress = (void*)&actor;
     if (_actorToBody.find(actorAddress) == _actorToBody.end())
@@ -79,14 +81,23 @@ const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
 }
 
 void GameLogic::requestBirdStartFly() {
+
+    assert(_initialized);
+
     _playableBirdActor.startFlying();
 }
 
 void GameLogic::requestBirdStopFly() {
+
+    assert(_initialized);
+    
     _playableBirdActor.stopFlying();
 }
 
 void GameLogic::requestBirdPoop() {
+
+    assert(_initialized);
+    
     // only poop if the bird is not currently pooping
     if (!_playableBirdActor.isPooping()) {
         _playableBirdActor.startPooping();
@@ -95,6 +106,8 @@ void GameLogic::requestBirdPoop() {
 }
 
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position) {
+
+    assert(_initialized);
 
     // make sure that the actor hasn't already been added
     assert(_actorToBody.find((void*)&actor) == _actorToBody.end());
@@ -124,6 +137,8 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
 }
 
 void GameLogic::updatePlayableBird(const float& timeDelta) {
+
+    assert(_initialized);
 
     // update bird pooping status
     _timeSinceLastPoop += timeDelta;

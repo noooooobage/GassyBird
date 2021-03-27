@@ -1,52 +1,78 @@
-#include "Button.hpp"
 #include <iostream>
 #include <string>
+
+#include <SFML/Graphics.hpp>
+
+#include "Button.hpp"
 #include "Globals.hpp"
+#include "Utils.hpp"
 #include "Resources/FontResource.hpp"
 
-Button::Button() {
+Button::Button() :
+    _BASE_TEXT_COLOR(sf::Color::White),
+    _CLICKED_TEXT_COLOR(sf::Color::Black),
+    _BASE_FILL_COLOR(sf::Color(255, 255, 255, 50)),
+    _HOVERED_FILL_COLOR(sf::Color(255, 255, 255, 125)),
+    _CLICKED_FILL_COLOR(sf::Color::White),
+    _BASE_OUTLINE_THICKNESS(2.0f),
+    _HOVERED_OUTLINE_THICKNESS(5.0f)
+{
+    setString("PLACEHOLDER TEXT");
+    setSize(sf::Vector2f(200.0f, 100.0f));
+    setPosition(sf::Vector2f(0.0f, 0.0f));
 
+    // start out at the base state
+    toBase();
 }
 
-Button::Button(int minX, int maxX, int minY, int maxY) {
-    minXClickWindow = minX;
-    maxXClickWindow = maxX;
-    minYClickWindow = minY;
-    maxYClickWindow = maxY;
+void Button::setFont(const FontResource& fontResource) {
+    _text.setFont(fontResource.font);
+    centerTextOnRect(_text, _shape.getGlobalBounds());
 }
 
-Button::Button(const Button& b) {
-    *this = b;
+void Button::setString(const std::string& string) {
+    _text.setString(string);
+    centerTextOnRect(_text, _shape.getGlobalBounds());
 }
 
-void Button::onClick() {
-
+void Button::setCharacterHeight(const int& height) {
+    _text.setCharacterSize(height);
+    centerTextOnRect(_text, _shape.getGlobalBounds());
 }
 
-void Button::draw(sf::RenderTarget& target) const {
-    int x = maxXClickWindow - minXClickWindow;
-    int y = maxYClickWindow - minYClickWindow;
-    sf::RectangleShape rect(sf::Vector2f(x, y));
-    rect.setFillColor(sf::Color::White);
-    rect.setOrigin(x / 2, y / 2);
-    rect.setPosition(sf::Vector2f(maxXClickWindow-x/2, maxYClickWindow-y/2));
-    target.draw(rect);
-    sf::Text t;
-    FontResource font = *resourceCache.getResource<FontResource>("TEST_FONT");
-    t.setFont(font.font);
-    t.setFillColor(sf::Color::Black);
-    t.setString("Click me!");
-    t.setCharacterSize(50);
-    t.setOrigin(t.getGlobalBounds().width / 2, t.getGlobalBounds().height / 2);
-    t.setPosition(sf::Vector2f(maxXClickWindow-x/2, maxYClickWindow-y/2-t.getGlobalBounds().height/2));
-    target.draw(t);
+void Button::setSize(const sf::Vector2f& size) {
+    _shape.setSize(size);
+    centerTextOnRect(_text, _shape.getGlobalBounds());
 }
 
-bool Button::isInsideBounds(int x, int y) {
+void Button::setPosition(const sf::Vector2f& position) {
+    _shape.setPosition(position);
+    centerTextOnRect(_text, _shape.getGlobalBounds());
+}
 
-    if(x >= minXClickWindow && x <= maxXClickWindow && y >= minYClickWindow && y <= maxYClickWindow) {
-        return true;
-    } else {
-        return false;
-    }
+bool Button::contains(const sf::Vector2f& point) {
+    return _shape.getGlobalBounds().contains(point);
+}
+
+void Button::toBase() {
+    _shape.setFillColor(_BASE_FILL_COLOR);
+    _shape.setOutlineThickness(_BASE_OUTLINE_THICKNESS);
+    _text.setFillColor(_BASE_TEXT_COLOR);
+}
+
+void Button::toHovered() {
+    _shape.setFillColor(_HOVERED_FILL_COLOR);
+    _shape.setOutlineThickness(_HOVERED_OUTLINE_THICKNESS);
+    _text.setFillColor(_BASE_TEXT_COLOR);
+}
+
+void Button::toClicked() {
+    _shape.setFillColor(_CLICKED_FILL_COLOR);
+    _shape.setOutlineThickness(_HOVERED_OUTLINE_THICKNESS);
+    _text.setFillColor(_CLICKED_TEXT_COLOR);
+}
+
+void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const{
+    target.draw(_shape);
+    target.draw(_text);
 }

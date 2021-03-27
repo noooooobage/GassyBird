@@ -7,6 +7,7 @@
 #include "GameLogic.hpp"
 #include "HumanView.hpp"
 #include "DebugDrawer.hpp"
+#include "MainMenuActivity.hpp"
 
 /**
  * The PlayingActivity is the core activity which is run by the game. It contains sub-activities
@@ -32,6 +33,11 @@ public:
 
 private:
 
+    /**
+     * Transitions to the main menu.
+     */
+    void toMainMenu();
+
     bool _initialized;
 
     DebugDrawer _debugDrawer;
@@ -39,6 +45,10 @@ private:
     GameLogic _logic;
 
     HumanView _humanView;
+
+    // PlayingActivity has activities of its own, these act as user interfaces
+    MainMenuActivity _mainMenuActivity;
+    Activity* _currentActivity;
 };
 
 #endif // _PLAYING_ACTIVITY_HPP_

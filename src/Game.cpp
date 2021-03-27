@@ -13,7 +13,9 @@
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
-#include "Events/ButtonPressEvent.hpp"
+#include "Events/MouseMoveEvent.hpp"
+#include "Events/MousePressEvent.hpp"
+#include "Events/MouseReleaseEvent.hpp"
 
 Game::Game() :
     _initialized(false),
@@ -22,12 +24,10 @@ Game::Game() :
     // init event listeners
     _windowResizeListener.init(&Game::windowResizeHandler, this);
     _windowCloseListener.init(&Game::windowCloseHandler, this);
-    _buttonPressListener.init(&Game::buttonHandler, this);
 
     // add listeners to event messenger
     eventMessenger.addListener(WindowResizeEvent::TYPE, _windowResizeListener);
     eventMessenger.addListener(WindowCloseEvent::TYPE, _windowCloseListener);
-    eventMessenger.addListener(ButtonPressEvent::TYPE, _buttonPressListener);
 }
 
 Game::~Game() {
@@ -67,8 +67,6 @@ void Game::init() {
     // init playing activity
     _playingActivity.init(*_window.get());
 
-    _menuActivity.init();
-
     // set current activity to playing activity
     _currentActivity = &_playingActivity;
 
@@ -81,10 +79,10 @@ bool Game::update() {
     assert(_initialized);
 
     // poll events
-    sf::Event sfmlEvent;
-    while (_window->pollEvent(sfmlEvent)) {
+    sf::Event event;
+    while (_window->pollEvent(event)) {
         
-        switch (sfmlEvent.type) {
+        switch (event.type) {
 
         // queue a WindowCloseEvent if the window was requested to be closed
         case sf::Event::Closed:
@@ -94,20 +92,39 @@ bool Game::update() {
         // Trigger a WindowResizeEvent if the window was resized; this event is triggered instead of
         // queued because activities might want to know about it to reduce choppiness.
         case sf::Event::Resized:
-            eventMessenger.triggerEvent(WindowResizeEvent(sfmlEvent));
+            eventMessenger.triggerEvent(WindowResizeEvent(event));
             break;
 
         case sf::Event::KeyPressed:
-            //we trigger the event to anyone who is listening
-            eventMessenger.triggerEvent(KeyPressEvent(sfmlEvent.key.code));
+            eventMessenger.triggerEvent(KeyPressEvent(event.key.code));
             break;
         
         case sf::Event::KeyReleased:
-            eventMessenger.triggerEvent(KeyReleaseEvent(sfmlEvent.key.code));
+            eventMessenger.triggerEvent(KeyReleaseEvent(event.key.code));
             break;
+        
+        case sf::Event::MouseMoved:
+            { // need a block here because we declare a variable
+                sf::Vector2i pixelCoord(event.mouseMove.x, event.mouseMove.y);
+                eventMessenger.triggerEvent(MouseMoveEvent(pixelCoord,
+                        _window->mapPixelToCoords(pixelCoord)));
+            }
+            break;
+        
         case sf::Event::MouseButtonPressed:
-            std::cout << sfmlEvent.mouseButton.x << std::endl;
-            eventMessenger.triggerEvent(ButtonPressEvent(sfmlEvent.mouseButton.x, sfmlEvent.mouseButton.y));
+            {
+                sf::Vector2i pixelCoord(event.mouseButton.x, event.mouseButton.y);
+                eventMessenger.triggerEvent(MousePressEvent(event.mouseButton.button,
+                        pixelCoord, _window->mapPixelToCoords(pixelCoord)));
+            }
+            break;
+
+        case sf::Event::MouseButtonReleased:
+            {
+                sf::Vector2i pixelCoord(event.mouseButton.x, event.mouseButton.y);
+                eventMessenger.triggerEvent(MouseReleaseEvent(event.mouseButton.button,
+                        pixelCoord, _window->mapPixelToCoords(pixelCoord)));
+            }
             break;
         }
     }
@@ -170,14 +187,4 @@ void Game::windowCloseHandler(const Event& e) {
     assert(e.getType() == WindowCloseEvent::TYPE);
 
     _window->close();
-}
-
-void Game::buttonHandler(const Event& event) {
-    assert(event.getType() == ButtonPressEvent::TYPE);
-
-    const ButtonPressEvent& e = dynamic_cast<const ButtonPressEvent&>(event);
-
-    if(_menuActivity.getButton().isInsideBounds(e.xCoord, e.yCoord)) {
-        //switch activities
-    }
 }

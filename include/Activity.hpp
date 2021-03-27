@@ -16,12 +16,21 @@ public:
     virtual ~Activity() {}
 
     /**
+     * Activate and deactivate the activity. This is useful when switching between activities.
+     * Subclasses do not have to implement these methods. E.g. the PlayingActivity doesn't need
+     * these methods because it is the only activity that directly runs from Game; therefore, Game
+     * never needs to switch to or from PlayingActivity.
+     */
+    virtual void activate() {}
+    virtual void deactivate() {}
+
+    /**
      * Step the activity forward in time according to the given timeDelta (in seconds).
      */
     virtual void update(const float& timeDelta) = 0;
 
     /**
-     * Override of sf::Drawable::draw(). Draws the screen onto the given target.
+     * Draws the screen onto the given target.
      */
     virtual void draw(sf::RenderTarget& target) = 0;
     

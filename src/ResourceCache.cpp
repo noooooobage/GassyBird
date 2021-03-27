@@ -58,7 +58,7 @@ void ResourceCache::init() {
         }
     );
 
-    loadFontResource("TEST_FONT", "../data/ARCADECLASSIC.ttf");
+    loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {

@@ -6,6 +6,8 @@
 
 #include "Globals.hpp"
 
+// Note: Simple math functions and conversion functions get the inline. Other functions do not.
+
 /**
  * Clamps a value to the range [low, high].
  */
@@ -58,5 +60,15 @@ inline sf::Color b2ToSfColor(const b2Color& color) {
         clamp((int)(color.a * 255), 0, 255)
     );
 }
+
+/**
+ * Centers the given text on the given point.
+ */
+void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point);
+
+/**
+ * Centers the given text inside the given rectangle.
+ */
+void centerTextOnRect(sf::Text& text, const sf::FloatRect& rect);
 
 #endif // _UTILS_HPP_

@@ -70,10 +70,10 @@ void HumanView::keyPressHandler(const Event& event) {
 
     const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
 
-    if(e.keyPress == _keyToFly)
+    if(e.key == _keyToFly)
         _logic->requestBirdStartFly();
 
-    else if (e.keyPress == _keyToPoop)
+    else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
 }
 
@@ -82,7 +82,7 @@ void HumanView::keyReleaseHandler(const Event& event) {
 
     const KeyReleaseEvent& e = dynamic_cast<const KeyReleaseEvent&>(event);
 
-    if(e.keyPress == _keyToFly) {
+    if(e.key == _keyToFly) {
         _logic->requestBirdStopFly();
     }
 }
