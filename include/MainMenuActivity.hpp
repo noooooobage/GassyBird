@@ -19,7 +19,10 @@ public:
 
     MainMenuActivity();
 
-    void init();
+    /**
+     * Initializes with the PlayingActivity of which this activity is a part.
+     */
+    void init(class PlayingActivity& playingActivity);
 
     /**
      * Activates the activity such that buttons are able to be interacted with.
@@ -45,6 +48,9 @@ private:
 
     bool _initialized;
     bool _activated;
+
+    // super activity
+    class PlayingActivity* _playingActivity;
 
     // buttons
     Button _playButton;

@@ -28,10 +28,10 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     _humanView.init(&_logic);
 
     // initialize activities
-    _mainMenuActivity.init();
+    _mainMenuActivity.init(*this);
 
     // start with the main menu
-    toMainMenu();
+    toMain();
 }
 
 void PlayingActivity::update(const float& timeDelta) {
@@ -63,7 +63,7 @@ void PlayingActivity::draw(sf::RenderTarget& target) {
         _logic.debugDraw();
 }
 
-void PlayingActivity::toMainMenu() {
+void PlayingActivity::toMain() {
 
     // deactivate old activity
     if (_currentActivity)
@@ -72,4 +72,21 @@ void PlayingActivity::toMainMenu() {
     // set current activity to main menu and activate it
     _currentActivity = &_mainMenuActivity;
     _currentActivity->activate();
+
+    // set logic to demo mode
+    _logic.toDemo();
+}
+
+void PlayingActivity::toPlaying() {
+
+    // deactivate old activity
+    if (_currentActivity)
+        _currentActivity->deactivate();
+    
+    // set current activity to playing menu and activate it
+    _currentActivity = &_playingMenuActivity;
+    _currentActivity->activate();
+
+    // set logic to playing
+    _logic.toPlaying();
 }

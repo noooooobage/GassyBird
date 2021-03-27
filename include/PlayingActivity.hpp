@@ -8,6 +8,7 @@
 #include "HumanView.hpp"
 #include "DebugDrawer.hpp"
 #include "MainMenuActivity.hpp"
+#include "PlayingMenuActivity.hpp"
 
 /**
  * The PlayingActivity is the core activity which is run by the game. It contains sub-activities
@@ -31,12 +32,13 @@ public:
 
     void draw(sf::RenderTarget& target) override;
 
-private:
-
     /**
-     * Transitions to the main menu.
+     * Methods to transition to different subactivities. These also affect the state of the logic.
      */
-    void toMainMenu();
+    void toMain();
+    void toPlaying();
+
+private:
 
     bool _initialized;
 
@@ -48,6 +50,7 @@ private:
 
     // PlayingActivity has activities of its own, these act as user interfaces
     MainMenuActivity _mainMenuActivity;
+    PlayingMenuActivity _playingMenuActivity;
     Activity* _currentActivity;
 };
 

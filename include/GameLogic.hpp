@@ -29,6 +29,12 @@ public:
     void update(const float& timeDelta);
 
     /**
+     * Methods to transition to different states.
+     */
+    void toDemo();
+    void toPlaying();
+
+    /**
      * Methods through which the debug drawer can set and exectue drawing.
      */
     void setDebugDrawer(DebugDrawer& debugDrawer);
@@ -73,6 +79,10 @@ private:
     void updatePlayableBird(const float& timeDelta);
 
     bool _initialized;
+
+    // different possible states
+    enum STATE {DEMO, PLAYING, GAME_OVER};
+    STATE _state;
 
     // physical world
     std::shared_ptr<b2World> _world;

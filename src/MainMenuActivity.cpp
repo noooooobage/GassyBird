@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "MainMenuActivity.hpp"
+#include "PlayingActivity.hpp"
 #include "Globals.hpp"
 #include "Events/WindowCloseEvent.hpp"
 
@@ -23,7 +24,10 @@ MainMenuActivity::MainMenuActivity() :
     _buttons.push_back(&_exitButton);
 }
 
-void MainMenuActivity::init() {
+void MainMenuActivity::init(PlayingActivity& playingActivity) {
+
+    // set playing activity
+    _playingActivity = &playingActivity;
 
     // set attributes common to all buttons
     for (Button* button : _buttons) {
@@ -81,10 +85,11 @@ void MainMenuActivity::buttonClickCallback(const Button* button) {
     assert(_activated);
     
     if (button == &_playButton) {
-        // do nothing for now
+        // transition the playing activity to playing
+        _playingActivity->toPlaying();
 
     } else if (button == &_exitButton) {
         // queue a WindowCloseEvent
-        // eventMessenger.queueEvent(WindowCloseEvent());
+        eventMessenger.queueEvent(WindowCloseEvent());
     }
 }

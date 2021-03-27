@@ -35,11 +35,14 @@ void GameLogic::init() {
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
 
-    // reset bird variables, and create bird body and add to world
+    // create bird body and add to world
     _timeSinceLastPoop = 0.0f;
     _playableBirdActor.stopFlying();
     _playableBirdActor.stopPooping();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
+
+    // set state to demo
+    toDemo();
 }
 
 void GameLogic::update(const float& timeDelta) {
@@ -51,6 +54,38 @@ void GameLogic::update(const float& timeDelta) {
 
     // increment physics
     _world->Step(timeDelta, 8, 3);
+}
+
+void GameLogic::toDemo() {
+
+    assert(_initialized);
+
+    // set bird to demo state
+    _playableBirdActor.stopPooping();
+    _playableBirdActor.stopFlying();
+
+    // turn off gravity for the bird
+    _playableBirdBody->SetGravityScale(0.0f);
+
+    // set state
+    _state = DEMO;
+}
+
+void GameLogic::toPlaying() {
+
+    assert(_initialized);
+
+    // set bird to initial playing state
+    _timeSinceLastPoop = 0.0f;
+    _playableBirdActor.stopPooping();
+    _playableBirdActor.stopFlying();
+
+    // turn on gravity and wake the bird
+    _playableBirdBody->SetGravityScale(1.0f);
+    _playableBirdBody->SetAwake(true);
+
+    // set state
+    _state = PLAYING;
 }
 
 void GameLogic::setDebugDrawer(DebugDrawer& debugDrawer) {
@@ -84,22 +119,26 @@ void GameLogic::requestBirdStartFly() {
 
     assert(_initialized);
 
-    _playableBirdActor.startFlying();
+    // only allow if state is PLAYING
+    if (_state == PLAYING)
+        _playableBirdActor.startFlying();
 }
 
 void GameLogic::requestBirdStopFly() {
 
     assert(_initialized);
     
-    _playableBirdActor.stopFlying();
+    // only allow if state is PLAYINS
+    if (_state == PLAYING)
+        _playableBirdActor.stopFlying();
 }
 
 void GameLogic::requestBirdPoop() {
 
     assert(_initialized);
     
-    // only poop if the bird is not currently pooping
-    if (!_playableBirdActor.isPooping()) {
+    // only poop if the state is PLAYING and the bird is not currently pooping
+    if (_state == PLAYING && !_playableBirdActor.isPooping()) {
         _playableBirdActor.startPooping();
         _timeSinceLastPoop = 0.0f;
     }

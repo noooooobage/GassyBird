@@ -39,7 +39,11 @@ void HumanView::init(GameLogic* logic) {
     // set the bird's sprite
     _logic->getPlayableBird().setSprite(
             *resourceCache.getResource<SpriteResource>("BIRD_SPRITE"));
+        
+    // set the beach background sprite
+    _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;
 
+    // initialize and add event listeners
     _keyPressListener.init(&HumanView::keyPressHandler, this);
     _keyReleaseListener.init(&HumanView::keyReleaseHandler, this);
 
@@ -54,6 +58,9 @@ void HumanView::update(const float& timeDelta) {
 void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     assert(_initialized);
+
+    // draw beach background
+    target.draw(_beachBackground);
 
     // Set a transform to draw the actor in the correct position and rotation graphically. This
     // assumes that the actor is at graphical position (0, 0).

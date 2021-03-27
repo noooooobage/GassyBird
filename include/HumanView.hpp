@@ -55,7 +55,9 @@ private:
     EventListener _keyReleaseListener;
 
     sf::Keyboard::Key _keyToFly; // key which causes the bird to fly
-    sf::Keyboard::Key _keyToPoop; // key chich causes the bird to poop
+    sf::Keyboard::Key _keyToPoop; // key which causes the bird to poop
+
+    sf::Sprite _beachBackground; // beach background sprite
 };
 
 #endif // _HUMAN_VIEW_HPP_

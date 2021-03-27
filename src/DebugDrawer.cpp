@@ -30,7 +30,7 @@ void DebugDrawer::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b
         polygon.setPoint(i, physicalToGraphicalCoord(vertices[i]));
     
     polygon.setFillColor(sf::Color::Transparent);
-    polygon.setOutlineColor(b2ToSfColor(color));
+    polygon.setOutlineColor(sf::Color::Red);
     polygon.setOutlineThickness(_OUTLINE_THICKNESS);
 
     _renderTarget->draw(polygon);
@@ -57,7 +57,7 @@ void DebugDrawer::DrawCircle(const b2Vec2& center, float radius, const b2Color& 
     circle.setPosition(physicalToGraphicalCoord(center));
 
     circle.setFillColor(sf::Color::Transparent);
-    circle.setOutlineColor(b2ToSfColor(color));
+    circle.setOutlineColor(sf::Color::Red);
     circle.setOutlineThickness(_OUTLINE_THICKNESS);
 
     _renderTarget->draw(circle);
@@ -85,7 +85,7 @@ void DebugDrawer::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color&
     line.setPoint(3, line.getPoint(2));
 
     line.setFillColor(sf::Color::Transparent);
-    line.setOutlineColor(b2ToSfColor(color));
+    line.setOutlineColor(sf::Color::Blue);
     line.setOutlineThickness(_OUTLINE_THICKNESS);
 
     _renderTarget->draw(line);
@@ -100,7 +100,7 @@ void DebugDrawer::DrawTransform(const b2Transform& xf) {
 
     float lineLength = 1.0f; // meters
     b2Vec2 p2 = xf.p + lineLength * b2Vec2(xf.q.c, xf.q.s);
-    DrawSegment(xf.p, p2, b2Color(1.0f, 0.0f, 0.0f, 1.0f));
+    DrawSegment(xf.p, p2, b2Color());
 }
 
 void DebugDrawer::DrawPoint(const b2Vec2& p, float size, const b2Color& color) {
@@ -111,7 +111,7 @@ void DebugDrawer::DrawPoint(const b2Vec2& p, float size, const b2Color& color) {
     sf::CircleShape point(size);
     point.setPosition(physicalToGraphicalCoord(p));
 
-    point.setFillColor(b2ToSfColor(color));
+    point.setFillColor(sf::Color::Blue);
 
     _renderTarget->draw(point);
 }

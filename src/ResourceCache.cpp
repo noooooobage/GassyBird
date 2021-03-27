@@ -67,7 +67,7 @@ void ResourceCache::init() {
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {
-            {0, 0, 1200, 1000}
+            {0, 0, 1200, 600}
         }
     );
 
