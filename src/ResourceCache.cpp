@@ -29,29 +29,49 @@ void ResourceCache::init() {
 
     _initialized = true;
 
-    // load test texture
+    // load bird texture
     loadTextureResource(
-        "TEST_TEXTURE",
-        "../data/test_texture.png"
+        "BIRD_TEXTURE",
+        "../data/bird_texture.png"
+    );
+
+    loadTextureResource(
+        "BEACH_BACKGROUND_TEXTURE",
+        "../data/beach-background-large.gif"
     );
 
     // load test bird sprite
     loadSpriteResource(
-        "TEST_BIRD_SPRITE",
-        *getResource<TextureResource>("TEST_TEXTURE"),
+        "BIRD_SPRITE",
+        *getResource<TextureResource>("BIRD_TEXTURE"),
         {
-            {0,  0, 7, 7},
-            {7,  0, 7, 7},
-            {14, 0, 7, 7},
-            {21, 0, 7, 7},
-            {0,  7, 7, 7},
-            {7,  7, 7, 7},
-            {14, 7, 7, 7},
-            {21, 7, 7, 7}
+            { 0,  0, 16, 16}, //  0 standing -- tall
+            {16,  0, 16, 16}, //  1     medium height
+            {32,  0, 16, 16}, //  2     low
+            {48,  0, 16, 16}, //  3     very low
+            {64,  0, 16, 16}, //  4 pecking
+            { 0, 16, 16, 16}, //  5 flying mouth closed -- wings down
+            {16, 16, 16, 16}, //  6     wings down-middle
+            {32, 16, 16, 16}, //  7     wings middle
+            {48, 16, 16, 16}, //  8     wings up-middle
+            {64, 16, 16, 16}, //  9     wings up
+            { 0, 32, 16, 16}, // 10 flying mouth open -- wings down
+            {16, 32, 16, 16}, // 11     wings down-middle
+            {32, 32, 16, 16}, // 12     wings middle
+            {48, 32, 16, 16}, // 13     wings up-middle
+            {64, 32, 16, 16}  // 14     wings up
         }
     );
 
-    loadFontResource("TEST_FONT", "../data/ARCADECLASSIC.ttf");
+    loadSpriteResource(
+        "BEACH_BACKGROUND_SPRITE",
+        *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
+        {
+            {0, 0, 1200, 600}
+        }
+    );
+
+    loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {

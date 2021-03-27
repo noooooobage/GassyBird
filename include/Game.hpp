@@ -7,6 +7,7 @@
 
 #include "Activity.hpp"
 #include "PlayingActivity.hpp"
+
 #include "Globals.hpp"
 #include "EventListener.hpp"
 #include "Event.hpp"
@@ -61,13 +62,13 @@ private:
      * @param event should be a WindowCloseEvent
      */
     void windowCloseHandler(const Event& event);
-
+    
     bool _initialized;
 
     // event listeners
     EventListener _windowResizeListener;
     EventListener _windowCloseListener;
-
+    
     // the render window onto which to draw
     std::shared_ptr<sf::RenderWindow> _window;
 

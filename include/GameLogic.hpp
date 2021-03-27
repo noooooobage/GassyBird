@@ -9,6 +9,7 @@
 #include "PlayableBird.hpp"
 #include "NPC.hpp"
 #include "PhysicalActor.hpp"
+#include "DebugDrawer.hpp"
 
 
 /**
@@ -31,6 +32,18 @@ public:
     void update(const float& timeDelta);
 
     /**
+     * Methods to transition to different states.
+     */
+    void toDemo();
+    void toPlaying();
+
+    /**
+     * Methods through which the debug drawer can set and exectue drawing.
+     */
+    void setDebugDrawer(DebugDrawer& debugDrawer);
+    void debugDraw();
+
+    /**
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
@@ -46,6 +59,11 @@ public:
     void requestBirdStartFly();
     void requestBirdStopFly();
 
+    /**
+     * Called by the HumanView to cause the bird to poop.
+     */
+    void requestBirdPoop();
+
 private:
 
     /**
@@ -56,28 +74,38 @@ private:
      */
     b2Body* addToWorld(const PhysicalActor& physical,
             const b2Vec2& position = {0.0f, 0.0f});
+    
+    /**
+     * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
+     * the bird's own update() method.
+     */
+    void updatePlayableBird(const float& timeDelta);
 
     //Spawn an NPC into the world
     b2Body* spawnNPC();
 
     bool _initialized;
 
+    // different possible states
+    enum STATE {DEMO, PLAYING, GAME_OVER};
+    STATE _state;
+
     // physical world
     std::shared_ptr<b2World> _world;
+    const b2Vec2 _GRAVITY;
+    float _world_scroll_speed; // effectively the bird's horizontal speed (meters per second)
 
     // playable bird stuff
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
-    const float _BIRD_FLIGHT_FORCE; // upward force to apply to the bird's body when bird is flying
+    const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
+    float _timeSinceLastPoop; // time elapsed since last poop
 
     //NPC Stuff
     std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles 
 
     // maps actor addresses to physical bodies
     std::unordered_map<void*, b2Body*> _actorToBody;
-
-    const b2Vec2 _GRAVITY;
-
 };
 
 #endif // _GAME_LOGIC_HPP_
