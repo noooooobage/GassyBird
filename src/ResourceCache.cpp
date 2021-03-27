@@ -35,7 +35,12 @@ void ResourceCache::init() {
         "../data/bird_texture.png"
     );
 
-    // load bird sprite
+    loadTextureResource(
+        "BEACH_BACKGROUND_TEXTURE",
+        "../data/beach-background-large.gif"
+    );
+
+    // load test bird sprite
     loadSpriteResource(
         "BIRD_SPRITE",
         *getResource<TextureResource>("BIRD_TEXTURE"),
@@ -55,6 +60,14 @@ void ResourceCache::init() {
             {32, 32, 16, 16}, // 12     wings middle
             {48, 32, 16, 16}, // 13     wings up-middle
             {64, 32, 16, 16}  // 14     wings up
+        }
+    );
+
+    loadSpriteResource(
+        "BEACH_BACKGROUND_SPRITE",
+        *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
+        {
+            {0, 0, 1200, 1000}
         }
     );
 
