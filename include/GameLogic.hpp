@@ -99,7 +99,9 @@ private:
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
     const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
+    const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     float _timeSinceLastPoop; // time elapsed since last poop
+    int _numPoopsLeft; // number of poops the bird has left
 
     //NPC Stuff
     std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles 

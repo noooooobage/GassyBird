@@ -16,7 +16,8 @@ GameLogic::GameLogic() :
     _GRAVITY(0.0f, -25.0f),
     _world_scroll_speed(15.0f),
 
-    _BIRD_POOP_DURATION(1.0f)
+    _BIRD_POOP_DURATION(1.0f),
+    _BIRD_MAX_POOPS(2)
 {}
 
 GameLogic::~GameLogic() {
@@ -77,6 +78,7 @@ void GameLogic::toPlaying() {
 
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
+    _numPoopsLeft = _BIRD_MAX_POOPS;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
 
@@ -137,10 +139,17 @@ void GameLogic::requestBirdPoop() {
 
     assert(_initialized);
     
-    // only poop if the state is PLAYING and the bird is not currently pooping
-    if (_state == PLAYING && !_playableBirdActor.isPooping()) {
+    // only poop if all of the following:
+    //     - the state is PLAYING
+    //     - the bird has at least one poop left
+    //     - the bird is not currently pooping
+    if (_state == PLAYING && _numPoopsLeft > 0 && !_playableBirdActor.isPooping()) {
+
         _playableBirdActor.startPooping();
+        --_numPoopsLeft;
         _timeSinceLastPoop = 0.0f;
+
+        std::cout << "pooping, num left: " << _numPoopsLeft << std::endl;
     }
 }
 
