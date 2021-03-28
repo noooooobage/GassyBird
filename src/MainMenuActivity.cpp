@@ -6,6 +6,7 @@
 #include "PlayingActivity.hpp"
 #include "Globals.hpp"
 #include "Events/WindowCloseEvent.hpp"
+#include "Events/ButtonClickEvent.hpp"
 
 MainMenuActivity::MainMenuActivity() :
     _initialized(false),
@@ -24,7 +25,15 @@ MainMenuActivity::MainMenuActivity() :
     _buttons.push_back(&_exitButton);
 }
 
+MainMenuActivity::~MainMenuActivity() {
+    // deactivate when the object is destroyed
+    deactivate();
+}
+
 void MainMenuActivity::init(PlayingActivity& playingActivity) {
+
+    // initialize event listeners
+    _buttonClickListener.init(&MainMenuActivity::buttonClickHandler, this);
 
     // set playing activity
     _playingActivity = &playingActivity;
@@ -36,9 +45,7 @@ void MainMenuActivity::init(PlayingActivity& playingActivity) {
     }
 
     // initialize the button manager
-    _buttonClickCallback = std::bind(&MainMenuActivity::buttonClickCallback, this,
-            std::placeholders::_1);
-    _buttonManager.init(_buttonClickCallback, true);
+    _buttonManager.init(true);
 
     // add buttons                          above         right         below         left
     _buttonManager.addButton(&_playButton, {&_exitButton, &_exitButton, &_exitButton, &_exitButton});
@@ -52,15 +59,18 @@ void MainMenuActivity::activate() {
     assert(_initialized);
 
     _activated = true;
+    
     _buttonManager.activate();
+    eventMessenger.addListener(ButtonClickEvent::TYPE, _buttonClickListener);
 }
 
 void MainMenuActivity::deactivate() {
 
     assert(_initialized);
-    assert(_activated);
 
     _buttonManager.deactivate();
+    eventMessenger.removeListener(ButtonClickEvent::TYPE, _buttonClickListener);
+
     _activated = false;
 }
 
@@ -79,16 +89,20 @@ void MainMenuActivity::draw(sf::RenderTarget& target) {
         target.draw(*button);
 }
 
-void MainMenuActivity::buttonClickCallback(const Button* button) {
+void MainMenuActivity::buttonClickHandler(const Event& event) {
 
     assert(_initialized);
     assert(_activated);
+
+    assert(event.getType() == ButtonClickEvent::TYPE);
+
+    const ButtonClickEvent& e = dynamic_cast<const ButtonClickEvent&>(event);
     
-    if (button == &_playButton) {
+    if (e.button == &_playButton) {
         // transition the playing activity to playing
         _playingActivity->toPlaying();
 
-    } else if (button == &_exitButton) {
+    } else if (e.button == &_exitButton) {
         // queue a WindowCloseEvent
         eventMessenger.queueEvent(WindowCloseEvent());
     }

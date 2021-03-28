@@ -12,6 +12,7 @@
 #include "Events/MouseReleaseEvent.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/ButtonClickEvent.hpp"
 
 ButtonManager::ButtonManager() :
 
@@ -52,10 +53,8 @@ ButtonManager::~ButtonManager() {
     deactivate();
 }
 
-void ButtonManager::init(const ButtonClickCallback& buttonClickCallback,
-        const bool& canUseKeyboard) {
+void ButtonManager::init(const bool& canUseKeyboard) {
 
-    _buttonClickCallback = buttonClickCallback;
     _canUseKeyboard = canUseKeyboard;
 
     _initialized = true;
@@ -187,12 +186,12 @@ void ButtonManager::mouseReleaseHandler(const Event& event) {
 
     const MouseReleaseEvent& e = dynamic_cast<const MouseReleaseEvent&>(event);
 
-    // if the mouse is inside the currently hovered button and that button is clicked, then call the
-    // callback with that button
+    // if the mouse is inside the currently hovered button and that button is clicked, then trigger
+    // a ButtonClickEvent
     if (_buttonHovered && getButtonContaining(e.graphical) == _buttonHovered && _buttonIsClicked) {
         _buttonHovered->toHovered();
         _buttonIsClicked = false;
-        _buttonClickCallback(_buttonHovered);
+        eventMessenger.triggerEvent(ButtonClickEvent(*_buttonHovered));
     }
 }
 
@@ -245,10 +244,10 @@ void ButtonManager::keyReleaseHandler(const Event& event) {
     // determine control type
     CONTROL_KEY_TYPE controlType = itr->second;
 
-    // if it was SELECT and the hovered button is clicked, then call the callback
+    // if it was SELECT and the hovered button is clicked, then trigger ButtonClickEvent
     if (_buttonHovered && controlType == CONTROL_KEY_TYPE::SELECT && _buttonIsClicked) {
         _buttonHovered->toHovered();
         _buttonIsClicked = false;
-        _buttonClickCallback(_buttonHovered);
+        eventMessenger.triggerEvent(ButtonClickEvent(*_buttonHovered));
     }
 }

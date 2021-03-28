@@ -13,8 +13,6 @@
 #include "EventListener.hpp"
 #include "Event.hpp"
 
-typedef std::function<void (const Button*)> ButtonClickCallback;
-
 enum class CONTROL_KEY_TYPE {UP, RIGHT, DOWN, LEFT, SELECT};
 
 /**
@@ -55,9 +53,13 @@ private:
 /**
  * Manages any number of buttons by determining which one is hovered over, clicked on, etc. The
  * mouse can always interact with the buttons, and optionally the keyboard can as well. When a
- * button is "clicked", a callback function is called instead of triggering an event.
+ * button is "clicked", a ButtonClickEvent is triggered.
  * 
- * When setting up the ButtonManager, all the buttons must be added before activation.
+ * When setting up the ButtonManager, all the buttons must be added before activation. So the
+ * workflow is like this:
+ *   1. init()
+ *   2. addButton()...
+ *   3. activate()
  */
 class ButtonManager {
 
@@ -70,13 +72,12 @@ public:
     /**
      * Initializes the ButtonManager.
      * 
-     * @param buttonClickedCallback Function to call when a button is clicked
      * @param canUseKeyboard  Whether or not keyboard keys can be used to navigate and select
      *     buttons. If this is true, then there will always be one button that is hovered over. If
      *     this is false, then a button will only be hovered over if the mouse cursor is on top of
      *     it. Defaults to false.
      */
-    void init(const ButtonClickCallback& buttonClickCallback, const bool& canUseKeyboard = false);
+    void init(const bool& canUseKeyboard = false);
 
     /**
      * Activates the button manager such that the buttons can now be interacted with.
@@ -121,9 +122,6 @@ private:
     EventListener _mouseReleaseListener;
     EventListener _keyPressListener;
     EventListener _keyReleaseListener;
-
-    // called when a button is clicked, with the mouse or keyboard
-    ButtonClickCallback _buttonClickCallback;
 
     // maps a button to its adjacent buttons, ordered so that we know the first button added
     std::map<Button*, ButtonAdjacencies> _buttons;

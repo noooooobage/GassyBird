@@ -9,6 +9,8 @@
 #include "Activity.hpp"
 #include "Button.hpp"
 #include "ButtonManager.hpp"
+#include "Event.hpp"
+#include "EventListener.hpp"
 
 /**
  * Subactivity of PlayingActivity. Displays and controls the main menu user interface.
@@ -18,6 +20,8 @@ class MainMenuActivity : public Activity {
 public:
 
     MainMenuActivity();
+
+    ~MainMenuActivity();
 
     /**
      * Initializes with the PlayingActivity of which this activity is a part.
@@ -42,12 +46,15 @@ public:
 private:
 
     /**
-     * To be called by the button manager when one of the buttons is clicked.
+     * Handles a ButtonClickEvent.
      */
-    void buttonClickCallback(const Button* button);
+    void buttonClickHandler(const Event& event);
 
     bool _initialized;
     bool _activated;
+
+    // event listeners
+    EventListener _buttonClickListener;
 
     // super activity
     class PlayingActivity* _playingActivity;
@@ -57,8 +64,7 @@ private:
     Button _exitButton;
     std::list<Button*> _buttons;
 
-    // button manager stuff
-    ButtonClickCallback _buttonClickCallback;
+    // button manager
     ButtonManager _buttonManager;
 };
 
