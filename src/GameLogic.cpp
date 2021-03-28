@@ -36,10 +36,8 @@ void GameLogic::init() {
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
 
-    // create bird body and add to world
-    _timeSinceLastPoop = 0.0f;
-    _playableBirdActor.stopFlying();
-    _playableBirdActor.stopPooping();
+    // initialize playable bird and add it to the physics world
+    _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
 
     // set state to demo

@@ -17,14 +17,14 @@ public:
 
     PlayableBird();
 
+    /**
+     * Sets the sprite, the texture rectangles, and the physical compenents.
+     */
+    void init();
+
     void update(const float& timeDelta) override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-    /**
-     * Sets the sprite of the bird from a SpriteResource.
-     */
-    void setSprite(const SpriteResource& spriteResource);
 
     /**
      * Methods which are called by the game logic to cause various behavior in the bird. These
@@ -41,12 +41,15 @@ public:
 
 private:
 
-    // if the sprite has been set or not, make sure this is set before updating or drawing
-    bool _spriteSet;
+    bool _initialized;
 
     // sprite to be used and its texture rectangles
     sf::Sprite _sprite;
     std::vector<sf::IntRect> _textureRects;
+
+    // width in pixels and meters
+    float _widthPixels;
+    float _widthMeters;
 
     // stuff specifying animation
     const int _FLYING_CLOSED_START_FRAME;  // flying with mouth closed
@@ -60,9 +63,6 @@ private:
     // whether the bird is flying or not / pooping or not.
     bool _isFlying;
     bool _isPooping;
-
-    const float _WIDTH_METERS; // ideal width in meters
-    const float _WIDTH_PIXELS; // width in pixels after scaling
 };
 
 #endif // _PLAYABLE_BIRD_HPP_

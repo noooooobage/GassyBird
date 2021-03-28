@@ -62,6 +62,13 @@ inline sf::Color b2ToSfColor(const b2Color& color) {
 }
 
 /**
+ * Scales the given polygon such that it fits around the given sprite. For this to work correctly,
+ * the polygon's vertices must be in normalized coordinates, i.e. (0, 0) is the center of the
+ * sprite, (0.5, 0.5) is the top-right corner, and (-0.5, -0.5) is the bottom-left corner.
+ */
+void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite);
+
+/**
  * Centers the given text on the given point.
  */
 void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point);

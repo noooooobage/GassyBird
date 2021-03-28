@@ -6,10 +6,13 @@
 
 #include "PlayableBird.hpp"
 #include "Globals.hpp"
+#include "Utils.hpp"
+#include "Resources/SpriteResource.hpp"
+#include "Resources/PolygonResource.hpp"
 
 PlayableBird::PlayableBird() :
 
-    _spriteSet(false),
+    _initialized(false),
 
     _FLYING_CLOSED_START_FRAME(5),
     _FLYING_OPEN_START_FRAME(10),
@@ -20,31 +23,53 @@ PlayableBird::PlayableBird() :
     _frameTimer(0.0f),
 
     _isFlying(false),
-    _isPooping(false),
+    _isPooping(false)
+{}
 
-    _WIDTH_METERS(1.25f),
-    _WIDTH_PIXELS(_WIDTH_METERS * PIXELS_PER_METER)
-{
+void PlayableBird::init() {
+
+    // get the sprite, texture rectangles, and width from the correct resource
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("BIRD_SPRITE");
+    _sprite = spriteResource.sprite;
+    _textureRects = spriteResource.textureRects;
+    _widthPixels = spriteResource.widthPixels;
+    _widthMeters = METERS_PER_PIXEL * _widthPixels;
+
+    // set origin to geometric center (based on texture rect width in pixels)
+    float originalPixelWidth = _textureRects.at(0).width;
+    _sprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
+
+    // put at graphical position (0, 0) so transformations work as intended
+    _sprite.setPosition(0.0f, 0.0f);
+
+    // determine scale based on ideal pixel width and the pixel size of the first texture rectangle
+    float scaleFactor = _widthPixels / originalPixelWidth;
+    _sprite.scale(scaleFactor, scaleFactor);
+
     // body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     setBodyDef(bodyDef);
 
-    // shape definition
-    b2PolygonShape box;
-    box.SetAsBox(_WIDTH_METERS / 2.0f, _WIDTH_METERS / 2.0f);
-    addShape(box);
+    // shape definition -- just get the bird hitbox stored in the resource cache and scale it to fit
+    // correctly around the sprite
+    b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("BIRD_HITBOX")->polygon;
+    scalePolygonToSprite(hitbox, _sprite);
+    addShape(hitbox);
 
     // fixture definition
     b2FixtureDef fixtureDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
     addFixtureDef(fixtureDef);
+
+    _initialized = true;
 }
 
 void PlayableBird::update(const float& timeDelta) {
 
-    assert(_spriteSet);
+    assert(_initialized);
 
     // If the bird is flying, advance the frame change timer and increment the current frame if it
     // exceeds _FLYING_FRAME_DURATION
@@ -67,31 +92,10 @@ void PlayableBird::update(const float& timeDelta) {
 
 void PlayableBird::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
-    assert(_spriteSet);
+    assert(_initialized);
     
     // draw sprite
     target.draw(_sprite, states);
-}
-
-void PlayableBird::setSprite(const SpriteResource& spriteResource) {
-
-    // get the sprite resource and make sure that it has at least one texture rectangle
-    _sprite = spriteResource.sprite;
-    _textureRects = spriteResource.textureRects;
-    assert(spriteResource.textureRects.size() > 0);
-
-    // set origin to geometric center (based on texture rect width in pixels)
-    float originalPixelWidth = _textureRects.at(0).width;
-    _sprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
-
-    // put at graphical position (0, 0) so transformations work as intended
-    _sprite.setPosition(0.0f, 0.0f);
-
-    // determine scale based on width and the pixel size of the first texture rectangle
-    float scaleFactor = _WIDTH_PIXELS / originalPixelWidth;
-    _sprite.scale(scaleFactor, scaleFactor);
-
-    _spriteSet = true;
 }
 
 void PlayableBird::startFlying() {

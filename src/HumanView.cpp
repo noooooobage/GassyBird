@@ -35,10 +35,6 @@ void HumanView::init(GameLogic* logic) {
     _initialized = true;
 
     _logic = logic;
-
-    // set the bird's sprite
-    _logic->getPlayableBird().setSprite(
-            *resourceCache.getResource<SpriteResource>("BIRD_SPRITE"));
         
     // set the beach background sprite
     _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;

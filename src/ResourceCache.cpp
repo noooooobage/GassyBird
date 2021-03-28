@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <SFML/Graphics.hpp>
+#include <box2d/box2d.h>
 
 #include "Globals.hpp"
 #include "ResourceCache.hpp"
@@ -14,6 +15,7 @@
 #include "Resources/TextureResource.hpp"
 #include "Resources/SpriteResource.hpp"
 #include "Resources/FontResource.hpp"
+#include "Resources/PolygonResource.hpp"
 
 ResourceCache::ResourceCache() :
     _initialized(false)
@@ -29,7 +31,9 @@ void ResourceCache::init() {
 
     _initialized = true;
 
-    // load bird texture
+    
+    // TEXTURES ////////////////////////////////////////////
+    
     loadTextureResource(
         "BIRD_TEXTURE",
         "../data/bird_texture.png"
@@ -40,7 +44,8 @@ void ResourceCache::init() {
         "../data/beach-background-large.gif"
     );
 
-    // load test bird sprite
+    // SPRITES /////////////////////////////////////////////
+
     loadSpriteResource(
         "BIRD_SPRITE",
         *getResource<TextureResource>("BIRD_TEXTURE"),
@@ -60,18 +65,35 @@ void ResourceCache::init() {
             {32, 32, 16, 16}, // 12     wings middle
             {48, 32, 16, 16}, // 13     wings up-middle
             {64, 32, 16, 16}  // 14     wings up
-        }
+        },
+        75.0f // width in pixels
     );
 
     loadSpriteResource(
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
-        {
-            {0, 0, 1200, 600}
-        }
+        {{0, 0, 1200, 600}},
+        1200.0f
     );
 
+    // FONTS ///////////////////////////////////////////////
+
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
+
+    // POLYGONS ////////////////////////////////////////////
+
+    loadPolygonResource(
+        "BIRD_HITBOX",
+        {
+            { 7.5f / 16,  0.5f / 16},
+            { 4.5f / 16,  3.5f / 16},
+            { 1.5f / 16,  3.5f / 16},
+            {-7.5f / 16, -0.5f / 16},
+            {-7.5f / 16, -1.5f / 16},
+            {-4.5f / 16, -3.5f / 16},
+            { 1.5f / 16, -3.5f / 16}
+        }
+    );
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {
@@ -86,7 +108,8 @@ void ResourceCache::loadTextureResource(const std::string& id, const std::string
 }
 
 void ResourceCache::loadSpriteResource(const std::string& id,
-        const TextureResource& textureResource, const std::vector<sf::IntRect>& textureRects) {
+        const TextureResource& textureResource, const std::vector<sf::IntRect>& textureRects,
+        const float& widthPixels) {
 
     // create underlying sprite
     sf::Sprite sprite;
@@ -99,7 +122,7 @@ void ResourceCache::loadSpriteResource(const std::string& id,
 
     // make sure a resource with the id does not already exist, then make the resource
     assert(_resources.find(id) == _resources.end());
-    _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects);
+    _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects, widthPixels);
 }
 
 void ResourceCache::loadFontResource(const std::string& id, const std::string& filename) {
@@ -109,4 +132,20 @@ void ResourceCache::loadFontResource(const std::string& id, const std::string& f
 
     assert(_resources.find(id) == _resources.end());
     _resources[id] = std::make_shared<FontResource>(font);
+}
+
+void ResourceCache::loadPolygonResource(const std::string& id,
+        const std::vector<b2Vec2>& vertices) {
+
+    // make sure there are at least 3 vertices, then make the polygon shape
+    assert(vertices.size() >= 3);
+    b2PolygonShape polygon;
+    polygon.Set(vertices.data(), vertices.size());
+
+    // make sure that the polygon is convex
+    assert(polygon.Validate());
+
+    // make sure a resource with the id doesn't already exist, then make the resource
+    assert(_resources.find(id) == _resources.end());
+    _resources[id] = std::make_shared<PolygonResource>(polygon);
 }

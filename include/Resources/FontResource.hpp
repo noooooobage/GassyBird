@@ -14,13 +14,13 @@ class FontResource : public Resource {
 
 public:
 
-    FontResource(const sf::Font ft) : font(ft) {}
+    FontResource(const sf::Font& ft) : font(ft) {}
 
     const ResourceType& getType() const override { return TYPE; }
 
     static const ResourceType TYPE;
     
-    sf::Font font;
+    const sf::Font font;
 };
 
 #endif // _FONT_RESOURCE_HPP

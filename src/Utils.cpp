@@ -4,6 +4,21 @@
 #include "Utils.hpp"
 #include "Globals.hpp"
 
+void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
+
+    // determine the scale factor
+    b2Vec2 scaleFactor(
+        sprite.getTextureRect().width * sprite.getScale().x * METERS_PER_PIXEL,
+        sprite.getTextureRect().height * sprite.getScale().y * METERS_PER_PIXEL
+    );
+
+    // scale all the vertices in the polygon
+    for (int i = 0; i < polygon.m_count; ++i) {
+        polygon.m_vertices[i].x *= scaleFactor.x;
+        polygon.m_vertices[i].y *= scaleFactor.y;
+    }
+}
+
 void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point) {
 
     sf::FloatRect bounds = text.getLocalBounds();
