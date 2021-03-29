@@ -24,7 +24,27 @@ NPC::NPC() :
     isHit(false)
 
     //This section defines the default body of an NPC using box2d
-{
+{}
+
+void NPC::init() {
+
+     // get the sprite and texture rectangles
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("BIRD_SPRITE");
+    _NPCsprite = spriteResource.sprite;
+    _textureRects = spriteResource.textureRects;
+
+    // set origin to geometric center (based on texture rect width in pixels)
+    float originalPixelWidth = _textureRects.at(0).width;
+    _NPCsprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
+
+    // put at graphical position (0, 0) so transformations work as intended
+    _NPCsprite.setPosition(0.0f, 0.0f);
+
+    // scale the sprite based on the resource's scaleFactor
+    _NPCsprite.scale(spriteResource.scaleFactor, spriteResource.scaleFactor);
+
+
     // body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
@@ -58,53 +78,28 @@ NPC::NPC() :
     _top = fixtureDef;
     _bottom = fixtureDef1;
 
+    _initialized = true;
+
 }
-
-
 //Call an update of the NPC
 void NPC::update(const float& timeDelta) {
 
-    assert(_spriteSet);
+    assert(_initialized);
 
     // Advance the frame change timer and increment the current frame if it exceeds
     // _FRAME_CHANGE_TIME_DELTA
     _frameChangeTimer += timeDelta;
     if (_frameChangeTimer >= _FRAME_CHANGE_TIME_DELTA) {
-        _spriteCurrentFrame = (_spriteCurrentFrame + 1) % _textureRect.size();
-        _NPCsprite.setTextureRect(_textureRect.at(_spriteCurrentFrame));
+        _spriteCurrentFrame = (_spriteCurrentFrame + 1) % _textureRects.size();
+        _NPCsprite.setTextureRect(_textureRects.at(_spriteCurrentFrame));
         _frameChangeTimer = 0.0f;
     }
 }
 
 void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
-    assert(_spriteSet);
+    assert(_initialized);
     
     // draw sprite
     target.draw(_NPCsprite, states);
-}
-
-void NPC::setSprite(const SpriteResource& spriteResource) {
-
-    // get the sprite resource and make sure that it has at least one texture rectangle
-    _NPCsprite = spriteResource.sprite;
-    _textureRect = spriteResource.textureRects;
-    assert(spriteResource.textureRects.size() > 0);
-
-    // set the current frame to the first texture rectangle
-    _spriteCurrentFrame = 0;
-    _NPCsprite.setTextureRect(_textureRect.at(_spriteCurrentFrame));
-
-    // set origin to geometric center (based on texture rect!)
-    float originalPixelWidth = _textureRect.at(0).width;
-    _NPCsprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
-
-    // put at position (0, 0)
-    _NPCsprite.setPosition(0.0f, 0.0f);
-
-    // determine scale based on width and the pixel size of the first texture rectangle
-    float scaleFactor = _WIDTH_PIXELS / originalPixelWidth;
-    _NPCsprite.scale(scaleFactor, scaleFactor);
-
-    _spriteSet = true;
 }

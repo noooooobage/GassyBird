@@ -18,17 +18,13 @@ class NPC : public PhysicalActor {
         //Constructor
         NPC();
 
+        void init();
         //Override update method
         void update(const float& timeDelta) override;
 
         //Override draw method
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-
-        /**
-        * Sets the sprite of the bird from a SpriteResource.
-        */
-        void setSprite(const SpriteResource& spriteResource);
 
         //The is hit boolean follows
         bool isHit;
@@ -38,12 +34,12 @@ class NPC : public PhysicalActor {
     private:
 
         //Variables 
-
+        bool _initialized;
         bool _spriteSet;                    //Track if the sprite has been set before drawing
         bool _inScope;
 
         sf::Sprite _NPCsprite;
-        std::vector<sf::IntRect> _textureRect;
+        std::vector<sf::IntRect> _textureRects;
 
 
         // This tells the game what sprite on the sheet to draw

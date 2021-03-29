@@ -14,6 +14,10 @@
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
 
+
+
+
+
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
  * which views can use to influence actors.
@@ -55,6 +59,8 @@ public:
      * Returns all visible actors and their corresponding bodies.
      */
     const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
+
+    NPC& getNPC() {return _NPCActor; }
 
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
@@ -110,6 +116,10 @@ private:
 
     // list of all obstacles
     std::list<Obstacle> _obstacles;
+    //NPC Stuff
+    std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles
+    NPC _NPCActor;
+    b2Body* _NPCBody;
 
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;

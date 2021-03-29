@@ -29,6 +29,7 @@ GameLogic::~GameLogic() {
 
     // nullify pointers
     _playableBirdBody = nullptr;
+    _NPCBody = nullptr;
 }
 
 void GameLogic::init() {
@@ -41,6 +42,8 @@ void GameLogic::init() {
     // initialize playable bird and add it to the physics world
     _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
+    _NPCActor.init();
+    _NPCBody = addToWorld(_NPCActor, b2Vec2(10.f, 8.0f));
 
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
@@ -196,16 +199,39 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
 }
 
 //TODO: Discuss and implement the routine and procedures for spawning the NPC
-//b2Body* GameLogic::spawnNPC(){
+b2Body* GameLogic::spawnNPC(){
+
+    //safety check
+    assert(_initialized);
+
     //Create a new NPC
-    
+    NPC mob;
     //Get the physical properties
+    b2BodyDef bodyDef = mob.getBodyDef();
+    std::vector<std::shared_ptr<b2Shape>> shapes = mob.getShapes();
+    std::vector<b2FixtureDef> fixtureDefs = mob.getFixtureDefs();
     //Assert that shapes and fixtures are equal in size
-    //assign shapes to fixture
+    assert(shapes.size() == fixtureDefs.size());
+
     //add the actor and body to the map
+    bodyDef.position = b2Vec2(10.0f, 6.0f);
+    b2Body* body = _world->CreateBody(&bodyDef);
+
+    //assign shapes to fixture
+    for (int i = 0; i < fixtureDefs.size(); ++i) {
+        fixtureDefs[i].shape = shapes[i].get();
+        body->CreateFixture(&fixtureDefs[i]);
+    }
+   
+    
 
     //Add it to a list of NPCs being stored
-//}
+
+    // add the actor and body to the body map
+    _physicalActors[(PhysicalActor*)&mob] = body;
+
+    return body;
+}
 
 void GameLogic::updatePlayableBird(const float& timeDelta) {
 
