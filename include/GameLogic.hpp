@@ -6,11 +6,13 @@
 #include <list>
 
 #include <box2d/box2d.h>
+
+#include "Actor.hpp"
 #include "PlayableBird.hpp"
 #include "NPC.hpp"
 #include "PhysicalActor.hpp"
 #include "DebugDrawer.hpp"
-
+#include "Obstacle.hpp"
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -47,9 +49,12 @@ public:
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
-    const b2Body* getBody(const PhysicalActor& actor);
+    const b2Body* getBody(const PhysicalActor& actor) const;
 
-    PlayableBird& getPlayableBird() { return _playableBirdActor; }
+    /**
+     * Returns all visible actors and their corresponding bodies.
+     */
+    const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
 
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
@@ -103,11 +108,11 @@ private:
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
 
-    //NPC Stuff
-    std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles 
+    // list of all obstacles
+    std::list<Obstacle> _obstacles;
 
-    // maps actor addresses to physical bodies
-    std::unordered_map<void*, b2Body*> _actorToBody;
+    // stores all physical actors, maps them to their physical bodies
+    std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
 };
 
 #endif // _GAME_LOGIC_HPP_

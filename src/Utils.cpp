@@ -4,19 +4,29 @@
 #include "Utils.hpp"
 #include "Globals.hpp"
 
+void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation) {
+    for (int i = 0; i < polygon.m_count; ++i) {
+        polygon.m_vertices[i] += translation;
+    }
+}
+
+void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale) {
+    for (int i = 0; i < polygon.m_count; ++i) {
+        polygon.m_vertices[i].x *= scale.x;
+        polygon.m_vertices[i].y *= scale.y;
+    }
+}
+
 void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
 
     // determine the scale factor
-    b2Vec2 scaleFactor(
+    b2Vec2 scale(
         sprite.getTextureRect().width * sprite.getScale().x * METERS_PER_PIXEL,
         sprite.getTextureRect().height * sprite.getScale().y * METERS_PER_PIXEL
     );
 
-    // scale all the vertices in the polygon
-    for (int i = 0; i < polygon.m_count; ++i) {
-        polygon.m_vertices[i].x *= scaleFactor.x;
-        polygon.m_vertices[i].y *= scaleFactor.y;
-    }
+    // scale all the polygon
+    scalePolygon(polygon, scale);
 }
 
 void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point) {

@@ -44,6 +44,11 @@ void ResourceCache::init() {
         "../data/beach-background-large.gif"
     );
 
+    loadTextureResource(
+        "STREETLIGHT_TEXTURE",
+        "../data/streetlight_texture.png"
+    );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -66,14 +71,32 @@ void ResourceCache::init() {
             {48, 32, 16, 16}, // 13     wings up-middle
             {64, 32, 16, 16}  // 14     wings up
         },
-        75.0f // width in pixels
+        60.0f / 16 // scale so that the final width is 60 pixels
     );
 
     loadSpriteResource(
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {{0, 0, 1200, 600}},
-        1200.0f
+        1.0f
+    );
+
+    loadSpriteResource(
+        "TEST_GROUND_SPRITE",
+        *getResource<TextureResource>("BIRD_TEXTURE"),
+        {{12, 5, 2, 2}},
+        10.0f
+    );
+
+    loadSpriteResource(
+        "STREETLIGHT_SPRITE",
+        *getResource<TextureResource>("STREETLIGHT_TEXTURE"),
+        {
+            {0, 18, 26, 7}, // base
+            {9, 10,  8, 7}, // shaft
+            {9,  0, 40, 9}  // tip ;)
+        },
+        3.5f
     );
 
     // FONTS ///////////////////////////////////////////////
@@ -81,6 +104,17 @@ void ResourceCache::init() {
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
 
     // POLYGONS ////////////////////////////////////////////
+
+    // this hitbox will always encompass the full texture recangle in a rectangle shape
+    loadPolygonResource(
+        "FULL_HITBOX",
+        {
+            { 0.5f,  0.5f},
+            {-0.5f,  0.5f},
+            {-0.5f, -0.5f},
+            { 0.5f, -0.5f}
+        }
+    );
 
     loadPolygonResource(
         "BIRD_HITBOX",
@@ -92,6 +126,46 @@ void ResourceCache::init() {
             {-7.5f / 16, -1.5f / 16},
             {-4.5f / 16, -3.5f / 16},
             { 1.5f / 16, -3.5f / 16}
+        }
+    );
+
+    loadPolygonResource(
+        "STREETLIGHT_BASE_HITBOX",
+        {
+            {  4.5f / 26,  3.0f / 7},
+            {- 4.5f / 26,  3.0f / 7},
+            {-12.5f / 26, -3.0f / 7},
+            { 12.5f / 26, -3.0f / 7}
+        }
+    );
+    loadPolygonResource(
+        "STREETLIGHT_TOP_HITBOX_1",
+        {
+            {-12.5f / 40,  4.0f / 9},
+            {-17.5f / 40,  4.0f / 9},
+            {-19.5f / 40,  2.0f / 9},
+            {-19.5f / 40, -4.0f / 9},
+            {-12.5f / 40, -4.0f / 9}
+        }
+    );
+    loadPolygonResource(
+        "STREETLIGHT_TOP_HITBOX_2",
+        {
+            { 17.5f / 40,  0.0f / 9},
+            {  5.5f / 40,  4.0f / 9},
+            {-12.5f / 40,  4.0f / 9},
+            {-12.5f / 40, -1.0f / 9},
+            {  3.5f / 40, -1.0f / 9}
+        }
+    );
+    loadPolygonResource(
+        "STREETLIGHT_TOP_HITBOX_3",
+        {
+            {17.5f / 40,  0.0f / 9},
+            { 3.5f / 40, -1.0f / 9},
+            { 3.5f / 40, -4.0f / 9},
+            {19.5f / 40, -4.0f / 9},
+            {19.5f / 40, -2.0f / 9}
         }
     );
 }
@@ -109,7 +183,7 @@ void ResourceCache::loadTextureResource(const std::string& id, const std::string
 
 void ResourceCache::loadSpriteResource(const std::string& id,
         const TextureResource& textureResource, const std::vector<sf::IntRect>& textureRects,
-        const float& widthPixels) {
+        const float& scaleFactor) {
 
     // create underlying sprite
     sf::Sprite sprite;
@@ -122,7 +196,7 @@ void ResourceCache::loadSpriteResource(const std::string& id,
 
     // make sure a resource with the id does not already exist, then make the resource
     assert(_resources.find(id) == _resources.end());
-    _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects, widthPixels);
+    _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects, scaleFactor);
 }
 
 void ResourceCache::loadFontResource(const std::string& id, const std::string& filename) {

@@ -28,13 +28,11 @@ PlayableBird::PlayableBird() :
 
 void PlayableBird::init() {
 
-    // get the sprite, texture rectangles, and width from the correct resource
+    // get the sprite and texture rectangles
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("BIRD_SPRITE");
     _sprite = spriteResource.sprite;
     _textureRects = spriteResource.textureRects;
-    _widthPixels = spriteResource.widthPixels;
-    _widthMeters = METERS_PER_PIXEL * _widthPixels;
 
     // set origin to geometric center (based on texture rect width in pixels)
     float originalPixelWidth = _textureRects.at(0).width;
@@ -43,9 +41,8 @@ void PlayableBird::init() {
     // put at graphical position (0, 0) so transformations work as intended
     _sprite.setPosition(0.0f, 0.0f);
 
-    // determine scale based on ideal pixel width and the pixel size of the first texture rectangle
-    float scaleFactor = _widthPixels / originalPixelWidth;
-    _sprite.scale(scaleFactor, scaleFactor);
+    // scale the sprite based on the resource's scaleFactor
+    _sprite.scale(spriteResource.scaleFactor, spriteResource.scaleFactor);
 
     // body definition
     b2BodyDef bodyDef;

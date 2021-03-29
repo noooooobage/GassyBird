@@ -47,10 +47,6 @@ private:
     sf::Sprite _sprite;
     std::vector<sf::IntRect> _textureRects;
 
-    // width in pixels and meters
-    float _widthPixels;
-    float _widthMeters;
-
     // stuff specifying animation
     const int _FLYING_CLOSED_START_FRAME;  // flying with mouth closed
     const int _FLYING_OPEN_START_FRAME;    // flying with mouth open

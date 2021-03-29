@@ -50,6 +50,13 @@ inline sf::Vector2f physicalToGraphicalCoord(const b2Vec2& point) {
 }
 
 /**
+ * Converts an sf::Vector2f to a b2Vec2.
+ */
+inline b2Vec2 sfTob2Vector(const sf::Vector2f& vector) {
+    return b2Vec2(vector.x, vector.y);
+}
+
+/**
  * Converts a b2Color to an sf::Color.
  */
 inline sf::Color b2ToSfColor(const b2Color& color) {
@@ -60,6 +67,16 @@ inline sf::Color b2ToSfColor(const b2Color& color) {
         clamp((int)(color.a * 255), 0, 255)
     );
 }
+
+/**
+ * Translate the given polygon by the specified amount.
+ */
+void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation);
+
+/**
+ * Scales the given polygon by the given scale.
+ */
+void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale);
 
 /**
  * Scales the given polygon such that it fits around the given sprite. For this to work correctly,

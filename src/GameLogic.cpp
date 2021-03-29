@@ -8,6 +8,8 @@
 
 #include "GameLogic.hpp"
 #include "DebugDrawer.hpp"
+#include "Obstacle.hpp"
+#include "ObstacleFactory.hpp"
 
 GameLogic::GameLogic() :
 
@@ -39,6 +41,13 @@ void GameLogic::init() {
     // initialize playable bird and add it to the physics world
     _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
+
+    // add two streetlights of different heights
+    // TODO: remove these later, they is only temporary
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+    addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
+    addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
 
     // set state to demo
     toDemo();
@@ -102,17 +111,21 @@ void GameLogic::debugDraw() {
     _world->DebugDraw();
 }
 
-const b2Body* GameLogic::getBody(const PhysicalActor& actor) {
+const b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
 
     assert(_initialized);
 
     // return nullptr if actor does not have a physical body
-    void* actorAddress = (void*)&actor;
-    if (_actorToBody.find(actorAddress) == _actorToBody.end())
+    PhysicalActor* actorAddress = (PhysicalActor*)&actor;
+    if (_physicalActors.find(actorAddress) == _physicalActors.end())
         return nullptr;
     
     // return cprresponding body pointer
-    return _actorToBody.at(actorAddress);
+    return _physicalActors.at(actorAddress);
+}
+
+const std::unordered_map<PhysicalActor*, b2Body*> GameLogic::getVisibleActors() const {
+    return _physicalActors;
 }
 
 void GameLogic::requestBirdStartFly() {
@@ -156,7 +169,7 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     assert(_initialized);
 
     // make sure that the actor hasn't already been added
-    assert(_actorToBody.find((void*)&actor) == _actorToBody.end());
+    assert(_physicalActors.find((PhysicalActor*)&actor) == _physicalActors.end());
 
     // get items from physical properties
     b2BodyDef bodyDef = actor.getBodyDef();
@@ -177,7 +190,7 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     }
 
     // add the actor and body to the body map
-    _actorToBody[(void*)&actor] = body;
+    _physicalActors[(PhysicalActor*)&actor] = body;
 
     return body;
 }

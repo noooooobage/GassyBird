@@ -80,10 +80,10 @@ private:
      * @param id id
      * @param textureResource the texture resource containing the sprite's texture
      * @param textureRects "frames" of the sprite's animation, must have at least 1 entry
-     * @param widthPixels width in pixels as the sprite should appear on screen
+     * @param scaleFactor amount by which the sprite is scaled as it should appear on screen
      */
     void loadSpriteResource(const std::string& id, const TextureResource& textureResource,
-            const std::vector<sf::IntRect>& textureRects, const float& widthPixels);
+            const std::vector<sf::IntRect>& textureRects, const float& scaleFactor);
 
     /**
      * Loads and stores a FontResource with the given id. The font is loaded from the given

@@ -11,6 +11,8 @@
 #include "Resources/SpriteResource.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "ObstacleFactory.hpp"
+#include "PhysicalActor.hpp"
 
 HumanView::HumanView() :
 
@@ -58,14 +60,21 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     // draw beach background
     target.draw(_beachBackground);
 
-    // Set a transform to draw the actor in the correct position and rotation graphically. This
-    // assumes that the actor is at graphical position (0, 0).
-    const b2Body* birdBody = _logic->getBody(_logic->getPlayableBird());
-    assert(birdBody != nullptr);
-    states.transform *= physicalToGraphicalTransform(*birdBody);
+    // draw all visible actors given by the logic
+    for (auto& pair : _logic->getVisibleActors()) {
 
-    // draw actor
-    target.draw(_logic->getPlayableBird(), states);
+        const PhysicalActor* actor = pair.first;
+        const b2Body* body = pair.second;
+
+        assert(actor);
+        assert(body);
+
+        // Set a transform to draw the actor in the correct position and rotation graphically. This
+        // assumes that the actor is at graphical position (0, 0).
+        sf::RenderStates statesCopy = states;
+        statesCopy.transform *= physicalToGraphicalTransform(*body);
+        target.draw(*actor, statesCopy);
+    }
 }
 
 void HumanView::keyPressHandler(const Event& event) {

@@ -11,8 +11,7 @@
 /**
  * Stores an SFML Sprite along with a vector of texture rectangles denoting the different "frames"
  * that the sprite can have. If the sprite is not animated, then the length of this vector is 1. If
- * the sprite is animated, then the length is > 1. Also stores the width of the sprite in pixels as
- * it should appear on screen.
+ * the sprite is animated, then the length is > 1. Also stores the sacle factor of the sprite.
  */
 class SpriteResource : public Resource {
 
@@ -21,11 +20,11 @@ public:
     SpriteResource(
         const sf::Sprite& sprite, 
         const std::vector<sf::IntRect>& textureRects,
-        const float& widthPixels
+        const float& scaleFactor
     ) :
         sprite(sprite),
         textureRects(textureRects),
-        widthPixels(widthPixels)
+        scaleFactor(scaleFactor)
     {}
 
     const ResourceType& getType() const override { return TYPE; }
@@ -34,7 +33,7 @@ public:
     
     const sf::Sprite sprite;
     const std::vector<sf::IntRect> textureRects;
-    const float widthPixels; // how many pixels wide the sprite should appear on screen
+    const float scaleFactor; // how many pixels wide the sprite should appear on screen
 };
 
 #endif // _SPRITE_RESOURCE_HPP
