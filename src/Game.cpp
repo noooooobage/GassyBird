@@ -13,6 +13,9 @@
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/MouseMoveEvent.hpp"
+#include "Events/MousePressEvent.hpp"
+#include "Events/MouseReleaseEvent.hpp"
 
 Game::Game() :
     _initialized(false),
@@ -62,7 +65,7 @@ void Game::init() {
     resourceCache.init();
 
     // init playing activity
-    _playingActivity.init();
+    _playingActivity.init(*_window.get());
 
     // set current activity to playing activity
     _currentActivity = &_playingActivity;
@@ -76,10 +79,10 @@ bool Game::update() {
     assert(_initialized);
 
     // poll events
-    sf::Event sfmlEvent;
-    while (_window->pollEvent(sfmlEvent)) {
+    sf::Event event;
+    while (_window->pollEvent(event)) {
         
-        switch (sfmlEvent.type) {
+        switch (event.type) {
 
         // queue a WindowCloseEvent if the window was requested to be closed
         case sf::Event::Closed:
@@ -89,16 +92,39 @@ bool Game::update() {
         // Trigger a WindowResizeEvent if the window was resized; this event is triggered instead of
         // queued because activities might want to know about it to reduce choppiness.
         case sf::Event::Resized:
-            eventMessenger.triggerEvent(WindowResizeEvent(sfmlEvent));
+            eventMessenger.triggerEvent(WindowResizeEvent(event));
             break;
 
         case sf::Event::KeyPressed:
-            //we trigger the event to anyone who is listening
-            eventMessenger.triggerEvent(KeyPressEvent(sfmlEvent.key.code));
+            eventMessenger.triggerEvent(KeyPressEvent(event.key.code));
             break;
         
         case sf::Event::KeyReleased:
-            eventMessenger.triggerEvent(KeyReleaseEvent(sfmlEvent.key.code));
+            eventMessenger.triggerEvent(KeyReleaseEvent(event.key.code));
+            break;
+        
+        case sf::Event::MouseMoved:
+            { // need a block here because we declare a variable
+                sf::Vector2i pixelCoord(event.mouseMove.x, event.mouseMove.y);
+                eventMessenger.triggerEvent(MouseMoveEvent(pixelCoord,
+                        _window->mapPixelToCoords(pixelCoord)));
+            }
+            break;
+        
+        case sf::Event::MouseButtonPressed:
+            {
+                sf::Vector2i pixelCoord(event.mouseButton.x, event.mouseButton.y);
+                eventMessenger.triggerEvent(MousePressEvent(event.mouseButton.button,
+                        pixelCoord, _window->mapPixelToCoords(pixelCoord)));
+            }
+            break;
+
+        case sf::Event::MouseButtonReleased:
+            {
+                sf::Vector2i pixelCoord(event.mouseButton.x, event.mouseButton.y);
+                eventMessenger.triggerEvent(MouseReleaseEvent(event.mouseButton.button,
+                        pixelCoord, _window->mapPixelToCoords(pixelCoord)));
+            }
             break;
         }
     }
@@ -119,7 +145,7 @@ void Game::draw() const {
 
     // clear the window, let the current activity draw onto the window, then display the window
     _window->clear();
-    _window->draw(*_currentActivity);
+    _currentActivity->draw(*_window.get());
     _window->display();
 }
 

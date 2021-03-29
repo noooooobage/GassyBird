@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
+#include <box2d/box2d.h>
 
 #include "Resource.hpp"
 #include "Resources/TextureResource.hpp"
@@ -50,7 +51,7 @@ public:
      * when compiling in DEBUG mode, but it is not checked in RELEASE mode.
      */
     template <typename T>
-    T* const getResource(const std::string& id) const {
+    const T* getResource(const std::string& id) const {
 
         assert(_initialized);
 
@@ -73,15 +74,29 @@ private:
      * an image.
      */
     void loadTextureResource(const std::string& id, const std::string& filename);
-
+    
     /**
-     * Loads and stores a SpriteResource with the given id. The underlying sprite is created from
-     * the given textureResource. "Frames" of the sprite's animation are given by textureRects,
-     * which must have at least one entry.
+     * Loads and stores a SpriteResource with the given id.
+     * @param id id
+     * @param textureResource the texture resource containing the sprite's texture
+     * @param textureRects "frames" of the sprite's animation, must have at least 1 entry
+     * @param scaleFactor amount by which the sprite is scaled as it should appear on screen
      */
     void loadSpriteResource(const std::string& id, const TextureResource& textureResource,
-            const std::vector<sf::IntRect>& textureRects);
+            const std::vector<sf::IntRect>& textureRects, const float& scaleFactor);
 
+    /**
+     * Loads and stores a FontResource with the given id. The font is loaded from the given
+     * filename.
+     */
+    void loadFontResource(const std::string& id, const std::string& filename);
+
+    /**
+     * Loads and stores a PolygonResource with the given id. The polygon is created with the given
+     * vertices.
+     */
+    void loadPolygonResource(const std::string& id, const std::vector<b2Vec2>& vertices);
+    
     bool _initialized;
 
     // resources are stored in this maps

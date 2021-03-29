@@ -21,8 +21,8 @@ public:
 
     static const EventType TYPE;
     
-    int width;  // width of the window after resize in pixels
-    int height; // height of the window after resize in pixels
+    const int width;  // width of the window after resize in pixels
+    const int height; // height of the window after resize in pixels
 };
 
 #endif // _WINDOW_RESIZE_EVENT_
