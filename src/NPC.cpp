@@ -50,6 +50,7 @@ void NPC::init() {
     bodyDef.type = b2_dynamicBody;
     bodyDef.linearVelocity.Set(0.0f, 0.0f);
     bodyDef.angularVelocity = 0.0f;
+    bodyDef.gravityScale = 0.0f;
     setBodyDef(bodyDef);
 
     // shape definition
@@ -70,7 +71,7 @@ void NPC::init() {
 
     // fixture definition
     b2FixtureDef fixtureDef1;
-    fixtureDef1.density = 1.0f;
+    fixtureDef1.density = 0.0f;
     fixtureDef1.friction = 0.5f;
     addFixtureDef(fixtureDef1);
 
