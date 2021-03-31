@@ -44,6 +44,11 @@ void ResourceCache::init() {
         "../data/beach-background-large.gif"
     );
 
+    loadTextureResource(
+        "NPC_TEXTURE",
+        "../data/tempNPCtexture.png"
+    );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -74,6 +79,16 @@ void ResourceCache::init() {
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {{0, 0, 1200, 600}},
         1200.0f
+    );
+
+    loadSpriteResource(
+        "NPC_SPRITE",
+        *getResource<TextureResource>("NPC_TEXTURE"),
+        {
+            {0,0, 80, 144} // 0 idle still
+        
+        },
+        80.0f
     );
 
     // FONTS ///////////////////////////////////////////////
