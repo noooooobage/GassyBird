@@ -93,7 +93,7 @@ private:
     void updatePlayableBird(const float& timeDelta);
 
     //Spawn an NPC into the world
-    b2Body* spawnNPC();
+    void createMap();
 
     bool _initialized;
 

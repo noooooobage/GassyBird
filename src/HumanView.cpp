@@ -76,9 +76,7 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         target.draw(*actor, statesCopy);
     }
 
-    const b2Body* npcBody = _logic->getBody(_logic->getNPC());
-    assert(npcBody != nullptr);
-    states.transform *= physicalToGraphicalTransform(*npcBody);
+    
 
 }
 
