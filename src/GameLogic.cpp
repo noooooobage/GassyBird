@@ -41,13 +41,14 @@ void GameLogic::init() {
     // initialize playable bird and add it to the physics world
     _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
-
+    _obstacles.push_back(ObstacleFactory::makeGround());
+    addToWorld(_obstacles.back(), b2Vec2(0.0f, 0.0f));
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
     _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
-    addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
+    addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
+    addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
 
     // set state to demo
     toDemo();

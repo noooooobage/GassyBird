@@ -96,7 +96,7 @@ private:
      * vertices.
      */
     void loadPolygonResource(const std::string& id, const std::vector<b2Vec2>& vertices);
-    
+
     bool _initialized;
 
     // resources are stored in this maps

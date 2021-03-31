@@ -1,11 +1,13 @@
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
 #include "ObstacleFactory.hpp"
 #include "Obstacle.hpp"
+#include "Ground.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
+#include "Resources/TextureResource.hpp"
 
 Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool& faceLeft) {
 
@@ -70,3 +72,41 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     return streetlight;
 }
+
+Obstacle ObstacleFactory::makeGround() {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
+    Obstacle ground(*spriteResource.sprite.getTexture(), sf::Vector2f(spriteResource.scaleFactor, 1.0f));
+    const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
+    float width = spriteResource.textureRects.at(0).width;
+    float height = spriteResource.textureRects.at(0).height;
+    std::cout << width << std::endl;
+    b2FixtureDef fixtureDef;
+    sf::Vector2f baseOrigin(0.0f, baseRect.height);
+    std::cout << baseOrigin.x << " " << baseOrigin.y << std::endl;
+    ground.addComponent(
+        baseRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -baseOrigin
+    );
+    sf::Vector2f repeatOrigin(-baseRect.width, baseRect.height);
+    ground.addComponent(
+        baseRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -repeatOrigin
+    );
+    repeatOrigin.x -= baseRect.width;
+    ground.addComponent(
+        baseRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -repeatOrigin
+    );
+    b2BodyDef bodyDef;
+
+    ground.setBodyDef(bodyDef);
+    return ground;
+}
+
