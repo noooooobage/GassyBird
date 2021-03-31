@@ -6,11 +6,14 @@
 
 #include "NPC.hpp"
 #include "Globals.hpp"
+#include "Utils.hpp"
+#include "Resources/SpriteResource.hpp"
+#include "Resources/PolygonResource.hpp"
 
 NPC::NPC() :
 
     //Default settings for an entity
-    _spriteSet(false),
+    _initialized(false),
 
     //Frame rate settings
     _frameChangeTimer(0.0f),
@@ -30,7 +33,7 @@ void NPC::init() {
 
      // get the sprite and texture rectangles
     const SpriteResource& spriteResource =
-            *resourceCache.getResource<SpriteResource>("BIRD_SPRITE");
+            *resourceCache.getResource<SpriteResource>("NPC_SPRITE");
     _NPCsprite = spriteResource.sprite;
     _textureRects = spriteResource.textureRects;
 
@@ -48,15 +51,15 @@ void NPC::init() {
     // body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.linearVelocity.Set(0.0f, 0.0f);
+    bodyDef.linearVelocity.Set(-2.0f, 0.0f);
     bodyDef.angularVelocity = 0.0f;
     bodyDef.gravityScale = 0.0f;
     setBodyDef(bodyDef);
 
     // shape definition
-    b2PolygonShape head;
-    head.SetAsBox(_WIDTH_METERS / 2.0f, _WIDTH_METERS / 2.0f);
-    addShape(head);
+    b2PolygonShape torso;
+    torso.SetAsBox(_WIDTH_METERS / 2.0f, _HEIGHT_METERS / 2.0f);
+    addShape(torso);
 
     // fixture definition
     b2FixtureDef fixtureDef;
@@ -65,6 +68,9 @@ void NPC::init() {
     addFixtureDef(fixtureDef);
 
     // shape definition
+
+    //Comment extra fixtures out until we get the bug under control
+    
     /**
     b2PolygonShape torso;
     torso.SetAsBox(_WIDTH_METERS / 2.0f, _HEIGHT_METERS / 2.0f);
@@ -92,7 +98,7 @@ void NPC::update(const float& timeDelta) {
     // _FRAME_CHANGE_TIME_DELTA
     _frameChangeTimer += timeDelta;
     if (_frameChangeTimer >= _FRAME_CHANGE_TIME_DELTA) {
-        _spriteCurrentFrame = (_spriteCurrentFrame + 1) % _textureRects.size();
+        _spriteCurrentFrame = 0;
         _NPCsprite.setTextureRect(_textureRects.at(_spriteCurrentFrame));
         _frameChangeTimer = 0.0f;
     }
@@ -105,3 +111,4 @@ void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     // draw sprite
     target.draw(_NPCsprite, states);
 }
+

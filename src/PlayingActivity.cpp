@@ -30,6 +30,7 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     // initialize activities
     _mainMenuActivity.init(*this);
 
+
     // start with the main menu
     toMain();
 }

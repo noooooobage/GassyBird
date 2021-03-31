@@ -65,6 +65,11 @@ public:
 
     void clearWorld();
 
+    //Spawn an NPC into the world
+    void createMap();
+
+
+
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
      * bird is flying, an upward force is applied to it. When it is not flying, gravity makes the
@@ -96,9 +101,6 @@ private:
      */
     void updatePlayableBird(const float& timeDelta);
 
-    //Spawn an NPC into the world
-    void createMap();
-
     bool _initialized;
 
     // different possible states
@@ -121,7 +123,7 @@ private:
     // list of all obstacles
     std::list<Obstacle> _obstacles;
     //NPC Stuff
-    std::list<PhysicalActor> _Entities; //Create a list and store pointers to NPC objects and obstacles
+    std::list<NPC> _Entities; //Create a list and store pointers to NPC objects and obstacles
     NPC _NPCActor;
     b2Body* _NPCBody;
 

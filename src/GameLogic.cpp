@@ -49,6 +49,13 @@ void GameLogic::init() {
     _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
 
+    //_NPCActor.init();
+    //_NPCBody = addToWorld(_NPCActor, b2Vec2(13.0f, 6.0f));
+
+    createMap();
+
+    
+
     // set state to demo
     toDemo();
 }
@@ -59,8 +66,23 @@ void GameLogic::update(const float& timeDelta) {
 
     // update bird
     updatePlayableBird(timeDelta);
+    
 
     //Check if objects are in bounds
+    for (auto& pair : getVisibleActors()) {
+
+        const PhysicalActor* actor = pair.first;
+        const b2Body* body = pair.second;
+
+        assert(actor);
+        assert(body);
+
+        if (body->GetPosition().x < 0){
+            removeFromWorld(*actor);
+            std::cout << "Delete\n";
+        }
+
+    }
     //if so, leave. if not, remove
     //
 
@@ -87,7 +109,8 @@ void GameLogic::toPlaying() {
 
     assert(_initialized);
 
-    createMap();
+    //Spawn 1 NPC (limited for now)
+    //createMap();
 
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
@@ -98,7 +121,6 @@ void GameLogic::toPlaying() {
     // turn on gravity and wake the bird
     _playableBirdBody->SetGravityScale(1.0f);
     _playableBirdBody->SetAwake(true);
-
     
     // set state
     _state = PLAYING;
@@ -207,8 +229,13 @@ void GameLogic::createMap(){
 
     assert(_initialized);
     
-    _Entities.push_back(NPCFactory::makeDefault());
-    addToWorld(_Entities.back(), b2Vec2(20.f, 8.0f));
+    _NPCActor.init();
+    _Entities.push_back(_NPCActor);
+    _NPCBody = addToWorld(_Entities.back(), b2Vec2(20.f, 8.0f));
+
+    _NPCActor.init();
+    _Entities.push_back(_NPCActor);
+    _NPCBody = addToWorld(_Entities.back(), b2Vec2(10.f, 8.0f));
 
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
@@ -264,3 +291,4 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
     // return cprresponding body pointer
     return ;
 }
+

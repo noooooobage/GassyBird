@@ -66,6 +66,7 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     // add body definition
     b2BodyDef bodyDef;
+    bodyDef.linearVelocity.Set(-2.0f,0.0f);
     streetlight.setBodyDef(bodyDef);
 
     return streetlight;

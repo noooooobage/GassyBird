@@ -31,6 +31,8 @@ class NPC : public PhysicalActor {
 
         void triggerAction();
 
+        void changeVelocity();
+
     private:
 
         //Variables 
@@ -56,6 +58,8 @@ class NPC : public PhysicalActor {
 
         b2FixtureDef _top; //Fixture for the head of the body
         b2FixtureDef _bottom;  //Fixture for the torso of the body
+
+        
 };
 
 #endif

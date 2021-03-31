@@ -47,6 +47,10 @@ void ResourceCache::init() {
     loadTextureResource(
         "STREETLIGHT_TEXTURE",
         "../data/streetlight_texture.png"
+
+    );
+
+    loadTextureResource(
         "NPC_TEXTURE",
         "../data/tempNPCtexture.png"
     );
@@ -105,10 +109,10 @@ void ResourceCache::init() {
         "NPC_SPRITE",
         *getResource<TextureResource>("NPC_TEXTURE"),
         {
-            {0,0, 80, 144} // 0 idle still
+            {0,0, 80, 100} // 0 idle still
         
         },
-        80.0f
+        1.5f
     );
 
     // FONTS ///////////////////////////////////////////////
