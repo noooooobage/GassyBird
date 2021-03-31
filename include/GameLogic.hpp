@@ -10,6 +10,7 @@
 #include "Actor.hpp"
 #include "PlayableBird.hpp"
 #include "NPC.hpp"
+#include "NPCFactory.hpp"
 #include "PhysicalActor.hpp"
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
@@ -62,6 +63,8 @@ public:
 
     NPC& getNPC() {return _NPCActor; }
 
+    void clearWorld();
+
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
      * bird is flying, an upward force is applied to it. When it is not flying, gravity makes the
@@ -86,6 +89,7 @@ private:
     b2Body* addToWorld(const PhysicalActor& physical,
             const b2Vec2& position = {0.0f, 0.0f});
     
+    void removeFromWorld(const PhysicalActor& physical);
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
      * the bird's own update() method.
@@ -117,7 +121,7 @@ private:
     // list of all obstacles
     std::list<Obstacle> _obstacles;
     //NPC Stuff
-    std::list<PhysicalActor*> _Entities; //Create a list and store pointers to NPC objects and obstacles
+    std::list<PhysicalActor> _Entities; //Create a list and store pointers to NPC objects and obstacles
     NPC _NPCActor;
     b2Body* _NPCBody;
 

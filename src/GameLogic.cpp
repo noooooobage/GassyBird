@@ -10,6 +10,8 @@
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
 #include "ObstacleFactory.hpp"
+#include "NPC.hpp"
+#include "NPCFactory.hpp"
 
 GameLogic::GameLogic() :
 
@@ -36,6 +38,10 @@ void GameLogic::init() {
 
     _initialized = true;
 
+    _physicalActors.clear();
+    _obstacles.clear();
+    _Entities.clear();
+
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
 
@@ -53,6 +59,10 @@ void GameLogic::update(const float& timeDelta) {
 
     // update bird
     updatePlayableBird(timeDelta);
+
+    //Check if objects are in bounds
+    //if so, leave. if not, remove
+    //
 
     // increment physics
     _world->Step(timeDelta, 8, 3);
@@ -77,6 +87,8 @@ void GameLogic::toPlaying() {
 
     assert(_initialized);
 
+    createMap();
+
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
     _numPoopsLeft = _BIRD_MAX_POOPS;
@@ -87,7 +99,7 @@ void GameLogic::toPlaying() {
     _playableBirdBody->SetGravityScale(1.0f);
     _playableBirdBody->SetAwake(true);
 
-    GameLogic::createMap();
+    
     // set state
     _state = PLAYING;
 }
@@ -195,15 +207,15 @@ void GameLogic::createMap(){
 
     assert(_initialized);
     
-    _NPCActor.init();
-    _NPCBody = addToWorld(_NPCActor, b2Vec2(10.f, 8.0f));
+    _Entities.push_back(NPCFactory::makeDefault());
+    addToWorld(_Entities.back(), b2Vec2(20.f, 8.0f));
 
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
-    addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
+    //_obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+    //addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
+    //_obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
+    //addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
     
 }
 
@@ -229,4 +241,26 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
 
     // call bird's own update() method
     _playableBirdActor.update(timeDelta);
+}
+
+
+
+void GameLogic::removeFromWorld(const PhysicalActor& actor) {
+
+    assert(_initialized);
+
+    // return nullptr if actor does not have a physical body
+    PhysicalActor* actorAddress = (PhysicalActor*)&actor;
+    if (_physicalActors.find(actorAddress) == _physicalActors.end()){
+        return;
+    }
+    //Otherwise destory the body
+    else {
+        b2Body* body = _physicalActors.at(actorAddress);
+        _world->DestroyBody(body);
+        _physicalActors.erase(actorAddress);
+    }
+    
+    // return cprresponding body pointer
+    return ;
 }

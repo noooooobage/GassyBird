@@ -14,6 +14,8 @@
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
 
+#include "Events/WindowCloseEvent.hpp"
+
 HumanView::HumanView() :
 
     _initialized(false),
@@ -90,6 +92,8 @@ void HumanView::keyPressHandler(const Event& event) {
 
     else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
+    else if (e.key == sf::Keyboard::Key::Escape)
+        eventMessenger.queueEvent(WindowCloseEvent());
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {

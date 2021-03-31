@@ -65,6 +65,7 @@ void NPC::init() {
     addFixtureDef(fixtureDef);
 
     // shape definition
+    /**
     b2PolygonShape torso;
     torso.SetAsBox(_WIDTH_METERS / 2.0f, _HEIGHT_METERS / 2.0f);
     addShape(torso);
@@ -74,10 +75,10 @@ void NPC::init() {
     fixtureDef1.density = 0.0f;
     fixtureDef1.friction = 0.5f;
     addFixtureDef(fixtureDef1);
+    */
 
-
-    _top = fixtureDef;
-    _bottom = fixtureDef1;
+    //_top = fixtureDef;
+    //_bottom = fixtureDef1;
 
     _initialized = true;
 
