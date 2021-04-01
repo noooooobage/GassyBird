@@ -17,7 +17,7 @@
 HumanView::HumanView() :
 
     _initialized(false),
-    
+
     _keyToFly(sf::Keyboard::Key::W),
     _keyToPoop(sf::Keyboard::Key::Space)
 {}
@@ -27,7 +27,7 @@ HumanView::~HumanView() {
     // remove event listeners
     eventMessenger.removeListener(KeyPressEvent::TYPE, _keyPressListener);
     eventMessenger.removeListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
-    
+
     // nullify pointers
     _logic = nullptr;
 }
@@ -37,9 +37,11 @@ void HumanView::init(GameLogic* logic) {
     _initialized = true;
 
     _logic = logic;
-        
+
     // set the beach background sprite
     _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;
+    float scaleFactor = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->scaleFactor;
+    _beachBackground.scale(scaleFactor, scaleFactor);
 
     // initialize and add event listeners
     _keyPressListener.init(&HumanView::keyPressHandler, this);
