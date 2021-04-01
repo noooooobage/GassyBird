@@ -48,9 +48,14 @@ void GameLogic::init() {
     addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
     _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
     addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
-
+    _playerScore = 0;
     // set state to demo
     toDemo();
+}
+
+
+GameLogic::STATE GameLogic::getState() {
+    return _state;
 }
 
 void GameLogic::update(const float& timeDelta) {

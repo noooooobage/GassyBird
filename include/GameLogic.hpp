@@ -28,6 +28,7 @@ public:
 
     void init();
 
+    enum STATE {DEMO, PLAYING, GAME_OVER};
     /**
      * Advances the state of the game forward in time by the amount given by timeDelta.
      */
@@ -39,6 +40,7 @@ public:
     void toDemo();
     void toPlaying();
 
+    STATE getState();
     /**
      * Methods through which the debug drawer can set and exectue drawing.
      */
@@ -69,6 +71,9 @@ public:
      */
     void requestBirdPoop();
 
+    int _playerScore;
+
+    int getNumberOfPoopsLeft() { return _numPoopsLeft;};
 private:
 
     /**
@@ -92,7 +97,6 @@ private:
     bool _initialized;
 
     // different possible states
-    enum STATE {DEMO, PLAYING, GAME_OVER};
     STATE _state;
 
     // physical world
