@@ -31,7 +31,8 @@ class NPC : public PhysicalActor {
 
         void triggerAction();
 
-        void changeVelocity();
+        //Method returns the height in Meters for use with Box2D
+        float getHeight(){ return _HEIGHT_METERS;};
 
     private:
 

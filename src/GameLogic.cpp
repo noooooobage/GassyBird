@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <math.h>
+#include <random>
 
 #include <box2d/box2d.h>
 
@@ -79,12 +80,14 @@ void GameLogic::update(const float& timeDelta) {
 
         if (body->GetPosition().x < 0){
             removeFromWorld(*actor);
-            std::cout << "Delete\n";
+            std::cout << "Delete\n" << _physicalActors.size();
         }
 
     }
-    //if so, leave. if not, remove
-    //
+    //If we have too few actors on the field (Other conditional logic for spawning can be added later)
+    if (_physicalActors.size() < 2){
+        spawnNPE(); 
+    }
 
     // increment physics
     _world->Step(timeDelta, 8, 3);
@@ -108,9 +111,6 @@ void GameLogic::toDemo() {
 void GameLogic::toPlaying() {
 
     assert(_initialized);
-
-    //Spawn 1 NPC (limited for now)
-    //createMap();
 
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
@@ -224,26 +224,40 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     return body;
 }
 
-//TODO: Discuss and implement the routine and procedures for spawning the NPC
+//This Method Spawns the initial world state upon start. Still need to implement ground.
 void GameLogic::createMap(){
 
+    //safety
     assert(_initialized);
     
-    _NPCActor.init();
-    _Entities.push_back(_NPCActor);
-    _NPCBody = addToWorld(_Entities.back(), b2Vec2(20.f, 8.0f));
+    //Randomly spawn two entities
+    spawnNPE();
+    spawnNPE();
+}
 
-    _NPCActor.init();
-    _Entities.push_back(_NPCActor);
-    _NPCBody = addToWorld(_Entities.back(), b2Vec2(10.f, 8.0f));
+void GameLogic::spawnNPE(){
+    assert(_initialized);
 
-    // add two streetlights of different heights
-    // TODO: remove these later, they is only temporary
-    //_obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
-    //addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
-    //_obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, false));
-    //addToWorld(_obstacles.back(), b2Vec2(21.0f, 0.0f));
-    
+    int coin = rand() % 2;
+    //if NPC spawn
+    if  (coin == 0){
+        //Generate Some Position For spawn
+        float pos = 20.f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(45.f - 20.f)));
+
+        //Add NPC to a trackable list and then add to world        
+        _Entities.push_back(NPCFactory::makeDefault());
+        _NPCBody = addToWorld(_Entities.back(), b2Vec2(pos, (_Entities.back().getHeight() / 2.f)+.8f)); 
+    }
+    //If Obstacle spawn
+    else if (coin == 1){
+        //Create obstacle and add to list
+        _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+        addToWorld(_obstacles.back(), b2Vec2(13.0f, 0.0f));
+    }
+    else {
+        //Just in case I can't do math
+        std::cout << "Dummy\n";
+    }
 }
 
 void GameLogic::updatePlayableBird(const float& timeDelta) {

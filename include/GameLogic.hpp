@@ -129,6 +129,8 @@ private:
 
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
+
+    void spawnNPE();
 };
 
 #endif // _GAME_LOGIC_HPP_

@@ -7,6 +7,9 @@
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 
+/*
+This method creates the default NPC with no real constraints or abilities.
+*/
 NPC NPCFactory::makeDefault(){
     NPC _mob;
     _mob.init();

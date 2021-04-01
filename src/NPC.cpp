@@ -112,3 +112,4 @@ void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(_NPCsprite, states);
 }
 
+
