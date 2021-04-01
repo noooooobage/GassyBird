@@ -2,7 +2,6 @@
 #include <iostream>
 #include "ObstacleFactory.hpp"
 #include "Obstacle.hpp"
-#include "Ground.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
 #include "Resources/SpriteResource.hpp"
@@ -80,10 +79,8 @@ Obstacle ObstacleFactory::makeGround() {
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
     float width = spriteResource.textureRects.at(0).width;
     float height = spriteResource.textureRects.at(0).height;
-    std::cout << width << std::endl;
     b2FixtureDef fixtureDef;
     sf::Vector2f baseOrigin(0.0f, baseRect.height);
-    std::cout << baseOrigin.x << " " << baseOrigin.y << std::endl;
     ground.addComponent(
         baseRect,
         fixtureDef,
@@ -105,7 +102,6 @@ Obstacle ObstacleFactory::makeGround() {
         -repeatOrigin
     );
     b2BodyDef bodyDef;
-
     ground.setBodyDef(bodyDef);
     return ground;
 }
