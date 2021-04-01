@@ -31,9 +31,9 @@ void ResourceCache::init() {
 
     _initialized = true;
 
-
+    
     // TEXTURES ////////////////////////////////////////////
-
+    
     loadTextureResource(
         "BIRD_TEXTURE",
         "../data/bird_texture.png"
@@ -41,7 +41,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
-        "../data/beach-background.gif"
+        "../data/beach-background-large.gif"
     );
 
     loadTextureResource(
@@ -77,8 +77,8 @@ void ResourceCache::init() {
     loadSpriteResource(
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
-        {{0, 0, 200, 100}},
-        6.0f
+        {{0, 0, 1200, 600}},
+        1.0f
     );
 
     loadSpriteResource(
