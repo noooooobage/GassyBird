@@ -76,23 +76,6 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         statesCopy.transform *= physicalToGraphicalTransform(*body);
         target.draw(*actor, statesCopy);
     }
-    if(_logic->getState() == GameLogic::PLAYING) {
-        sf::Font font = resourceCache.getResource<FontResource>("ARCADE_FONT")->font;
-        sf::Text text;
-        text.setFont(font);
-        text.setFillColor(sf::Color::Black);
-        text.setString("SCORE " + std::to_string(_logic->_playerScore));
-        text.setCharacterSize(40);
-        text.setPosition(sf::Vector2f(10.0f, 0.0f));
-        target.draw(text);
-        sf::Text poopsText;
-        poopsText.setFont(font);
-        poopsText.setFillColor(sf::Color::Black);
-        poopsText.setString("POOPS LEFT " + std::to_string(_logic->getNumberOfPoopsLeft()));
-        poopsText.setCharacterSize(40);
-        poopsText.setPosition(sf::Vector2f(NATIVE_RESOLUTION.x-poopsText.getGlobalBounds().width-10, 0.0f));
-        target.draw(poopsText);
-    }
 }
 
 void HumanView::keyPressHandler(const Event& event) {

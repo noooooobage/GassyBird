@@ -52,6 +52,8 @@ private:
     MainMenuActivity _mainMenuActivity;
     PlayingMenuActivity _playingMenuActivity;
     Activity* _currentActivity;
+
+    void displayScore(sf::RenderTarget& target);
 };
 
 #endif // _PLAYING_ACTIVITY_HPP_

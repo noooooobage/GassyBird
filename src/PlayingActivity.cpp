@@ -49,6 +49,23 @@ void PlayingActivity::update(const float& timeDelta) {
     _currentActivity->update(timeDelta);
 }
 
+void PlayingActivity::displayScore(sf::RenderTarget& target) {
+    sf::Font font = resourceCache.getResource<FontResource>("ARCADE_FONT")->font;
+    sf::Text text;
+    text.setFont(font);
+    text.setFillColor(sf::Color::Black);
+    text.setString("SCORE  " + std::to_string(_logic.getPlayerScore()));
+    text.setCharacterSize(40);
+    text.setPosition(sf::Vector2f(10.0f, 0.0f));
+    target.draw(text);
+    sf::Text poopsText;
+    poopsText.setFont(font);
+    poopsText.setFillColor(sf::Color::Black);
+    poopsText.setString("POOPS   LEFT " + std::to_string(_logic.getNumberOfPoopsLeft()));
+    poopsText.setCharacterSize(40);
+    poopsText.setPosition(sf::Vector2f(NATIVE_RESOLUTION.x-poopsText.getGlobalBounds().width-10, 0.0f));
+    target.draw(poopsText);
+}
 void PlayingActivity::draw(sf::RenderTarget& target) {
 
     assert(_initialized);
@@ -61,6 +78,7 @@ void PlayingActivity::draw(sf::RenderTarget& target) {
     // if in DEBUG mode, call the logic's debug draw
     if (DEBUG)
         _logic.debugDraw();
+    displayScore(target);
 }
 
 void PlayingActivity::toMain() {
