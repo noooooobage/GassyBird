@@ -79,11 +79,12 @@ void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation);
 void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale);
 
 /**
- * Scales the given polygon such that it fits around the given sprite. For this to work correctly,
- * the polygon's vertices must be in normalized coordinates, i.e. (0, 0) is the center of the
- * sprite, (0.5, 0.5) is the top-right corner, and (-0.5, -0.5) is the bottom-left corner.
+ * Translates and scales the given polygon such that it fits around the given sprite. Takes the 
+ * sprite's origin and scale properties into account. For this to work correctly, the polygon's
+ * vertices must be in normalized coordinates, i.e. (0, 0) is the center of the sprite, (0.5, 0.5)
+ * is the top-right corner, and (-0.5, -0.5) is the bottom-left corner.
  */
-void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite);
+void fitPolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite);
 
 /**
  * Centers the given text on the given point.

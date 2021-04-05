@@ -17,16 +17,19 @@ void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale) {
     }
 }
 
-void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
+void fitPolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
 
-    // determine the scale factor
-    b2Vec2 scale(
+    // translate the polygon in normalized coordinates to the sprite's origin
+    translatePolygon(polygon, b2Vec2(
+        -(sprite.getOrigin().x / sprite.getTextureRect().width - 0.5f),
+        sprite.getOrigin().y / sprite.getTextureRect().height - 0.5f
+    ));
+
+    // scale the polygon so it fits around the sprite
+    scalePolygon(polygon, b2Vec2(
         sprite.getTextureRect().width * sprite.getScale().x * METERS_PER_PIXEL,
         sprite.getTextureRect().height * sprite.getScale().y * METERS_PER_PIXEL
-    );
-
-    // scale all the polygon
-    scalePolygon(polygon, scale);
+    ));
 }
 
 void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point) {
