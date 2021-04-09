@@ -8,16 +8,18 @@
 #include "Obstacle.hpp"
 #include "Utils.hpp"
 
-Obstacle::Obstacle(const sf::Texture& texture, const sf::Vector2f& scale) :
+Obstacle::Obstacle(const sf::Texture& texture, const sf::Vector2f& scale, const std::string& name) :
     _TEXTURE(texture),
-    _SCALE(scale)
+    _SCALE(scale),
+    _NAME(name)
 {
     _vertices.setPrimitiveType(sf::Quads);
 }
 
-Obstacle::Obstacle(const sf::Texture& texture, const float& scaleFactor) :
+Obstacle::Obstacle(const sf::Texture& texture, const float& scaleFactor, const std::string& name) :
     _TEXTURE(texture),
-    _SCALE(sf::Vector2f(scaleFactor, scaleFactor))
+    _SCALE(sf::Vector2f(scaleFactor, scaleFactor)),
+    _NAME(name)
 {
     _vertices.setPrimitiveType(sf::Quads);
 }

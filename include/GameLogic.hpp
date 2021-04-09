@@ -86,6 +86,8 @@ private:
      */
     void updatePlayableBird(const float& timeDelta);
 
+    void updateActors(const float& timeDelta);
+
     //Spawn an NPC into the world
     b2Body* spawnNPC();
 
@@ -110,7 +112,7 @@ private:
 
     // list of all obstacles
     std::list<Obstacle> _obstacles;
-
+    
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
 };

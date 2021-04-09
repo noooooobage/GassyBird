@@ -15,8 +15,10 @@ public:
      * rught (false). Facing left means that the light is on the left of the pole.
      */
     static Obstacle makeStreetlight(const float& heightMeters, const bool& faceLeft);
-
+    
     static Obstacle makeGround();
+
+    static void modifyGround(Obstacle& obs, int positionX);
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

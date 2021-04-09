@@ -45,10 +45,10 @@ void GameLogic::init() {
     addToWorld(_obstacles.back(), b2Vec2(0.0f, 0.0f));
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
+    // _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+    // addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
+    // _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
+    // addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
 
     // set state to demo
     toDemo();
@@ -60,7 +60,7 @@ void GameLogic::update(const float& timeDelta) {
 
     // update bird
     updatePlayableBird(timeDelta);
-
+    updateActors(timeDelta);
     // increment physics
     _world->Step(timeDelta, 8, 3);
 }
@@ -230,4 +230,12 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
 
     // call bird's own update() method
     _playableBirdActor.update(timeDelta);
+}
+
+void GameLogic::updateActors(const float& timeDelta) {
+    const b2Body* ground = _physicalActors[&_obstacles.back()];
+    std::cout << ground->GetPosition().x << std::endl;
+    if(ground->GetPosition().x < 0) {
+        ObstacleFactory::modifyGround(_obstacles.back(), ground->GetPosition().x);
+    }
 }

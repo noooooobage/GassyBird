@@ -88,7 +88,7 @@ void ResourceCache::init() {
     loadSpriteResource(
         "TEST_GROUND_SPRITE",
         *getResource<TextureResource>("GROUND_TEXTURE"),
-        {{0, 0, 500, 100}},
+        {{0, 0, 400, 100}},
         1.0f
     );
 

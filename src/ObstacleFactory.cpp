@@ -15,7 +15,7 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
             *resourceCache.getResource<SpriteResource>("STREETLIGHT_SPRITE");
     Obstacle streetlight(*spriteResource.sprite.getTexture(),
             sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor,
-            spriteResource.scaleFactor));
+            spriteResource.scaleFactor), "STREETLIGHT");
 
     // get texture rectangles and rename them for convenience
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
@@ -67,6 +67,8 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     // add body definition
     b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.linearVelocity.Set(-2.0f, 0.0f);
     streetlight.setBodyDef(bodyDef);
 
     return streetlight;
@@ -75,8 +77,9 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 Obstacle ObstacleFactory::makeGround() {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
-    Obstacle ground(*spriteResource.sprite.getTexture(), sf::Vector2f(spriteResource.scaleFactor, 1.0f));
+    Obstacle ground(*spriteResource.sprite.getTexture(), sf::Vector2f(spriteResource.scaleFactor, 1.0f), "GROUND");
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
+    std::cout << baseRect.width << std::endl;
     float width = spriteResource.textureRects.at(0).width;
     float height = spriteResource.textureRects.at(0).height;
     b2FixtureDef fixtureDef;
@@ -88,6 +91,7 @@ Obstacle ObstacleFactory::makeGround() {
         -baseOrigin
     );
     sf::Vector2f repeatOrigin(-baseRect.width, baseRect.height);
+    std::cout << repeatOrigin.x << std::endl;
     ground.addComponent(
         baseRect,
         fixtureDef,
@@ -95,6 +99,7 @@ Obstacle ObstacleFactory::makeGround() {
         -repeatOrigin
     );
     repeatOrigin.x -= baseRect.width;
+    std::cout << repeatOrigin.x << std::endl;
     ground.addComponent(
         baseRect,
         fixtureDef,
@@ -102,7 +107,20 @@ Obstacle ObstacleFactory::makeGround() {
         -repeatOrigin
     );
     b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.linearVelocity.Set(-2.0f, 0.0f);
     ground.setBodyDef(bodyDef);
     return ground;
 }
 
+void ObstacleFactory::modifyGround(Obstacle& obs, int positionX) {
+    const SpriteResource& spriteResource = *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
+    const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
+    b2FixtureDef fixtureDef;
+    // obs.addComponent(
+    //     baseRect,
+    //     fixtureDef,
+    //     {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+
+    // );
+}
