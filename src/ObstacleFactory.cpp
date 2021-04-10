@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
 #include "ObstacleFactory.hpp"
 #include "Obstacle.hpp"
 #include "Globals.hpp"
@@ -69,4 +69,28 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
     streetlight.setBodyDef(bodyDef);
 
     return streetlight;
+}
+
+Obstacle ObstacleFactory::makePoop() {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("TEST_POOP_SPRITE");
+    Obstacle poop(*spriteResource.sprite.getTexture(), spriteResource.scaleFactor);
+
+    const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 1.0f;
+    sf::Vector2f baseOrigin(baseRect.width, baseRect.height);
+    poop.addComponent(
+        baseRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -baseOrigin
+    );
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.linearVelocity.Set(-2.0f, 0.0f);
+    poop.setBodyDef(bodyDef);
+    return poop;
 }

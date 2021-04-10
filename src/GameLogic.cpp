@@ -159,7 +159,8 @@ void GameLogic::requestBirdPoop() {
         _playableBirdActor.startPooping();
         --_numPoopsLeft;
         _timeSinceLastPoop = 0.0f;
-
+        _obstacles.push_back(ObstacleFactory::makePoop());
+        addToWorld(_obstacles.back(), b2Vec2(_playableBirdBody->GetPosition().x-0.5, _playableBirdBody->GetPosition().y-0.5));
         std::cout << "pooping, num left: " << _numPoopsLeft << std::endl;
     }
 }

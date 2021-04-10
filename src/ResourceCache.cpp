@@ -49,6 +49,10 @@ void ResourceCache::init() {
         "../data/streetlight_texture.png"
     );
 
+    loadTextureResource(
+        "TEST_TEXTURE",
+        "../data/test_texture.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -99,6 +103,14 @@ void ResourceCache::init() {
         3.5f
     );
 
+    loadSpriteResource(
+        "TEST_POOP_SPRITE",
+        *getResource<TextureResource>("TEST_TEXTURE"),
+        {
+            {0, 0, 7, 7}
+        },
+        3.0f
+    );
     // FONTS ///////////////////////////////////////////////
 
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
