@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
@@ -11,10 +13,21 @@ void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation) {
 }
 
 void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale) {
+
+    // scale vertices
     for (int i = 0; i < polygon.m_count; ++i) {
         polygon.m_vertices[i].x *= scale.x;
         polygon.m_vertices[i].y *= scale.y;
     }
+
+    // If the scale flipped the polygon about the x xor y axis (not both), then need to reset the
+    // hull of the polygon so that its vertices remain in counter-clockwise order.
+    bool isFlipped = scale.x * scale.y < 0.0f;
+    if (isFlipped)
+        polygon.Set(polygon.m_vertices, polygon.m_count);
+
+    // sanity check -- make absolutely sure that the polygon's vertices are in CCW order
+    assert(polygon.Validate());
 }
 
 void fitPolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
