@@ -17,8 +17,6 @@ public:
     static Obstacle makeStreetlight(const float& heightMeters, const bool& faceLeft);
     
     static Obstacle makeGround();
-
-    static void modifyGround(Obstacle& obs, int positionX);
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

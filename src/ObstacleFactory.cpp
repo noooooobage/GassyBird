@@ -79,7 +79,6 @@ Obstacle ObstacleFactory::makeGround() {
             *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
     Obstacle ground(*spriteResource.sprite.getTexture(), sf::Vector2f(spriteResource.scaleFactor, 1.0f), "GROUND");
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
-    std::cout << baseRect.width << std::endl;
     float width = spriteResource.textureRects.at(0).width;
     float height = spriteResource.textureRects.at(0).height;
     b2FixtureDef fixtureDef;
@@ -99,7 +98,6 @@ Obstacle ObstacleFactory::makeGround() {
         -repeatOrigin
     );
     repeatOrigin.x -= baseRect.width;
-    std::cout << repeatOrigin.x << std::endl;
     ground.addComponent(
         baseRect,
         fixtureDef,
@@ -111,16 +109,4 @@ Obstacle ObstacleFactory::makeGround() {
     bodyDef.linearVelocity.Set(-2.0f, 0.0f);
     ground.setBodyDef(bodyDef);
     return ground;
-}
-
-void ObstacleFactory::modifyGround(Obstacle& obs, int positionX) {
-    const SpriteResource& spriteResource = *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
-    const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
-    b2FixtureDef fixtureDef;
-    // obs.addComponent(
-    //     baseRect,
-    //     fixtureDef,
-    //     {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-
-    // );
 }

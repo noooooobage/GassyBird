@@ -43,12 +43,14 @@ void GameLogic::init() {
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
     _obstacles.push_back(ObstacleFactory::makeGround());
     addToWorld(_obstacles.back(), b2Vec2(0.0f, 0.0f));
+    _obstacles.push_back(ObstacleFactory::makeGround());
+    addToWorld(_obstacles.back(), b2Vec2(24.0f, 0.0f));
     // add two streetlights of different heights
     // TODO: remove these later, they is only temporary
-    // _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
-    // addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
-    // _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
-    // addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+    addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
+    addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
 
     // set state to demo
     toDemo();
@@ -171,9 +173,9 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
 
     // make sure that the actor hasn't already been added
     assert(_physicalActors.find((PhysicalActor*)&actor) == _physicalActors.end());
-
     // get items from physical properties
     b2BodyDef bodyDef = actor.getBodyDef();
+    //break point here
     std::vector<std::shared_ptr<b2Shape>> shapes = actor.getShapes();
     std::vector<b2FixtureDef> fixtureDefs = actor.getFixtureDefs();
 
@@ -183,7 +185,6 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     // assign body position and create body
     bodyDef.position = position;
     b2Body* body = _world->CreateBody(&bodyDef);
-
     // assign shapes to fixure definitions and create fixtures
     for (int i = 0; i < fixtureDefs.size(); ++i) {
         fixtureDefs[i].shape = shapes[i].get();
@@ -192,7 +193,6 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
 
     // add the actor and body to the body map
     _physicalActors[(PhysicalActor*)&actor] = body;
-
     return body;
 }
 
@@ -233,9 +233,16 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
 }
 
 void GameLogic::updateActors(const float& timeDelta) {
-    const b2Body* ground = _physicalActors[&_obstacles.back()];
-    std::cout << ground->GetPosition().x << std::endl;
-    if(ground->GetPosition().x < 0) {
-        ObstacleFactory::modifyGround(_obstacles.back(), ground->GetPosition().x);
+    //by convention, the ground planes will always be at the beginning of the list
+    const b2Body* ground = _physicalActors[&_obstacles.front()];
+    if(ground->GetPosition().x < -24) {
+        _world->DestroyBody(_physicalActors[&_obstacles.front()]);
+        _physicalActors.erase(&_obstacles.front());
+        _obstacles.pop_front();
+        std::list<Obstacle>::iterator itr = _obstacles.begin();
+        ++itr;
+        _obstacles.insert(itr, ObstacleFactory::makeGround());
+        --itr;
+        addToWorld(*itr, b2Vec2(24.0f, 0.0f));
     }
 }
