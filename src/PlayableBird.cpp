@@ -52,7 +52,7 @@ void PlayableBird::init() {
     // shape definition -- just get the bird hitbox stored in the resource cache and scale it to fit
     // correctly around the sprite
     b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("BIRD_HITBOX")->polygon;
-    scalePolygonToSprite(hitbox, _sprite);
+    fitPolygonToSprite(hitbox, _sprite);
     addShape(hitbox);
 
     // fixture definition
