@@ -6,6 +6,15 @@
 #include "Utils.hpp"
 #include "Globals.hpp"
 
+int randomInt(int low, int high) {
+    std::uniform_int_distribution<int> dist(low, high);
+    return dist(rng);
+}
+
+float randomFloat(float low, float high) {
+    std::uniform_real_distribution<float> dist(low, high);
+    return dist(rng);
+}
 void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation) {
     for (int i = 0; i < polygon.m_count; ++i) {
         polygon.m_vertices[i] += translation;

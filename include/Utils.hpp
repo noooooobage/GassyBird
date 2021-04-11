@@ -1,6 +1,8 @@
 #ifndef _UTILS_HPP_
 #define _UTILS_HPP_
 
+#include <random>
+
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
@@ -8,8 +10,14 @@
 
 // Note: Simple math functions and conversion functions get the inline. Other functions do not.
 
+// Variables for random number functions, they are in an anonymous namespace so that they stay local
+// to this file.
+namespace {
+    std::default_random_engine rng(time(NULL));
+}
+
 /**
- * Clamps a value to the range [low, high].
+ * Returns the given value clamped to the range [low, high].
  */
 template <typename T>
 inline T clamp(const T& value, const T& low, const T& high) {
@@ -67,6 +75,16 @@ inline sf::Color b2ToSfColor(const b2Color& color) {
         clamp((int)(color.a * 255), 0, 255)
     );
 }
+
+/**
+ * Returns a random integer in the range [low, high].
+ */
+int randomInt(int low, int high);
+
+/**
+ * Returns a random float in the range [low, high).
+ */
+float randomFloat(float low, float high);
 
 /**
  * Translate the given polygon by the specified amount.
