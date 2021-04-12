@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "ObstacleFactory.hpp"
+#include "PhysicalActor.hpp"
 #include "Obstacle.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
@@ -20,9 +21,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeStreetlight(const float& heightMe
 
     // create the streetlight obstacle
     std::shared_ptr<Obstacle> streetlight(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
         *spriteResource.sprite.getTexture(),
-        sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor, spriteResource.scaleFactor),
-        "STREETLIGHT"
+        sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor, spriteResource.scaleFactor)
     ));
 
     // get texture rectangles and rename them for convenience
@@ -95,9 +96,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     
     // create the ground obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
         *spriteResource.sprite.getTexture(),
-        scale,
-        "GROUND"
+        scale
     ));
 
     // fixture definition which will be associated with all added shapes
@@ -130,9 +131,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
     
     // make the poop obstacle
     std::shared_ptr<Obstacle> poop(new Obstacle(
+        PhysicalActor::TYPE::POOP,
         *spriteResource.sprite.getTexture(),
-        spriteResource.scaleFactor,
-        "POOP"
+        spriteResource.scaleFactor
     ));
 
     // fixture definition to applied to all added shapes

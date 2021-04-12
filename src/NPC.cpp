@@ -9,6 +9,9 @@
 
 NPC::NPC() :
 
+    // call super's constructor
+    PhysicalActor(PhysicalActor::TYPE::NPC),
+
     //Default settings for an entity
     _spriteSet(false),
 

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
+#include "PhysicalActor.hpp"
 #include "PlayableBird.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
@@ -11,6 +12,8 @@
 #include "Resources/PolygonResource.hpp"
 
 PlayableBird::PlayableBird() :
+
+    PhysicalActor(PhysicalActor::TYPE::PLAYABLE_BIRD),
 
     _initialized(false),
 
