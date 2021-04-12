@@ -21,6 +21,11 @@ public:
      * Creates and returns a ground obstacle whose width is the given eidth in meters.
      */
     static std::shared_ptr<Obstacle> makeGround(const float& widthMeters);
+
+    /**
+     * Creates and returns a poop obstacle.
+     */
+    static std::shared_ptr<Obstacle> makePoop();
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

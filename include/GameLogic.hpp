@@ -66,12 +66,17 @@ public:
 private:
 
     /**
-     * Creates a b2Body from the given physical actor and adds it to the world at the specified
-     * position (defaults to 0,0). Also updates the body map.
+     * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
+     * physical actors map.
      * 
-     * Returns a pointer to the newly created body.
+     * @param physical the PhysicalActor to add to the world
+     * @param position position at which the body is placed, defaults to (0, 0)
+     * @param inheritWorldScroll whether or not to inherit the world scroll speed, defaults to true
+     * 
+     * @return a pointer to the newly created body
      */
-    b2Body* addToWorld(const PhysicalActor& physical, const b2Vec2& position = {0.0f, 0.0f});
+    b2Body* addToWorld(const PhysicalActor& physical, const b2Vec2& position = {0.0f, 0.0f},
+            bool inheritWorldScroll = true);
 
     /**
      * Given a physical actor, return the corresponding body which exists in the physical world. If

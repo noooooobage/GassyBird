@@ -18,6 +18,7 @@ GameLogic::GameLogic() :
 
     _GRAVITY(0.0f, -25.0f),
     _INITIAL_WORLD_SCROLL_SPEED(7.0f),
+    _world_scroll_speed(_INITIAL_WORLD_SCROLL_SPEED),
 
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
@@ -45,7 +46,7 @@ void GameLogic::init() {
 
     // initialize playable bird and add it to the physics world
     _playableBirdActor.init();
-    _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
+    _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f), false);
 
     // create the ground objects
     for (int i = 0; i < _NUM_GROUNDS; ++i) {
@@ -58,12 +59,8 @@ void GameLogic::init() {
     // TODO: remove these later, this is only temporary
     _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
     addToWorld(*_obstacles.back(), b2Vec2(13.0f, _GROUND_OFFSET_METERS));
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, false));
     addToWorld(*_obstacles.back(), b2Vec2(21.0f, _GROUND_OFFSET_METERS));
-
-    // set up the scrolling
-    _world_scroll_speed = 0.0f;
-    increaseScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED);
 
     // set state to demo
     toDemo();
@@ -73,11 +70,13 @@ void GameLogic::update(const float& timeDelta) {
 
     assert(_initialized);
 
+    float t = timeDelta * 1.0f;
+
     updateGround();
-    updatePlayableBird(timeDelta);
+    updatePlayableBird(t);
     
     // increment physics
-    _world->Step(timeDelta, 8, 3);
+    _world->Step(t, 8, 3);
 }
 
 void GameLogic::toDemo() {
@@ -175,32 +174,45 @@ void GameLogic::requestBirdPoop() {
     //     - the bird is not currently pooping
     if (_state == PLAYING && _numPoopsLeft > 0 && !_playableBirdActor.isPooping()) {
 
+        // set variables to reflect poop start
         _playableBirdActor.startPooping();
         --_numPoopsLeft;
         _timeSinceLastPoop = 0.0f;
+
+        // make a poop obstacle
+        _obstacles.push_back(ObstacleFactory::makePoop());
+        addToWorld(*_obstacles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
+                false);
 
         std::cout << "pooping, num left: " << _numPoopsLeft << std::endl;
     }
 }
 
-b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position) {
+b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position,
+        bool inheritWorldScroll) {
 
     assert(_initialized);
 
     // make sure that the actor hasn't already been added
-    assert(_physicalActors.find((PhysicalActor*)&actor) == _physicalActors.end());
+    PhysicalActor* actorAddress = (PhysicalActor*)&actor;
+    assert(_physicalActors.find(actorAddress) == _physicalActors.end());
+
     // get items from physical properties
     b2BodyDef bodyDef = actor.getBodyDef();
-    //break point here
     std::vector<std::shared_ptr<b2Shape>> shapes = actor.getShapes();
     std::vector<b2FixtureDef> fixtureDefs = actor.getFixtureDefs();
 
     // make sure that the number of shapes and fixtures are equal
     assert(shapes.size() == fixtureDefs.size());
 
-    // assign body position and create body
+    // assign body position and velocity
     bodyDef.position = position;
+    if (inheritWorldScroll)
+        bodyDef.linearVelocity += b2Vec2(-_world_scroll_speed, 0.0f);
+
+    // create the body
     b2Body* body = _world->CreateBody(&bodyDef);
+    
     // assign shapes to fixure definitions and create fixtures
     for (int i = 0; i < fixtureDefs.size(); ++i) {
         fixtureDefs[i].shape = shapes[i].get();
@@ -208,7 +220,7 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     }
 
     // add the actor and body to the body map
-    _physicalActors[(PhysicalActor*)&actor] = body;
+    _physicalActors[actorAddress] = body;
     return body;
 }
 

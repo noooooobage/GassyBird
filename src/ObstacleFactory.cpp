@@ -75,7 +75,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeStreetlight(const float& heightMe
         -topOrigin
     );
 
-    // add body definition
+    // set the body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
     streetlight->setBodyDef(bodyDef);
@@ -96,7 +96,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     // create the ground obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
         *spriteResource.sprite.getTexture(),
-        sf::Vector2f(scale, scale),
+        scale,
         "GROUND"
     ));
 
@@ -120,4 +120,41 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     ground->setBodyDef(bodyDef);
 
     return ground;
+}
+
+std::shared_ptr<Obstacle> ObstacleFactory::makePoop() {
+
+    // get the poop's sprite resource
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("TEST_POOP_SPRITE");
+    
+    // make the poop obstacle
+    std::shared_ptr<Obstacle> poop(new Obstacle(
+        *spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor,
+        "POOP"
+    ));
+
+    // fixture definition to applied to all added shapes
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 1.0f;
+
+    // poop only has one component, origin should be in the middle
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    sf::Vector2f baseOrigin(textureRect.width, textureRect.height);
+    poop->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -baseOrigin
+    );
+
+    // set the body definition, give it a little bit of downward velocity to start
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.linearVelocity.Set(0.0f, -2.0f);
+    poop->setBodyDef(bodyDef);
+
+    return poop;
 }

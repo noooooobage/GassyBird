@@ -32,6 +32,11 @@ void ResourceCache::init() {
     _initialized = true;
     
     // TEXTURES ////////////////////////////////////////////
+
+    loadTextureResource(
+        "TEST_TEXTURE",
+        "../data/test_texture.png"
+    );
     
     loadTextureResource(
         "BIRD_TEXTURE",
@@ -101,6 +106,13 @@ void ResourceCache::init() {
             {9,  0, 40, 9}  // tip ;)
         },
         3.5f
+    );
+
+    loadSpriteResource(
+        "TEST_POOP_SPRITE",
+        *getResource<TextureResource>("TEST_TEXTURE"),
+        {{0, 0, 1, 1}},
+        12.0f
     );
 
     // FONTS ///////////////////////////////////////////////
