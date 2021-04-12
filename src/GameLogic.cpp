@@ -17,12 +17,12 @@ GameLogic::GameLogic() :
     _initialized(false),
 
     _GRAVITY(0.0f, -25.0f),
-    _INITIAL_WORLD_SCROLL_SPEED(5.0f),
+    _INITIAL_WORLD_SCROLL_SPEED(7.0f),
 
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
 
-    _NUM_GROUNDS(1),
+    _NUM_GROUNDS(4),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
     _GROUND_OFFSET_METERS(1)
 {}
@@ -48,20 +48,22 @@ void GameLogic::init() {
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
 
     // create the ground objects
-    // for (int i = 0; i < _NUM_GROUNDS; ++i) {
-    //     _obstacles.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
-    //     addToWorld(_obstacles.back(), b2Vec2(_GROUND_WIDTH_METERS, _GROUND_OFFSET_METERS));
-    // }
+    for (int i = 0; i < _NUM_GROUNDS; ++i) {
+        _grounds.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
+        addToWorld(*_grounds.back(), b2Vec2(_GROUND_WIDTH_METERS + i * _GROUND_WIDTH_METERS,
+                _GROUND_OFFSET_METERS));
+    }
 
     // add two streetlights of different heights
     // TODO: remove these later, this is only temporary
     _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
+    addToWorld(*_obstacles.back(), b2Vec2(13.0f, _GROUND_OFFSET_METERS));
     _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
-    addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
+    addToWorld(*_obstacles.back(), b2Vec2(21.0f, _GROUND_OFFSET_METERS));
 
     // set up the scrolling
-    // increaseScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED);
+    _world_scroll_speed = 0.0f;
+    increaseScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED);
 
     // set state to demo
     toDemo();
@@ -71,7 +73,7 @@ void GameLogic::update(const float& timeDelta) {
 
     assert(_initialized);
 
-    // update bird
+    updateGround();
     updatePlayableBird(timeDelta);
     
     // increment physics
@@ -139,6 +141,9 @@ b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
 }
 
 const std::unordered_map<PhysicalActor*, b2Body*> GameLogic::getVisibleActors() const {
+
+    assert(_initialized);
+
     return _physicalActors;
 }
 
@@ -237,7 +242,7 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     
     // Set the bird's rotation based on its velocity, dampen the rotation slightly so it's not so
     // severe.
-    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _world_scroll_speed * 3.0f);
+    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _world_scroll_speed * 2.0f);
     _playableBirdBody->SetTransform(_playableBirdBody->GetPosition(), angle);
 
     // call bird's own update() method
@@ -246,10 +251,46 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
 
 void GameLogic::updateGround() {
 
-    // c
+    assert(_initialized);
+
+    while (true) {
+
+        // get the leftmost ground (the one at the front of the list is always the leftmost)
+        std::shared_ptr<Obstacle> leftGround = _grounds.front();
+        b2Body* leftGroundBody = getBody(*leftGround);
+
+        // sanity check -- make sure the body was able to be found
+        assert(leftGroundBody);
+
+        // if this ground obstacle is a little to the left of the screen, then need to:
+        //   1. move this ground to the right of the rightmost ground
+        //   2. make this ground the rightmost ground in the list
+        if (leftGroundBody->GetPosition().x <= 0.1f) {
+
+            b2Body* rightGroundBody = getBody(*_grounds.back());
+            assert(rightGroundBody);
+
+            // step 1
+            const b2Vec2& rightGroundPosition = rightGroundBody->GetPosition();
+            leftGroundBody->SetTransform(
+                b2Vec2(rightGroundPosition.x + _GROUND_WIDTH_METERS, rightGroundPosition.y),
+                rightGroundBody->GetAngle()
+            );
+
+            // step 2
+            _grounds.pop_front();
+            _grounds.push_back(leftGround);
+
+        // if this ground isn't to the left of the screen, then stop
+        } else {
+            break;
+        }
+    }
 }
 
 void GameLogic::increaseScrollSpeed(const float& amount) {
+
+    assert(_initialized);
 
     // iterate through all bodies and change their velocities
     for (auto& pair : _physicalActors) {

@@ -27,18 +27,12 @@ public:
     friend class ObstacleFactory;
 
     std::string getName() { return _NAME; };
-    
-protected:
-
-    void deleteFixtureDef(int fixtureDefPosition);
 
 private:
 
     /**
      * Creates an Obstacle from the given texture. All added components are scaled by scale.
      */
-
-
     Obstacle(const sf::Texture& texture, const sf::Vector2f& scale, const std::string& name);
 
     /**

@@ -1,5 +1,8 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <memory>
+
+#include <SFML/Graphics.hpp>
+
 #include "ObstacleFactory.hpp"
 #include "Obstacle.hpp"
 #include "Globals.hpp"
@@ -8,18 +11,19 @@
 #include "Resources/PolygonResource.hpp"
 #include "Resources/TextureResource.hpp"
 
-Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool& faceLeft) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeStreetlight(const float& heightMeters,
+        const bool& faceLeft) {
 
     // retrieve the streetlight sprite resource
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("STREETLIGHT_SPRITE");
 
     // create the streetlight obstacle
-    Obstacle streetlight(
+    std::shared_ptr<Obstacle> streetlight(new Obstacle(
         *spriteResource.sprite.getTexture(),
         sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor, spriteResource.scaleFactor),
         "STREETLIGHT"
-    );
+    ));
 
     // get texture rectangles and rename them for convenience
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
@@ -33,7 +37,7 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     // add the base
     sf::Vector2f baseOrigin(baseRect.width / 2.0f, baseRect.height);
-    streetlight.addComponent(
+    streetlight->addComponent(
         baseRect,
         fixtureDef,
         {resourceCache.getResource<PolygonResource>("STREETLIGHT_BASE_HITBOX")->polygon},
@@ -50,7 +54,7 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
     sf::Vector2f shaftOrigin(shaftRect.width / 2.0f, baseOrigin.y);
     for (int i = 0; i < numShafts; ++i) {
         shaftOrigin.y += shaftRect.height;
-        streetlight.addComponent(
+        streetlight->addComponent(
             shaftRect,
             fixtureDef,
             {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
@@ -60,7 +64,7 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     // add the top
     sf::Vector2f topOrigin(shaftOrigin.x, topRect.height + shaftOrigin.y);
-    streetlight.addComponent(
+    streetlight->addComponent(
         topRect,
         fixtureDef,
         {
@@ -73,14 +77,13 @@ Obstacle ObstacleFactory::makeStreetlight(const float& heightMeters, const bool&
 
     // add body definition
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.gravityScale = 0.0f;
-    streetlight.setBodyDef(bodyDef);
+    bodyDef.type = b2_kinematicBody;
+    streetlight->setBodyDef(bodyDef);
 
     return streetlight;
 }
 
-Obstacle ObstacleFactory::makeGround(const float& widthMeters) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) {
 
     // get the ground's sprite resource
     const SpriteResource& spriteResource =
@@ -91,21 +94,20 @@ Obstacle ObstacleFactory::makeGround(const float& widthMeters) {
     float scale = widthMeters / (textureRect.width * spriteResource.scaleFactor * METERS_PER_PIXEL);
     
     // create the ground obstacle
-    Obstacle ground(
+    std::shared_ptr<Obstacle> ground(new Obstacle(
         *spriteResource.sprite.getTexture(),
         sf::Vector2f(scale, scale),
         "GROUND"
-    );
+    ));
 
     // fixture definition which will be associated with all added shapes
     b2FixtureDef fixtureDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
 
-    // ground only has one component
-    
+    // ground only has one component; it's origin should be at the top right
     sf::Vector2f origin(textureRect.width, 0.0f);
-    ground.addComponent(
+    ground->addComponent(
         textureRect,
         fixtureDef,
         {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
@@ -114,9 +116,8 @@ Obstacle ObstacleFactory::makeGround(const float& widthMeters) {
 
     // set the body definition
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.gravityScale = 0.0f;
-    ground.setBodyDef(bodyDef);
+    bodyDef.type = b2_kinematicBody;
+    ground->setBodyDef(bodyDef);
 
     return ground;
 }

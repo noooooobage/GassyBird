@@ -14,12 +14,13 @@ public:
      * height in meters. faceLeft denotes whether the streetlight is facing left (true) or rught
      * (false). Facing left means that the light is on the left of the pole.
      */
-    static Obstacle makeStreetlight(const float& heightMeters, const bool& faceLeft);
+    static std::shared_ptr<Obstacle> makeStreetlight(const float& heightMeters,
+            const bool& faceLeft);
 
     /**
      * Creates and returns a ground obstacle whose width is the given eidth in meters.
      */
-    static Obstacle makeGround(const float& widthMeters);
+    static std::shared_ptr<Obstacle> makeGround(const float& widthMeters);
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

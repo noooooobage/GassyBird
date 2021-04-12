@@ -86,7 +86,9 @@ private:
     void updatePlayableBird(const float& timeDelta);
 
     /**
-     * Updates the ground obstacles so that the ground is always visible.
+     * Updates the ground obstacles so that the ground is always visible. If any of the ground
+     * obstacles are behind the screen by a certain threshold, then they are placed to the right of
+     * the rightmost ground.
      */
     void updateGround();
 
@@ -124,8 +126,10 @@ private:
     const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
     const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
     const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
-    std::list<Obstacle> _grounds; // list of all ground obstacles
-    std::list<Obstacle> _obstacles; // list of all obstacles except for the ground
+    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all ground obstacles
+
+    // list of all obstacles except for the ground
+    std::list<std::shared_ptr<Obstacle>> _obstacles;
     
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
