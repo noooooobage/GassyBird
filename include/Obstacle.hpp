@@ -26,17 +26,19 @@ public:
     // only the ObstacleFactory is able to create Obstacles
     friend class ObstacleFactory;
 
+    std::string getName() { return _NAME; };
+
 private:
 
     /**
      * Creates an Obstacle from the given texture. All added components are scaled by scale.
      */
-    Obstacle(const sf::Texture& texture, const sf::Vector2f& scale);
+    Obstacle(const sf::Texture& texture, const sf::Vector2f& scale, const std::string& name);
 
     /**
      * Creates an Obstacle from the given texture. All added components are scaled by scaleFactor.
      */
-    Obstacle(const sf::Texture& texture, const float& scaleFactor);
+    Obstacle(const sf::Texture& texture, const float& scaleFactor, const std::string& name);
 
     /**
      * Adds a component to the obstacle. A component has a visual component, denoted by a texture
@@ -53,6 +55,7 @@ private:
 
     const sf::Texture& _TEXTURE;
     const sf::Vector2f _SCALE;
+    const std::string _NAME;
     sf::VertexArray _vertices;
 };
 

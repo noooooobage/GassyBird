@@ -20,7 +20,7 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     _logic.init();
     if (DEBUG) {
         _debugDrawer.init(target);
-        _debugDrawer.SetFlags(b2Draw::e_shapeBit);
+        _debugDrawer.SetFlags(b2Draw::e_shapeBit | b2Draw::e_centerOfMassBit);
         _logic.setDebugDrawer(_debugDrawer);
     }
 
