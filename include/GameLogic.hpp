@@ -46,12 +46,6 @@ public:
     void debugDraw();
 
     /**
-     * Given a physical actor, return the corresponding body which exists in the physical world. If
-     * the actor does not have an associated physical body, then return nullptr.
-     */
-    const b2Body* getBody(const PhysicalActor& actor) const;
-
-    /**
      * Returns all visible actors and their corresponding bodies.
      */
     const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
@@ -77,8 +71,13 @@ private:
      * 
      * Returns a pointer to the newly created body.
      */
-    b2Body* addToWorld(const PhysicalActor& physical,
-            const b2Vec2& position = {0.0f, 0.0f});
+    b2Body* addToWorld(const PhysicalActor& physical, const b2Vec2& position = {0.0f, 0.0f});
+
+    /**
+     * Given a physical actor, return the corresponding body which exists in the physical world. If
+     * the actor does not have an associated physical body, then return nullptr.
+     */
+    b2Body* getBody(const PhysicalActor& actor) const;
     
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
@@ -86,7 +85,16 @@ private:
      */
     void updatePlayableBird(const float& timeDelta);
 
-    void updateActors(const float& timeDelta);
+    /**
+     * Updates the ground obstacles so that the ground is always visible.
+     */
+    void updateGround();
+
+    /**
+     * Increases the world scroll speed by the specified amount (can be negative to also decrease
+     * the speed). This will affect the liear velocity of all bodies except the bird.
+     */
+    void increaseScrollSpeed(const float& amount);
 
     //Spawn an NPC into the world
     b2Body* spawnNPC();
@@ -100,7 +108,9 @@ private:
     // physical world
     std::shared_ptr<b2World> _world;
     const b2Vec2 _GRAVITY;
-    float _world_scroll_speed; // effectively the bird's horizontal speed (meters per second)
+    const float _INITIAL_WORLD_SCROLL_SPEED;
+    float _world_scroll_speed; // Effectively the bird's horizontal speed (meters per second) --
+                               // increasing this speed makes objects move faster to the left.
 
     // playable bird stuff
     PlayableBird _playableBirdActor;
@@ -110,8 +120,12 @@ private:
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
 
-    // list of all obstacles
-    std::list<Obstacle> _obstacles;
+    // ground stuff
+    const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
+    const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
+    const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
+    std::list<Obstacle> _grounds; // list of all ground obstacles
+    std::list<Obstacle> _obstacles; // list of all obstacles except for the ground
     
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;

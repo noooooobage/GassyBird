@@ -30,7 +30,6 @@ ResourceCache::~ResourceCache() {
 void ResourceCache::init() {
 
     _initialized = true;
-
     
     // TEXTURES ////////////////////////////////////////////
     
@@ -53,6 +52,7 @@ void ResourceCache::init() {
         "GROUND_TEXTURE",
         "../data/ground_texture.png" 
     );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -175,8 +175,6 @@ void ResourceCache::init() {
             {19.5f / 40, -2.0f / 9}
         }
     );
-
-    
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {

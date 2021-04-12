@@ -10,16 +10,21 @@
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
 #include "ObstacleFactory.hpp"
+#include "Globals.hpp"
 
 GameLogic::GameLogic() :
 
     _initialized(false),
 
     _GRAVITY(0.0f, -25.0f),
-    _world_scroll_speed(15.0f),
+    _INITIAL_WORLD_SCROLL_SPEED(5.0f),
 
     _BIRD_POOP_DURATION(1.0f),
-    _BIRD_MAX_POOPS(2)
+    _BIRD_MAX_POOPS(2),
+
+    _NUM_GROUNDS(1),
+    _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
+    _GROUND_OFFSET_METERS(1)
 {}
 
 GameLogic::~GameLogic() {
@@ -41,16 +46,22 @@ void GameLogic::init() {
     // initialize playable bird and add it to the physics world
     _playableBirdActor.init();
     _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 6.0f));
-    _obstacles.push_back(ObstacleFactory::makeGround());
-    addToWorld(_obstacles.back(), b2Vec2(0.0f, 0.0f));
-    _obstacles.push_back(ObstacleFactory::makeGround());
-    addToWorld(_obstacles.back(), b2Vec2(24.0f, 0.0f));
+
+    // create the ground objects
+    // for (int i = 0; i < _NUM_GROUNDS; ++i) {
+    //     _obstacles.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
+    //     addToWorld(_obstacles.back(), b2Vec2(_GROUND_WIDTH_METERS, _GROUND_OFFSET_METERS));
+    // }
+
     // add two streetlights of different heights
-    // TODO: remove these later, they is only temporary
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(8.0f, true));
+    // TODO: remove these later, this is only temporary
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
     addToWorld(_obstacles.back(), b2Vec2(13.0f, 2.0f));
-    _obstacles.push_back(ObstacleFactory::makeStreetlight(5.0f, true));
+    _obstacles.push_back(ObstacleFactory::makeStreetlight(4.0f, true));
     addToWorld(_obstacles.back(), b2Vec2(21.0f, 2.0f));
+
+    // set up the scrolling
+    // increaseScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED);
 
     // set state to demo
     toDemo();
@@ -62,7 +73,7 @@ void GameLogic::update(const float& timeDelta) {
 
     // update bird
     updatePlayableBird(timeDelta);
-    updateActors(timeDelta);
+    
     // increment physics
     _world->Step(timeDelta, 8, 3);
 }
@@ -114,7 +125,7 @@ void GameLogic::debugDraw() {
     _world->DebugDraw();
 }
 
-const b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
+b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
 
     assert(_initialized);
 
@@ -224,25 +235,34 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
         _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, force), true);
     }
     
-    // set the bird's rotation based on its velocity
-    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _world_scroll_speed);
+    // Set the bird's rotation based on its velocity, dampen the rotation slightly so it's not so
+    // severe.
+    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _world_scroll_speed * 3.0f);
     _playableBirdBody->SetTransform(_playableBirdBody->GetPosition(), angle);
 
     // call bird's own update() method
     _playableBirdActor.update(timeDelta);
 }
 
-void GameLogic::updateActors(const float& timeDelta) {
-    //by convention, the ground planes will always be at the beginning of the list
-    const b2Body* ground = _physicalActors[&_obstacles.front()];
-    if(ground->GetPosition().x < -24) {
-        _world->DestroyBody(_physicalActors[&_obstacles.front()]);
-        _physicalActors.erase(&_obstacles.front());
-        _obstacles.pop_front();
-        std::list<Obstacle>::iterator itr = _obstacles.begin();
-        ++itr;
-        _obstacles.insert(itr, ObstacleFactory::makeGround());
-        --itr;
-        addToWorld(*itr, b2Vec2(24.0f, 0.0f));
+void GameLogic::updateGround() {
+
+    // c
+}
+
+void GameLogic::increaseScrollSpeed(const float& amount) {
+
+    // iterate through all bodies and change their velocities
+    for (auto& pair : _physicalActors) {
+
+        b2Body* body = pair.second;
+
+        // skip if it's the bird
+        if (body == _playableBirdBody)
+            continue;
+
+        body->SetLinearVelocity(body->GetLinearVelocity() + b2Vec2(-amount, 0.0f));
     }
+
+    // update the _world_scroll_speed variable
+    _world_scroll_speed += amount;
 }
