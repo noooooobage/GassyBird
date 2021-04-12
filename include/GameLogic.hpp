@@ -51,6 +51,12 @@ public:
     const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
 
     /**
+     * Methods called by PlayingMenuActivity to update UI elements.
+     */
+    int getNumPoopsLeft() const { return _numPoopsLeft; }
+    int getPlayerScore() const { return _playerScore; }
+
+    /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
      * bird is flying, an upward force is applied to it. When it is not flying, gravity makes the
      * bird move downward.
@@ -127,6 +133,9 @@ private:
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
+
+    // how many times the bird has successfully pooped on an NPC
+    int _playerScore;
 
     // ground stuff
     const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles

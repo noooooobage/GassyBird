@@ -26,7 +26,7 @@ GameLogic::GameLogic() :
 
     _NUM_GROUNDS(4),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
-    _GROUND_OFFSET_METERS(1)
+    _GROUND_OFFSET_METERS(0.5f)
 {}
 
 GameLogic::~GameLogic() {
@@ -102,6 +102,7 @@ void GameLogic::toPlaying() {
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
     _numPoopsLeft = _BIRD_MAX_POOPS;
+    _playerScore = 0;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
 
@@ -186,8 +187,6 @@ void GameLogic::requestBirdPoop() {
                 _POOP_DOWNWARD_VELOCITY));
         addToWorld(*_obstacles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
                 false);
-
-        std::cout << "pooping, num left: " << _numPoopsLeft << std::endl;
     }
 }
 

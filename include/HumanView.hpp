@@ -21,7 +21,7 @@ public:
 
     ~HumanView();
 
-    void init(GameLogic* logic);
+    void init(GameLogic& logic);
 
     /**
      * 

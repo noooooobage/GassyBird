@@ -32,11 +32,11 @@ HumanView::~HumanView() {
     _logic = nullptr;
 }
 
-void HumanView::init(GameLogic* logic) {
+void HumanView::init(GameLogic& logic) {
 
     _initialized = true;
 
-    _logic = logic;
+    _logic = &logic;
         
     // set the beach background sprite
     _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;

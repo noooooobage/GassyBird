@@ -25,10 +25,11 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     }
 
     // initialize views with logic
-    _humanView.init(&_logic);
+    _humanView.init(_logic);
 
     // initialize activities
     _mainMenuActivity.init(*this);
+    _playingMenuActivity.init(_logic);
 
     // start with the main menu
     toMain();
