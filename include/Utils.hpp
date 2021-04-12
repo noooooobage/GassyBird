@@ -87,6 +87,11 @@ int randomInt(int low, int high);
 float randomFloat(float low, float high);
 
 /**
+ * Returns a random bool.
+ */
+bool randomBool();
+
+/**
  * Translate the given polygon by the specified amount.
  */
 void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation);

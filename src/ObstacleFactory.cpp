@@ -153,6 +153,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
     // set the body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
+    bodyDef.bullet = true;
     bodyDef.linearVelocity.y = yVelocity;
     poop->setBodyDef(bodyDef);
 
