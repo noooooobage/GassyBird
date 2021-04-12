@@ -1,9 +1,20 @@
+#include <cassert>
+
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
 #include "Utils.hpp"
 #include "Globals.hpp"
 
+int randomInt(int low, int high) {
+    std::uniform_int_distribution<int> dist(low, high);
+    return dist(rng);
+}
+
+float randomFloat(float low, float high) {
+    std::uniform_real_distribution<float> dist(low, high);
+    return dist(rng);
+}
 void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation) {
     for (int i = 0; i < polygon.m_count; ++i) {
         polygon.m_vertices[i] += translation;
@@ -11,22 +22,36 @@ void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation) {
 }
 
 void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale) {
+
+    // scale vertices
     for (int i = 0; i < polygon.m_count; ++i) {
         polygon.m_vertices[i].x *= scale.x;
         polygon.m_vertices[i].y *= scale.y;
     }
+
+    // If the scale flipped the polygon about the x xor y axis (not both), then need to reset the
+    // hull of the polygon so that its vertices remain in counter-clockwise order.
+    bool isFlipped = scale.x * scale.y < 0.0f;
+    if (isFlipped)
+        polygon.Set(polygon.m_vertices, polygon.m_count);
+
+    // sanity check -- make absolutely sure that the polygon's vertices are in CCW order
+    assert(polygon.Validate());
 }
 
-void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
+void fitPolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite) {
 
-    // determine the scale factor
-    b2Vec2 scale(
+    // translate the polygon in normalized coordinates to the sprite's origin
+    translatePolygon(polygon, b2Vec2(
+        -(sprite.getOrigin().x / sprite.getTextureRect().width - 0.5f),
+        sprite.getOrigin().y / sprite.getTextureRect().height - 0.5f
+    ));
+
+    // scale the polygon so it fits around the sprite
+    scalePolygon(polygon, b2Vec2(
         sprite.getTextureRect().width * sprite.getScale().x * METERS_PER_PIXEL,
         sprite.getTextureRect().height * sprite.getScale().y * METERS_PER_PIXEL
-    );
-
-    // scale all the polygon
-    scalePolygon(polygon, scale);
+    ));
 }
 
 void centerTextOnPoint(sf::Text& text, const sf::Vector2f& point) {

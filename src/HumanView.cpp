@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include <string>
+
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
@@ -9,7 +9,6 @@
 #include "Globals.hpp"
 #include "Utils.hpp"
 #include "Resources/SpriteResource.hpp"
-#include "Resources/FontResource.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
 #include "ObstacleFactory.hpp"
@@ -33,11 +32,11 @@ HumanView::~HumanView() {
     _logic = nullptr;
 }
 
-void HumanView::init(GameLogic* logic) {
+void HumanView::init(GameLogic& logic) {
 
     _initialized = true;
 
-    _logic = logic;
+    _logic = &logic;
         
     // set the beach background sprite
     _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;

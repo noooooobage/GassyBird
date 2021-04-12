@@ -30,9 +30,13 @@ ResourceCache::~ResourceCache() {
 void ResourceCache::init() {
 
     _initialized = true;
-
     
     // TEXTURES ////////////////////////////////////////////
+
+    loadTextureResource(
+        "TEST_TEXTURE",
+        "../data/test_texture.png"
+    );
     
     loadTextureResource(
         "BIRD_TEXTURE",
@@ -47,6 +51,11 @@ void ResourceCache::init() {
     loadTextureResource(
         "STREETLIGHT_TEXTURE",
         "../data/streetlight_texture.png"
+    );
+
+    loadTextureResource(
+        "GROUND_TEXTURE",
+        "../data/ground_texture.png" 
     );
 
     // SPRITES /////////////////////////////////////////////
@@ -83,9 +92,9 @@ void ResourceCache::init() {
 
     loadSpriteResource(
         "TEST_GROUND_SPRITE",
-        *getResource<TextureResource>("BIRD_TEXTURE"),
-        {{12, 5, 2, 2}},
-        10.0f
+        *getResource<TextureResource>("GROUND_TEXTURE"),
+        {{0, 0, 400, 100}},
+        1.0f
     );
 
     loadSpriteResource(
@@ -97,6 +106,13 @@ void ResourceCache::init() {
             {9,  0, 40, 9}  // tip ;)
         },
         3.5f
+    );
+
+    loadSpriteResource(
+        "TEST_POOP_SPRITE",
+        *getResource<TextureResource>("TEST_TEXTURE"),
+        {{0, 0, 1, 1}},
+        12.0f
     );
 
     // FONTS ///////////////////////////////////////////////
@@ -138,6 +154,7 @@ void ResourceCache::init() {
             { 12.5f / 26, -3.0f / 7}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_1",
         {
@@ -148,6 +165,7 @@ void ResourceCache::init() {
             {-12.5f / 40, -4.0f / 9}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_2",
         {
@@ -158,6 +176,7 @@ void ResourceCache::init() {
             {  3.5f / 40, -1.0f / 9}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_3",
         {
@@ -193,7 +212,7 @@ void ResourceCache::loadSpriteResource(const std::string& id,
     // texture rectangle to the first one.
     assert(textureRects.size() > 0);
     sprite.setTextureRect(textureRects.at(0));
-
+    // sprite.setOrigin(textureRects.at(0).width/2.0f, textureRects.at(0).height/2.0f);
     // make sure a resource with the id does not already exist, then make the resource
     assert(_resources.find(id) == _resources.end());
     _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects, scaleFactor);
