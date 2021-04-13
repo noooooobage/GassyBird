@@ -21,7 +21,13 @@ void EventMessenger::removeListener(const EventType& eventType, const EventListe
 }
 
 void EventMessenger::triggerEvent(const Event& event) {
-    for (const EventListener*& listener : _listeners[event.getType()])
+
+    // Copy the list of listeners to call. Very important that this is copied, as using the actual
+    // list could segfualt if the list changes during iteration.
+    ListenerList listenerList = _listeners[event.getType()];
+
+    // iterate through list and call all listeners
+    for (const EventListener*& listener : listenerList) 
         (*listener)(event);
 }
 

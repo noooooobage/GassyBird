@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
+#include "PhysicalActor.hpp"
 #include "NPC.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
@@ -11,6 +12,9 @@
 #include "Resources/PolygonResource.hpp"
 
 NPC::NPC() :
+
+    // call super constructor with NPC type
+    PhysicalActor(PhysicalActor::TYPE::NPC),
 
     //Default settings for an entity
     _initialized(false),
@@ -25,8 +29,6 @@ NPC::NPC() :
 
     //The entity is "live" or not hit by default, even if it's not drawable
     isHit(false)
-
-    //This section defines the default body of an NPC using box2d
 {}
 
 void NPC::init() {
@@ -37,9 +39,8 @@ void NPC::init() {
     _NPCsprite = spriteResource.sprite;
     _textureRects = spriteResource.textureRects;
 
-    // set origin to geometric center (based on texture rect width in pixels)
-    float originalPixelWidth = _textureRects.at(0).width;
-    _NPCsprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
+    // set origin to the bottom middle
+    _NPCsprite.setOrigin(_textureRects.at(0).width / 2.0f, (float)_textureRects.at(0).height);
 
     // put at graphical position (0, 0) so transformations work as intended
     _NPCsprite.setPosition(0.0f, 0.0f);
@@ -47,18 +48,17 @@ void NPC::init() {
     // scale the sprite based on the resource's scaleFactor
     _NPCsprite.scale(spriteResource.scaleFactor, spriteResource.scaleFactor);
 
-
-    // body definition
+    // body definition -- make it have fixed rotation so the NPC is always upright
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.linearVelocity.Set(-2.0f, 0.0f);
-    bodyDef.angularVelocity = 0.0f;
-    bodyDef.gravityScale = 0.0f;
+    bodyDef.fixedRotation = true;
     setBodyDef(bodyDef);
 
     // shape definition
-    b2PolygonShape torso;
-    torso.SetAsBox(_WIDTH_METERS / 2.0f, _HEIGHT_METERS / 2.0f);
+    // TODO: This is only temporarily a rectangular hitbox. Change this eventually to a better
+    // fitting hitbox for the torso.
+    b2PolygonShape torso = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
+    fitPolygonToSprite(torso, _NPCsprite);
     addShape(torso);
 
     // fixture definition

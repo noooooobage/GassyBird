@@ -6,16 +6,29 @@
 #include <SFML/Graphics.hpp>
 
 #include "Obstacle.hpp"
+#include "PhysicalActor.hpp"
 #include "Utils.hpp"
 
-Obstacle::Obstacle(const sf::Texture& texture, const sf::Vector2f& scale) :
+Obstacle::Obstacle(
+    const PhysicalActor::TYPE& type,
+    const sf::Texture& texture,
+    const sf::Vector2f& scale
+) :
+    PhysicalActor(type),
+
     _TEXTURE(texture),
     _SCALE(scale)
 {
     _vertices.setPrimitiveType(sf::Quads);
 }
 
-Obstacle::Obstacle(const sf::Texture& texture, const float& scaleFactor) :
+Obstacle::Obstacle(
+    const PhysicalActor::TYPE& type,
+    const sf::Texture& texture,
+    const float& scaleFactor
+) :
+    PhysicalActor(type),
+
     _TEXTURE(texture),
     _SCALE(sf::Vector2f(scaleFactor, scaleFactor))
 {

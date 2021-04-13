@@ -4,20 +4,16 @@
 #include <memory>
 #include <unordered_map>
 #include <list>
+#include <iostream>
 
 #include <box2d/box2d.h>
 
 #include "Actor.hpp"
 #include "PlayableBird.hpp"
 #include "NPC.hpp"
-#include "NPCFactory.hpp"
 #include "PhysicalActor.hpp"
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
-
-
-
-
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -51,24 +47,15 @@ public:
     void debugDraw();
 
     /**
-     * Given a physical actor, return the corresponding body which exists in the physical world. If
-     * the actor does not have an associated physical body, then return nullptr.
-     */
-    const b2Body* getBody(const PhysicalActor& actor) const;
-
-    /**
      * Returns all visible actors and their corresponding bodies.
      */
     const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
 
-    NPC& getNPC() {return _NPCActor; }
-
-    void clearWorld();
-
-    //Spawn an NPC into the world
-    void createMap();
-
-
+    /**
+     * Methods called by PlayingMenuActivity to update UI elements.
+     */
+    int getNumPoopsLeft() const { return _numPoopsLeft; }
+    int getPlayerScore() const { return _playerScore; }
 
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
@@ -86,20 +73,100 @@ public:
 private:
 
     /**
-     * Creates a b2Body from the given physical actor and adds it to the world at the specified
-     * position (defaults to 0,0). Also updates the body map.
-     * 
-     * Returns a pointer to the newly created body.
+     * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
+     * other entities in there as well.
      */
-    b2Body* addToWorld(const PhysicalActor& physical,
-            const b2Vec2& position = {0.0f, 0.0f});
+    void createMap();
+
+    /**
+     * Removes physical actors that are past a certain threshold to the left of the screen. This
+     * does not affect the bird or the ground.
+     */
+    void removeOutOfBoundsActors();
+
+    /**
+     * Procedurally generates new physical actors, e.g. Obstacles and NPCs to the right of the
+     * screen.
+     */
+    void generateNewActors();
+
+    /**
+     * Helper method to generateNewActors(). Spawns a random Non-Playable Entity (Obstacle or NPC)
+     * at the given position in the world.
+     */
+    void spawnNPE(const b2Vec2& position);
+
+    /**
+     * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
+     * physical actors map.
+     * 
+     * @param actor the PhysicalActor to add to the world
+     * @param position position at which the body is placed, defaults to (0, 0)
+     * @param inheritWorldScroll whether or not to inherit the world scroll speed, defaults to true
+     * 
+     * @return a pointer to the newly created body
+     */
+    b2Body* addToWorld(const PhysicalActor& actor, const b2Vec2& position = {0.0f, 0.0f},
+            bool inheritWorldScroll = true);
     
-    void removeFromWorld(const PhysicalActor& physical);
+    /**
+     * Wipes the given actor from existence. More specifically, does the following:
+     * - Destroys the actor's assiciated box2d body
+     * - Removes the actor from the _physicalActors map
+     * - Frees the actor's memory in whatever list it's stored in and removes it from the list
+     * 
+     * If the actor doesn't exist in the _physicalActors map, then it's ignored.
+     * 
+     * WARNING: Be careful, don't call this method while iterating through the _physicalActors map
+     * or any of the physical actor lists like _obstacles, _grounds, etc, as those structures are
+     * modified by this method.
+     */
+    void removeFromWorld(const PhysicalActor& actor);
+
+    /**
+     * This should only be called by removeFromWorld(). This method searches for the shared pointer
+     * which holds the given actor in the given list of shared pointers. It frees the memory of all
+     * matches and removes the entries from the list.
+     */
+    template <typename T>
+    void removeFromList(const PhysicalActor& actor, std::list<std::shared_ptr<T>>& list) {
+
+        const T* actorAddress = (T*)&actor;
+
+        for (auto i = list.begin(); i != list.end();) {
+            if ((*i).get() == actorAddress) {
+                i->reset();
+                i = list.erase(i);
+            } else {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * Given a physical actor, return the corresponding body which exists in the physical world. If
+     * the actor does not have an associated physical body, then return nullptr.
+     */
+    b2Body* getBody(const PhysicalActor& actor) const;
+    
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
      * the bird's own update() method.
      */
     void updatePlayableBird(const float& timeDelta);
+
+    /**
+     * Updates the ground obstacles so that the ground is always visible. If any of the ground
+     * obstacles are behind the screen by a certain threshold, then they are placed to the right of
+     * the rightmost ground.
+     */
+    void updateGround();
+
+    /**
+     * Sets the world scroll speed to the specified amount. This will affect all physical actors in
+     * the world that have type GROUND or GENERIC_OBSTACLE.
+     */
+    void setWorldScrollSpeed(const float& amount);
 
     bool _initialized;
 
@@ -110,27 +177,36 @@ private:
     // physical world
     std::shared_ptr<b2World> _world;
     const b2Vec2 _GRAVITY;
-    float _world_scroll_speed; // effectively the bird's horizontal speed (meters per second)
+    const float _INITIAL_WORLD_SCROLL_SPEED;
+    float _worldScrollSpeed; // Effectively the bird's horizontal speed (meters per second) --
+                             // increasing this speed makes objects move faster to the left.
 
     // playable bird stuff
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
     const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
+    const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
 
-    // list of all obstacles
-    std::list<Obstacle> _obstacles;
-    //NPC Stuff
-    std::list<NPC> _Entities; //Create a list and store pointers to NPC objects and obstacles
-    NPC _NPCActor;
-    b2Body* _NPCBody;
+    // how many times the bird has successfully pooped on an NPC
+    int _playerScore;
 
+    // ground stuff
+    const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
+    const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
+    const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
+    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all ground obstacles
+
+    // list of all obstacles except for the ground
+    std::list<std::shared_ptr<Obstacle>> _obstacles;
+
+    // list of all NPCs
+    std::list<std::shared_ptr<NPC>> _NPCs;
+    
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
-
-    void spawnNPE();
 };
 
 #endif // _GAME_LOGIC_HPP_

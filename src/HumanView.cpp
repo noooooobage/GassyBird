@@ -11,10 +11,9 @@
 #include "Resources/SpriteResource.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/WindowCloseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
-
-#include "Events/WindowCloseEvent.hpp"
 
 HumanView::HumanView() :
 
@@ -34,11 +33,11 @@ HumanView::~HumanView() {
     _logic = nullptr;
 }
 
-void HumanView::init(GameLogic* logic) {
+void HumanView::init(GameLogic& logic) {
 
     _initialized = true;
 
-    _logic = logic;
+    _logic = &logic;
         
     // set the beach background sprite
     _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;
@@ -77,9 +76,6 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         statesCopy.transform *= physicalToGraphicalTransform(*body);
         target.draw(*actor, statesCopy);
     }
-
-    
-
 }
 
 void HumanView::keyPressHandler(const Event& event) {
@@ -92,6 +88,9 @@ void HumanView::keyPressHandler(const Event& event) {
 
     else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
+    
+    // A developer convenience to be able to close out of the window by pressing escape
+    // TODO: remove this before final release
     else if (e.key == sf::Keyboard::Key::Escape)
         eventMessenger.queueEvent(WindowCloseEvent());
 }

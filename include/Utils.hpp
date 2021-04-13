@@ -1,6 +1,8 @@
 #ifndef _UTILS_HPP_
 #define _UTILS_HPP_
 
+#include <random>
+
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
 
@@ -8,8 +10,14 @@
 
 // Note: Simple math functions and conversion functions get the inline. Other functions do not.
 
+// Variables for random number functions, they are in an anonymous namespace so that they stay local
+// to this file.
+namespace {
+    std::default_random_engine rng(time(NULL));
+}
+
 /**
- * Clamps a value to the range [low, high].
+ * Returns the given value clamped to the range [low, high].
  */
 template <typename T>
 inline T clamp(const T& value, const T& low, const T& high) {
@@ -69,6 +77,21 @@ inline sf::Color b2ToSfColor(const b2Color& color) {
 }
 
 /**
+ * Returns a random integer in the range [low, high].
+ */
+int randomInt(int low, int high);
+
+/**
+ * Returns a random float in the range [low, high).
+ */
+float randomFloat(float low, float high);
+
+/**
+ * Returns a random bool.
+ */
+bool randomBool();
+
+/**
  * Translate the given polygon by the specified amount.
  */
 void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation);
@@ -79,11 +102,12 @@ void translatePolygon(b2PolygonShape& polygon, const b2Vec2& translation);
 void scalePolygon(b2PolygonShape& polygon, const b2Vec2& scale);
 
 /**
- * Scales the given polygon such that it fits around the given sprite. For this to work correctly,
- * the polygon's vertices must be in normalized coordinates, i.e. (0, 0) is the center of the
- * sprite, (0.5, 0.5) is the top-right corner, and (-0.5, -0.5) is the bottom-left corner.
+ * Translates and scales the given polygon such that it fits around the given sprite. Takes the 
+ * sprite's origin and scale properties into account. For this to work correctly, the polygon's
+ * vertices must be in normalized coordinates, i.e. (0, 0) is the center of the sprite, (0.5, 0.5)
+ * is the top-right corner, and (-0.5, -0.5) is the bottom-left corner.
  */
-void scalePolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite);
+void fitPolygonToSprite(b2PolygonShape& polygon, const sf::Sprite& sprite);
 
 /**
  * Centers the given text on the given point.
