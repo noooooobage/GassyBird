@@ -368,19 +368,6 @@ void GameLogic::updateGround() {
 
     assert(_initialized);
 
-    // Ensure that the ground's velocity is consistent with the world scroll speed -- this can
-    // actually get out of sync in the beginning due to wildly varying frameDelta times.
-    for (auto ground : _grounds) {
-
-        b2Body* groundBody = getBody(*ground);
-        assert(groundBody);
-
-        b2Vec2 currentVelocity = groundBody->GetLinearVelocity();
-
-        if (fabs(currentVelocity.x + _worldScrollSpeed) > SMALL)
-            groundBody->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, currentVelocity.y));
-    }
-
     // ensure that the ground covers the screen as best as possible
     while (true) {
 
