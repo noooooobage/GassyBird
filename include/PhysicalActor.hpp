@@ -17,6 +17,20 @@ class PhysicalActor : public Actor {
 
 public:
 
+    // Various types of physical actors
+    enum class TYPE {
+        PLAYABLE_BIRD,
+        NPC,
+        POOP,
+        GROUND,
+        GENERIC_OBSTACLE
+    };
+
+    /**
+     * Constructor -- sets the type.
+     */
+    PhysicalActor(const PhysicalActor::TYPE& type) : _TYPE(type) {}
+
     /**
      * Destructor -- frees allocated memory.
      */
@@ -44,7 +58,11 @@ public:
     void addFixtureDef(const b2FixtureDef& fixtureDef) { _fixtureDefs.push_back(fixtureDef); }
     const std::vector<b2FixtureDef>& getFixtureDefs() const { return _fixtureDefs; }
 
+    PhysicalActor::TYPE getType() const { return _TYPE; }
+
 private:
+
+    const PhysicalActor::TYPE _TYPE;
 
     b2BodyDef _bodyDef;
 

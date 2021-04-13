@@ -18,6 +18,7 @@ class NPC : public PhysicalActor {
         //Constructor
         NPC();
 
+        void init();
         //Override update method
         void update(const float& timeDelta) override;
 
@@ -25,25 +26,23 @@ class NPC : public PhysicalActor {
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 
-        /**
-        * Sets the sprite of the bird from a SpriteResource.
-        */
-        void setSprite(const SpriteResource& spriteResource);
-
         //The is hit boolean follows
         bool isHit;
 
         void triggerAction();
 
+        //Method returns the height in Meters for use with Box2D
+        float getHeight(){ return _HEIGHT_METERS;};
+
     private:
 
         //Variables 
-
+        bool _initialized;
         bool _spriteSet;                    //Track if the sprite has been set before drawing
         bool _inScope;
 
         sf::Sprite _NPCsprite;
-        std::vector<sf::IntRect> _textureRect;
+        std::vector<sf::IntRect> _textureRects;
 
 
         // This tells the game what sprite on the sheet to draw
@@ -60,6 +59,8 @@ class NPC : public PhysicalActor {
 
         b2FixtureDef _top; //Fixture for the head of the body
         b2FixtureDef _bottom;  //Fixture for the torso of the body
+
+        
 };
 
 #endif

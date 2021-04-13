@@ -20,15 +20,16 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     _logic.init();
     if (DEBUG) {
         _debugDrawer.init(target);
-        _debugDrawer.SetFlags(b2Draw::e_shapeBit);
+        _debugDrawer.SetFlags(b2Draw::e_shapeBit | b2Draw::e_centerOfMassBit);
         _logic.setDebugDrawer(_debugDrawer);
     }
 
     // initialize views with logic
-    _humanView.init(&_logic);
+    _humanView.init(_logic);
 
     // initialize activities
     _mainMenuActivity.init(*this);
+    _playingMenuActivity.init(_logic);
 
     // start with the main menu
     toMain();

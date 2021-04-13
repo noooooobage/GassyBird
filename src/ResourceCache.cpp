@@ -30,9 +30,13 @@ ResourceCache::~ResourceCache() {
 void ResourceCache::init() {
 
     _initialized = true;
-
     
     // TEXTURES ////////////////////////////////////////////
+
+    loadTextureResource(
+        "TEST_TEXTURE",
+        "../data/test_texture.png"
+    );
     
     loadTextureResource(
         "BIRD_TEXTURE",
@@ -41,7 +45,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
-        "../data/beach-background-large.gif"
+        "../data/beach-background.gif"
     );
 
     loadTextureResource(
@@ -53,6 +57,12 @@ void ResourceCache::init() {
         "GROUND_TEXTURE",
         "../data/ground_texture.png" 
     );
+
+    loadTextureResource(
+        "NPC_TEXTURE",
+        "../data/tempNPCtexture.png"
+    );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -81,8 +91,8 @@ void ResourceCache::init() {
     loadSpriteResource(
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
-        {{0, 0, 1200, 600}},
-        1.0f
+        {{0, 0, 200, 100}},
+        NATIVE_RESOLUTION.x / 200.0f
     );
 
     loadSpriteResource(
@@ -96,11 +106,27 @@ void ResourceCache::init() {
         "STREETLIGHT_SPRITE",
         *getResource<TextureResource>("STREETLIGHT_TEXTURE"),
         {
-            {0, 18, 26, 7}, // base
-            {9, 10,  8, 7}, // shaft
+            {0, 16, 26, 7}, // base
+            {9,  9,  8, 7}, // shaft
             {9,  0, 40, 9}  // tip ;)
         },
         3.5f
+    );
+
+    loadSpriteResource(
+        "TEST_POOP_SPRITE",
+        *getResource<TextureResource>("TEST_TEXTURE"),
+        {{7, 0, 7, 7}},
+        2.5f
+    );
+
+    loadSpriteResource(
+        "NPC_SPRITE",
+        *getResource<TextureResource>("NPC_TEXTURE"),
+        {
+            {10, 18, 57, 65} // 0 idle still
+        },
+        1.5f
     );
 
     // FONTS ///////////////////////////////////////////////
@@ -175,8 +201,6 @@ void ResourceCache::init() {
             {19.5f / 40, -2.0f / 9}
         }
     );
-
-    
 }
 
 void ResourceCache::loadTextureResource(const std::string& id, const std::string& filename) {
