@@ -30,9 +30,14 @@ class NPC : public PhysicalActor {
         bool isHit;
 
         void triggerAction();
+        void moveRight();
 
         //Method returns the height in Meters for use with Box2D
         float getHeight(){ return _HEIGHT_METERS;};
+
+        //track moving time for local npc
+        float getTimeMoving() {return _timeMoving;};
+        float getTimeSinceAction() {return _actionTimer;};
 
     private:
 
@@ -40,6 +45,8 @@ class NPC : public PhysicalActor {
         bool _initialized;
         bool _spriteSet;                    //Track if the sprite has been set before drawing
         bool _inScope;
+
+        float _timeMoving;
 
         sf::Sprite _NPCsprite;
         std::vector<sf::IntRect> _textureRects;
@@ -50,8 +57,11 @@ class NPC : public PhysicalActor {
 
         // the sprite's frame will change after this amount of time in seconds passes
         const float _FRAME_CHANGE_TIME_DELTA;
+        
+        //These are tracked for comparison to standards in the game logic
         float _frameChangeTimer;
-
+        float _actionTimer;
+        
         const float _WIDTH_METERS; // Unit width in meters
         const float _HEIGHT_METERS; //Unit height in meters
         const float _WIDTH_PIXELS; // store the width in pixels after scaling

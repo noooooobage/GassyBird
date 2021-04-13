@@ -67,25 +67,6 @@ void NPC::init() {
     fixtureDef.friction = 0.5f;
     addFixtureDef(fixtureDef);
 
-    // shape definition
-
-    //Comment extra fixtures out until we get the bug under control
-    
-    /**
-    b2PolygonShape torso;
-    torso.SetAsBox(_WIDTH_METERS / 2.0f, _HEIGHT_METERS / 2.0f);
-    addShape(torso);
-
-    // fixture definition
-    b2FixtureDef fixtureDef1;
-    fixtureDef1.density = 0.0f;
-    fixtureDef1.friction = 0.5f;
-    addFixtureDef(fixtureDef1);
-    */
-
-    //_top = fixtureDef;
-    //_bottom = fixtureDef1;
-
     _initialized = true;
 
 }
@@ -93,6 +74,8 @@ void NPC::init() {
 void NPC::update(const float& timeDelta) {
 
     assert(_initialized);
+
+    //TODO: Add check for if the npc has been hit and display death frame
 
     // Advance the frame change timer and increment the current frame if it exceeds
     // _FRAME_CHANGE_TIME_DELTA
@@ -112,4 +95,15 @@ void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(_NPCsprite, states);
 }
 
+//trigger the moving right animation set
+void NPC::moveRight() {
+    assert(_initialized);
+    //TODO: Flip the sprite to face the other way.
+    
+}
 
+//trigger the animation for throwing
+void NPC::triggerAction() {
+    assert(_initialized);
+    //TODO trigger action animation for sprite
+}
