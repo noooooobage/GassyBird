@@ -11,6 +11,7 @@
 #include "Resources/SpriteResource.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/WindowCloseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
 
@@ -87,6 +88,11 @@ void HumanView::keyPressHandler(const Event& event) {
 
     else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
+    
+    // A developer convenience to be able to close out of the window by pressing escape
+    // TODO: remove this before final release
+    else if (e.key == sf::Keyboard::Key::Escape)
+        eventMessenger.queueEvent(WindowCloseEvent());
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {

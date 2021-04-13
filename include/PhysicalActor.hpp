@@ -22,6 +22,7 @@ public:
         PLAYABLE_BIRD,
         NPC,
         POOP,
+        GROUND,
         GENERIC_OBSTACLE
     };
 
@@ -57,7 +58,7 @@ public:
     void addFixtureDef(const b2FixtureDef& fixtureDef) { _fixtureDefs.push_back(fixtureDef); }
     const std::vector<b2FixtureDef>& getFixtureDefs() const { return _fixtureDefs; }
 
-    PhysicalActor::TYPE getType() { return _TYPE; }
+    PhysicalActor::TYPE getType() const { return _TYPE; }
 
 private:
 

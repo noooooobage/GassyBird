@@ -27,6 +27,9 @@ const float NATIVE_ASPECT_RATIO = NATIVE_RESOLUTION.x / NATIVE_RESOLUTION.y;
 const float PIXELS_PER_METER = 50;
 const float METERS_PER_PIXEL = 1.0f / PIXELS_PER_METER;
 
+// a very small float number for comparing equality
+const float SMALL = 0.000001f;
+
 const float PI = 3.14159265359f;
 
 // global objects

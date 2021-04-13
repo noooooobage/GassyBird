@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include <list>
+#include <iostream>
 
 #include <box2d/box2d.h>
 
@@ -72,17 +73,75 @@ public:
 private:
 
     /**
+     * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
+     * other entities in there as well.
+     */
+    void createMap();
+
+    /**
+     * Removes physical actors that are past a certain threshold to the left of the screen. This
+     * does not affect the bird or the ground.
+     */
+    void removeOutOfBoundsActors();
+
+    /**
+     * Procedurally generates new physical actors, e.g. Obstacles and NPCs to the right of the
+     * screen.
+     */
+    void generateNewActors();
+
+    /**
+     * Helper method to generateNewActors(). Spawns a random Non-Playable Entity (Obstacle or NPC)
+     * at the given position in the world.
+     */
+    void spawnNPE(const b2Vec2& position);
+
+    /**
      * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
      * physical actors map.
      * 
-     * @param physical the PhysicalActor to add to the world
+     * @param actor the PhysicalActor to add to the world
      * @param position position at which the body is placed, defaults to (0, 0)
      * @param inheritWorldScroll whether or not to inherit the world scroll speed, defaults to true
      * 
      * @return a pointer to the newly created body
      */
-    b2Body* addToWorld(const PhysicalActor& physical, const b2Vec2& position = {0.0f, 0.0f},
+    b2Body* addToWorld(const PhysicalActor& actor, const b2Vec2& position = {0.0f, 0.0f},
             bool inheritWorldScroll = true);
+    
+    /**
+     * Wipes the given actor from existence. More specifically, does the following:
+     * - Destroys the actor's assiciated box2d body
+     * - Removes the actor from the _physicalActors map
+     * - Frees the actor's memory in whatever list it's stored in and removes it from the list
+     * 
+     * If the actor doesn't exist in the _physicalActors map, then it's ignored.
+     * 
+     * WARNING: Be careful, don't call this method while iterating through the _physicalActors map
+     * or any of the physical actor lists like _obstacles, _grounds, etc, as those structures are
+     * modified by this method.
+     */
+    void removeFromWorld(const PhysicalActor& actor);
+
+    /**
+     * This should only be called by removeFromWorld(). This method searches for the shared pointer
+     * which holds the given actor in the given list of shared pointers. It frees the memory of all
+     * matches and removes the entries from the list.
+     */
+    template <typename T>
+    void removeFromList(const PhysicalActor& actor, std::list<std::shared_ptr<T>>& list) {
+
+        const T* actorAddress = (T*)&actor;
+
+        for (auto i = list.begin(); i != list.end();) {
+            if ((*i).get() == actorAddress) {
+                i->reset();
+                i = list.erase(i);
+            } else {
+                ++i;
+            }
+        }
+    }
 
     /**
      * Given a physical actor, return the corresponding body which exists in the physical world. If
@@ -104,13 +163,10 @@ private:
     void updateGround();
 
     /**
-     * Increases the world scroll speed by the specified amount (can be negative to also decrease
-     * the speed). This will affect the liear velocity of all bodies except the bird.
+     * Sets the world scroll speed to the specified amount. This will affect all physical actors in
+     * the world that have type GROUND or GENERIC_OBSTACLE.
      */
-    void increaseScrollSpeed(const float& amount);
-
-    //Spawn an NPC into the world
-    b2Body* spawnNPC();
+    void setWorldScrollSpeed(const float& amount);
 
     bool _initialized;
 
@@ -122,8 +178,8 @@ private:
     std::shared_ptr<b2World> _world;
     const b2Vec2 _GRAVITY;
     const float _INITIAL_WORLD_SCROLL_SPEED;
-    float _world_scroll_speed; // Effectively the bird's horizontal speed (meters per second) --
-                               // increasing this speed makes objects move faster to the left.
+    float _worldScrollSpeed; // Effectively the bird's horizontal speed (meters per second) --
+                             // increasing this speed makes objects move faster to the left.
 
     // playable bird stuff
     PlayableBird _playableBirdActor;
@@ -145,6 +201,9 @@ private:
 
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
+
+    // list of all NPCs
+    std::list<std::shared_ptr<NPC>> _NPCs;
     
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
