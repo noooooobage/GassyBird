@@ -45,7 +45,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
-        "../data/beach-background-large.gif"
+        "../data/beach-background.gif"
     );
 
     loadTextureResource(
@@ -91,8 +91,8 @@ void ResourceCache::init() {
     loadSpriteResource(
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
-        {{0, 0, 1200, 600}},
-        1.0f
+        {{0, 0, 200, 100}},
+        NATIVE_RESOLUTION.x / 200.0f
     );
 
     loadSpriteResource(
@@ -116,8 +116,8 @@ void ResourceCache::init() {
     loadSpriteResource(
         "TEST_POOP_SPRITE",
         *getResource<TextureResource>("TEST_TEXTURE"),
-        {{0, 0, 1, 1}},
-        12.0f
+        {{7, 0, 7, 7}},
+        2.5f
     );
 
     loadSpriteResource(

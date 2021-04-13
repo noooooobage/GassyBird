@@ -39,8 +39,11 @@ void HumanView::init(GameLogic& logic) {
 
     _logic = &logic;
         
-    // set the beach background sprite
-    _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;
+    // set the beach background sprite and scale it according to the beach background resource
+    const SpriteResource* beachSpriteResource =
+            resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE");
+    _beachBackground = beachSpriteResource->sprite;
+    _beachBackground.scale(beachSpriteResource->scaleFactor, beachSpriteResource->scaleFactor);
 
     // initialize and add event listeners
     _keyPressListener.init(&HumanView::keyPressHandler, this);
