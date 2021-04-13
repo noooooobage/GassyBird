@@ -29,14 +29,25 @@ public:
 private:
 
     /**
-     * Creates an Obstacle from the given texture. All added components are scaled by scale.
+     * Creates an Obstacle.
+     * 
+     * @param type the type of PhysicalActor -- normally this is just GENERIC_OBSTACLE, but some
+     *             obstacles are special, e.g. the poop obstacle
+     * @param texture texture of the obstacle
+     * @param scale added components will be scaled by this amount
      */
-    Obstacle(const sf::Texture& texture, const sf::Vector2f& scale);
+    Obstacle(const PhysicalActor::TYPE& type, const sf::Texture& texture,
+            const sf::Vector2f& scale);
 
     /**
-     * Creates an Obstacle from the given texture. All added components are scaled by scaleFactor.
+     * Creates an Obstacle.
+     * 
+     * @param type the type of PhysicalActor -- normally this is just GENERIC_OBSTACLE, but some
+     *             obstacles are special, e.g. the poop obstacle
+     * @param texture texture of the obstacle
+     * @param scale added components will be scaled by this amount
      */
-    Obstacle(const sf::Texture& texture, const float& scaleFactor);
+    Obstacle(const PhysicalActor::TYPE& type, const sf::Texture& texture, const float& scaleFactor);
 
     /**
      * Adds a component to the obstacle. A component has a visual component, denoted by a texture

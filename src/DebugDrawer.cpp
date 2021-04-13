@@ -10,7 +10,7 @@
 DebugDrawer::DebugDrawer() :
     _initialized(false),
     _renderTarget(nullptr),
-    _OUTLINE_THICKNESS(2.0f)
+    _OUTLINE_THICKNESS(1.0f)
 {}
 
 void DebugDrawer::init(sf::RenderTarget& target) {

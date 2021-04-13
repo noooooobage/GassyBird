@@ -30,10 +30,14 @@ ResourceCache::~ResourceCache() {
 void ResourceCache::init() {
 
     _initialized = true;
-
-
+    
     // TEXTURES ////////////////////////////////////////////
 
+    loadTextureResource(
+        "TEST_TEXTURE",
+        "../data/test_texture.png"
+    );
+    
     loadTextureResource(
         "BIRD_TEXTURE",
         "../data/bird_texture.png"
@@ -47,6 +51,16 @@ void ResourceCache::init() {
     loadTextureResource(
         "STREETLIGHT_TEXTURE",
         "../data/streetlight_texture.png"
+    );
+
+    loadTextureResource(
+        "GROUND_TEXTURE",
+        "../data/ground_texture.png" 
+    );
+
+    loadTextureResource(
+        "NPC_TEXTURE",
+        "../data/tempNPCtexture.png"
     );
 
     // SPRITES /////////////////////////////////////////////
@@ -78,25 +92,41 @@ void ResourceCache::init() {
         "BEACH_BACKGROUND_SPRITE",
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {{0, 0, 200, 100}},
-        6.0f
+        NATIVE_RESOLUTION.x / 200.0f
     );
 
     loadSpriteResource(
         "TEST_GROUND_SPRITE",
-        *getResource<TextureResource>("BIRD_TEXTURE"),
-        {{12, 5, 2, 2}},
-        10.0f
+        *getResource<TextureResource>("GROUND_TEXTURE"),
+        {{0, 0, 400, 100}},
+        1.0f
     );
 
     loadSpriteResource(
         "STREETLIGHT_SPRITE",
         *getResource<TextureResource>("STREETLIGHT_TEXTURE"),
         {
-            {0, 18, 26, 7}, // base
-            {9, 10,  8, 7}, // shaft
+            {0, 16, 26, 7}, // base
+            {9,  9,  8, 7}, // shaft
             {9,  0, 40, 9}  // tip ;)
         },
         3.5f
+    );
+
+    loadSpriteResource(
+        "TEST_POOP_SPRITE",
+        *getResource<TextureResource>("TEST_TEXTURE"),
+        {{7, 0, 7, 7}},
+        2.5f
+    );
+
+    loadSpriteResource(
+        "NPC_SPRITE",
+        *getResource<TextureResource>("NPC_TEXTURE"),
+        {
+            {10, 18, 57, 65} // 0 idle still
+        },
+        1.5f
     );
 
     // FONTS ///////////////////////////////////////////////
@@ -138,6 +168,7 @@ void ResourceCache::init() {
             { 12.5f / 26, -3.0f / 7}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_1",
         {
@@ -148,6 +179,7 @@ void ResourceCache::init() {
             {-12.5f / 40, -4.0f / 9}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_2",
         {
@@ -158,6 +190,7 @@ void ResourceCache::init() {
             {  3.5f / 40, -1.0f / 9}
         }
     );
+
     loadPolygonResource(
         "STREETLIGHT_TOP_HITBOX_3",
         {
@@ -193,7 +226,7 @@ void ResourceCache::loadSpriteResource(const std::string& id,
     // texture rectangle to the first one.
     assert(textureRects.size() > 0);
     sprite.setTextureRect(textureRects.at(0));
-
+    // sprite.setOrigin(textureRects.at(0).width/2.0f, textureRects.at(0).height/2.0f);
     // make sure a resource with the id does not already exist, then make the resource
     assert(_resources.find(id) == _resources.end());
     _resources[id] = std::make_shared<SpriteResource>(sprite, textureRects, scaleFactor);

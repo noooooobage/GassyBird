@@ -11,13 +11,14 @@
 #include "Resources/SpriteResource.hpp"
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
+#include "Events/WindowCloseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
 
 HumanView::HumanView() :
 
     _initialized(false),
-
+    
     _keyToFly(sf::Keyboard::Key::W),
     _keyToPoop(sf::Keyboard::Key::Space)
 {}
@@ -27,21 +28,22 @@ HumanView::~HumanView() {
     // remove event listeners
     eventMessenger.removeListener(KeyPressEvent::TYPE, _keyPressListener);
     eventMessenger.removeListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
-
+    
     // nullify pointers
     _logic = nullptr;
 }
 
-void HumanView::init(GameLogic* logic) {
+void HumanView::init(GameLogic& logic) {
 
     _initialized = true;
 
-    _logic = logic;
-
-    // set the beach background sprite
-    _beachBackground = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->sprite;
-    float scaleFactor = resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE")->scaleFactor;
-    _beachBackground.scale(scaleFactor, scaleFactor);
+    _logic = &logic;
+        
+    // set the beach background sprite and scale it according to the beach background resource
+    const SpriteResource* beachSpriteResource =
+            resourceCache.getResource<SpriteResource>("BEACH_BACKGROUND_SPRITE");
+    _beachBackground = beachSpriteResource->sprite;
+    _beachBackground.scale(beachSpriteResource->scaleFactor, beachSpriteResource->scaleFactor);
 
     // initialize and add event listeners
     _keyPressListener.init(&HumanView::keyPressHandler, this);
@@ -89,6 +91,11 @@ void HumanView::keyPressHandler(const Event& event) {
 
     else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
+    
+    // A developer convenience to be able to close out of the window by pressing escape
+    // TODO: remove this before final release
+    else if (e.key == sf::Keyboard::Key::Escape)
+        eventMessenger.queueEvent(WindowCloseEvent());
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {
