@@ -60,6 +60,7 @@ public:
 
     PhysicalActor::TYPE getType() const { return _TYPE; }
 
+
 private:
 
     const PhysicalActor::TYPE _TYPE;

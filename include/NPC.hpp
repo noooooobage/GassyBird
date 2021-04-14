@@ -28,6 +28,7 @@ class NPC : public PhysicalActor {
 
         //The is hit boolean follows
         bool isHit;
+        bool isMoving;
 
         void triggerAction();
         void moveRight();
@@ -38,6 +39,10 @@ class NPC : public PhysicalActor {
         //track moving time for local npc
         float getTimeMoving() {return _timeMoving;};
         float getTimeSinceAction() {return _actionTimer;};
+        
+        //methods to reset timer
+        void setTimeMoving(float time = 0.f){ _timeMoving = time;};
+        void setTimeSinceAction(float time = 0.f){ _actionTimer = time;};
 
     private:
 

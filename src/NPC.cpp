@@ -85,6 +85,12 @@ void NPC::update(const float& timeDelta) {
         _NPCsprite.setTextureRect(_textureRects.at(_spriteCurrentFrame));
         _frameChangeTimer = 0.0f;
     }
+
+    //logic to increment movement time
+    if (isMoving){
+        _timeMoving += timeDelta;
+    }
+
 }
 
 void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -99,6 +105,7 @@ void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void NPC::moveRight() {
     assert(_initialized);
     //TODO: Flip the sprite to face the other way.
+    std::cout << "moveRight Start" << std::endl;
     
 }
 
@@ -106,4 +113,5 @@ void NPC::moveRight() {
 void NPC::triggerAction() {
     assert(_initialized);
     //TODO trigger action animation for sprite
+    std::cout << "triggerAction Start" << std::endl;
 }

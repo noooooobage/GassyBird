@@ -22,6 +22,7 @@ GameLogic::GameLogic() :
     _GRAVITY(0.0f, -25.0f),
     _INITIAL_WORLD_SCROLL_SPEED(7.0f),
     _worldScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED),
+    _STEP_TIME(.5f),
 
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
@@ -188,11 +189,21 @@ void GameLogic::requestNPCStep() {
 
     assert(_initialized);
     //Get some random NPC from the NPC list
+    int index = randomInt(0,_NPCs.size());
+    auto curNPC = _NPCs.begin();
+    std::advance(curNPC, index);
 
+    std::shared_ptr<NPC> item = *curNPC;
+    
     //if the game is playing
-        //Get that NPCs body
+    if (_state == PLAYING){    
+        //Get that _NPCs body
+        //curNPC->moveRight();
         //Change the velocity
+        b2BodyDef body = item->getBodyDef();
+        body.linearVelocity = (b2Vec2(_worldScrollSpeed, 0.f));
         //start time of entity since it last moved
+    }
 }
 
 
@@ -200,10 +211,16 @@ void GameLogic::requestTriggerAction(){
     assert(_initialized);
 
     //Get some random NPC from the NPC list
-
+    int index = randomInt(0,_NPCs.size());
+    auto curNPC = _NPCs.begin();
+    std::advance(curNPC, index);
     //if the game is playing
+    if (_state == PLAYING){
+        //Call the change of animation frames
+        //curNPC->triggerAction();
         //get that NPC actor and activate its animation
         //spawn a rock obstacle and set its velocity in the direction of the board
+    }
 }
 
 void GameLogic::createMap() {
@@ -455,9 +472,32 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
 void GameLogic::updateNPCs(){
     assert(_initialized);
 
-    //iterate through the NPCs
-        //Check their move timer
+    //iterate through the _NPCs
+    for (auto& item : _NPCs) {
+
+        std::shared_ptr<NPC> curNPC = item;
+
+        // make sure actor and body aren't nullptr
+        assert(curNPC);
+
+        if (curNPC->getType() == PhysicalActor::TYPE::NPC){
+            //Check their move timer
             //Compare and decide if it needs to be reset
-        //Check their throw timer
-            //Compare and decide if it needs to be reset
+            if (curNPC->getTimeMoving() == _STEP_TIME){
+                //Set time to zero and speed to world speed
+                curNPC->setTimeMoving();
+
+                b2BodyDef body = curNPC->getBodyDef();
+                body.linearVelocity = (b2Vec2(-_worldScrollSpeed, 0.f));
+                //body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
+            }
+                
+            //Check their throw timer
+                //Compare and decide if it needs to be reset
+        }
+
+        
+        
+    }
+        
 }

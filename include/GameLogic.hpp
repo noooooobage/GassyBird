@@ -191,6 +191,7 @@ private:
     std::shared_ptr<b2World> _world;
     const b2Vec2 _GRAVITY;
     const float _INITIAL_WORLD_SCROLL_SPEED;
+    const float _STEP_TIME;
     float _worldScrollSpeed; // Effectively the bird's horizontal speed (meters per second) --
                              // increasing this speed makes objects move faster to the left.
 
