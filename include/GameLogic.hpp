@@ -14,6 +14,8 @@
 #include "PhysicalActor.hpp"
 #include "DebugDrawer.hpp"
 #include "Obstacle.hpp"
+#include "EventListener.hpp"
+#include "Event.hpp"
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -41,6 +43,11 @@ public:
     void toPlaying();
 
     /**
+     * Returns true if the game is paused, returns false otherwise.
+     */
+    bool isPaused() const;
+
+    /**
      * Methods through which the debug drawer can set and exectue drawing.
      */
     void setDebugDrawer(DebugDrawer& debugDrawer);
@@ -54,8 +61,8 @@ public:
     /**
      * Methods called by PlayingMenuActivity to update UI elements.
      */
-    int getNumPoopsLeft() const { return _numPoopsLeft; }
-    int getPlayerScore() const { return _playerScore; }
+    int getNumPoopsLeft() const;
+    int getPlayerScore() const;
 
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
@@ -73,8 +80,14 @@ public:
 private:
 
     /**
+     * Handles GamePauseEvents. When the game is paused, the world freezes.
+     */
+    void gamePauseHandler(const Event& event);
+
+    /**
      * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
-     * other entities in there as well.
+     * other entities in there as well. This does not add the playable bird to the world, so need to
+     * do that separately.
      */
     void createMap();
 
@@ -124,6 +137,11 @@ private:
     void removeFromWorld(const PhysicalActor& actor);
 
     /**
+     * Calls removeFromWorld() on every actor in the _physicalActors map.
+     */
+    void removeAllFromWorld();
+
+    /**
      * This should only be called by removeFromWorld(). This method searches for the shared pointer
      * which holds the given actor in the given list of shared pointers. It frees the memory of all
      * matches and removes the entries from the list.
@@ -170,9 +188,15 @@ private:
 
     bool _initialized;
 
+    // event listeners
+    EventListener _gamePauseListener;
+
     // different possible states
     enum STATE {DEMO, PLAYING, GAME_OVER};
     STATE _state;
+
+    // if the game is paused, this is separate from the states above
+    bool _isPaused;
 
     // physical world
     std::shared_ptr<b2World> _world;
@@ -184,6 +208,8 @@ private:
     // playable bird stuff
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
+    const float _BIRD_DEMO_X_POSITION; // x-position of bird in demo mode
+    const float _BIRD_DEMO_GROUND_OFFSET; // height of bird off the ground in demo mode
     const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird

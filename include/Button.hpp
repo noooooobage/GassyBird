@@ -77,6 +77,7 @@ private:
     sf::RectangleShape _shape;
 
     const sf::Color _BASE_TEXT_COLOR; // normal fill color of text
+    const sf::Color _HOVERED_TEXT_COLOR; // fill color of text when botton is hovered
     const sf::Color _CLICKED_TEXT_COLOR; // fill color of text when button is clicked
     const sf::Color _BASE_FILL_COLOR; // normal shape fill color when not hovered or clicked
     const sf::Color _HOVERED_FILL_COLOR; // fill color when the button is being hovered over

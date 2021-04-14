@@ -80,7 +80,9 @@ public:
     void init(const bool& canUseKeyboard = false);
 
     /**
-     * Activates the button manager such that the buttons can now be interacted with.
+     * Activates the button manager such that the buttons can now be interacted with. If the button
+     * manager is set up to be able to read keyboard input, then the first button added will be
+     * hovered over.
      */
     void activate();
 

@@ -61,7 +61,7 @@ private:
 
     // buttons
     Button _playButton;
-    Button _exitButton;
+    Button _quitButton;
     std::list<Button*> _buttons;
 
     // button manager

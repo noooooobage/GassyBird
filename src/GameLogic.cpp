@@ -14,6 +14,8 @@
 #include "Utils.hpp"
 #include "NPC.hpp"
 #include "NPCFactory.hpp"
+#include "Event.hpp"
+#include "Events/GamePauseEvent.hpp"
 
 GameLogic::GameLogic() :
 
@@ -23,6 +25,8 @@ GameLogic::GameLogic() :
     _INITIAL_WORLD_SCROLL_SPEED(7.0f),
     _worldScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED),
 
+    _BIRD_DEMO_X_POSITION(8.0f),
+    _BIRD_DEMO_GROUND_OFFSET(9.5f),
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
     _POOP_DOWNWARD_VELOCITY(3.0f),
@@ -34,13 +38,11 @@ GameLogic::GameLogic() :
 
 GameLogic::~GameLogic() {
 
+    // remove event listeners
+    eventMessenger.removeListener(GamePauseEvent::TYPE, _gamePauseListener);
+
     // remove every actor
-    while (true) {
-        auto i = _physicalActors.begin();
-        if (i == _physicalActors.end())
-            break;
-        removeFromWorld(*i->first);
-    }
+    removeAllFromWorld();
 
     // free world memory
     _world.reset();
@@ -53,23 +55,27 @@ void GameLogic::init() {
 
     _initialized = true;
 
+    // initialize and add event listeners
+    _gamePauseListener.init(&GameLogic::gamePauseHandler, this);
+    eventMessenger.addListener(GamePauseEvent::TYPE, _gamePauseListener);
+
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
 
-    // initialize playable bird and add it to the physics world
+    // initialize playable bird
     _playableBirdActor.init();
-    _playableBirdBody = addToWorld(_playableBirdActor, b2Vec2(8.0f, 10.0f), false);
 
     // set state to demo
     toDemo();
-
-    // create the first actors
-    createMap();
 }
 
 void GameLogic::update(const float& timeDelta) {
 
     assert(_initialized);
+
+    // if the game is paused, do nothing
+    if (_isPaused)
+        return;
 
     // perform removal and procedural generation
     removeOutOfBoundsActors();
@@ -91,15 +97,24 @@ void GameLogic::toDemo() {
 
     assert(_initialized);
 
+    // remove all actors and create initial map
+    removeAllFromWorld();
+    createMap();
+
+    // add the playable bird to the physical world
+    b2Vec2 position(_BIRD_DEMO_X_POSITION, _GROUND_OFFSET_METERS + _BIRD_DEMO_GROUND_OFFSET);
+    _playableBirdBody = addToWorld(_playableBirdActor, position, false);
+
     // set bird to demo state
     _playableBirdActor.stopPooping();
-    _playableBirdActor.stopFlying();
+    _playableBirdActor.startFlying();
 
     // turn off gravity for the bird
     _playableBirdBody->SetGravityScale(0.0f);
 
-    // set state
+    // set state, also the game should not be paused
     _state = DEMO;
+    _isPaused = false;
 }
 
 void GameLogic::toPlaying() {
@@ -113,12 +128,20 @@ void GameLogic::toPlaying() {
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
 
-    // turn on gravity and wake the bird
+    // set initial values for bird's physical body
     _playableBirdBody->SetGravityScale(1.0f);
+    _playableBirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
     _playableBirdBody->SetAwake(true);
 
     // set state
     _state = PLAYING;
+}
+
+bool GameLogic::isPaused() const {
+
+    assert(_initialized);
+
+    return _isPaused;
 }
 
 void GameLogic::setDebugDrawer(DebugDrawer& debugDrawer) {
@@ -142,12 +165,26 @@ const std::unordered_map<PhysicalActor*, b2Body*> GameLogic::getVisibleActors() 
     return _physicalActors;
 }
 
+int GameLogic::getNumPoopsLeft() const {
+
+    assert(_initialized);
+
+    return _numPoopsLeft;
+}
+
+int GameLogic::getPlayerScore() const {
+
+    assert(_initialized);
+
+    return _playerScore;
+}
+
 void GameLogic::requestBirdStartFly() {
 
     assert(_initialized);
 
-    // only allow if state is PLAYING
-    if (_state == PLAYING)
+    // only allow if state is PLAYING and the game is not paused
+    if (_state == PLAYING && !_isPaused)
         _playableBirdActor.startFlying();
 }
 
@@ -155,7 +192,7 @@ void GameLogic::requestBirdStopFly() {
 
     assert(_initialized);
     
-    // only allow if state is PLAYINS
+    // only allow if state is PLAYING; don't worry about if the game is paused
     if (_state == PLAYING)
         _playableBirdActor.stopFlying();
 }
@@ -166,9 +203,10 @@ void GameLogic::requestBirdPoop() {
     
     // only poop if all of the following:
     //     - the state is PLAYING
+    //     - the game is not paused
     //     - the bird has at least one poop left
     //     - the bird is not currently pooping
-    if (_state == PLAYING && _numPoopsLeft > 0 && !_playableBirdActor.isPooping()) {
+    if (_state == PLAYING && !_isPaused && _numPoopsLeft > 0 && !_playableBirdActor.isPooping()) {
 
         // set variables to reflect poop start
         _playableBirdActor.startPooping();
@@ -181,6 +219,27 @@ void GameLogic::requestBirdPoop() {
                 _POOP_DOWNWARD_VELOCITY));
         addToWorld(*_obstacles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
                 false);
+    }
+}
+
+void GameLogic::gamePauseHandler(const Event& event) {
+
+    assert(_initialized);
+
+    // make sure the event is a GamePauseEvent and convert it
+    assert(event.getType() == GamePauseEvent::TYPE);
+    const GamePauseEvent& e = dynamic_cast<const GamePauseEvent&>(event);
+
+    // ignore if the state is not PLAYING
+    if (_state != PLAYING)
+        return;
+
+    // for now, just set the _isPaused variable
+    // TODO: make this actually do something
+    if (e.action == GamePauseEvent::ACTION::PAUSE) {
+        _isPaused = true;
+    } else {
+        _isPaused = false;
     }
 }
 
@@ -253,10 +312,14 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     bool spawnStreetlight = randomBool();
 
     if (spawnStreetlight) {
-        // determine a random height and face direction
-        float heightMeters = randomFloat(4.0f, 9.0f);
+        // Determine a random height and face direction. If the game is in DEMO mode, then don't
+        // create a streetlight that will hit the bird.
+        float minHeight = 4.0f;
+        float maxHeight = _state == DEMO ? _BIRD_DEMO_GROUND_OFFSET - 1.0f :
+                (NATIVE_RESOLUTION.y * METERS_PER_PIXEL) - _GROUND_OFFSET_METERS - 1.5f;
+        float height = randomFloat(minHeight, maxHeight);
         bool faceLeft = randomBool();
-        _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+        _obstacles.push_back(ObstacleFactory::makeStreetlight(height, faceLeft));
         addToWorld(*_obstacles.back(), position);
 
     } else {
@@ -326,6 +389,15 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
     removeFromList(actor, _NPCs);
 }
 
+void GameLogic::removeAllFromWorld() {
+    while (true) {
+        auto i = _physicalActors.begin();
+        if (i == _physicalActors.end())
+            return;
+        removeFromWorld(*i->first);
+    }
+}
+
 b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
 
     assert(_initialized);
@@ -342,14 +414,17 @@ b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
 void GameLogic::updatePlayableBird(const float& timeDelta) {
 
     assert(_initialized);
+    
+    // make sure the bird's body isn't nullptr
+    assert(_playableBirdBody);
 
     // update bird pooping status
     _timeSinceLastPoop += timeDelta;
     if (_timeSinceLastPoop >= _BIRD_POOP_DURATION)
         _playableBirdActor.stopPooping();
 
-    // if the bird is flying, then apply an upward force opposite to gravity
-    if (_playableBirdActor.isFlying()) {
+    // if the bird is flying and state is PLAYING, then apply an upward force opposite to gravity
+    if (_playableBirdActor.isFlying() && _state == PLAYING) {
         float targetAccel = -2.0f * _GRAVITY.y;
         float force = _playableBirdBody->GetMass() * targetAccel;
         _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, force), true);
@@ -359,6 +434,13 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     // severe.
     float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _worldScrollSpeed * 2.0f);
     _playableBirdBody->SetTransform(_playableBirdBody->GetPosition(), angle);
+
+    // If the game is in DEMO state, then enforce that the bird is in its demo position. This is
+    // just in case an obstacle comes that collides with the bird.
+    if (_state == DEMO) {
+        b2Vec2 position(_BIRD_DEMO_X_POSITION, _GROUND_OFFSET_METERS + _BIRD_DEMO_GROUND_OFFSET);
+        _playableBirdBody->SetTransform(position, _playableBirdBody->GetAngle());
+    }
 
     // call bird's own update() method
     _playableBirdActor.update(timeDelta);

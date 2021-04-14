@@ -16,6 +16,7 @@
 #include "Events/MouseMoveEvent.hpp"
 #include "Events/MousePressEvent.hpp"
 #include "Events/MouseReleaseEvent.hpp"
+#include "Events/GamePauseEvent.hpp"
 
 Game::Game() :
     _initialized(false),
@@ -88,11 +89,16 @@ bool Game::update() {
         case sf::Event::Closed:
             eventMessenger.queueEvent(WindowCloseEvent());
             break;
+        
+        // trigger a pause event if the window lost focus
+        case sf::Event::LostFocus:
+            eventMessenger.triggerEvent(GamePauseEvent(GamePauseEvent::ACTION::PAUSE));
+            break;
 
-        // Trigger a WindowResizeEvent if the window was resized; this event is triggered instead of
-        // queued because activities might want to know about it to reduce choppiness.
+        // trigger a pause event and queue a resize event if the window is resized
         case sf::Event::Resized:
-            eventMessenger.triggerEvent(WindowResizeEvent(event));
+            eventMessenger.triggerEvent(GamePauseEvent(GamePauseEvent::ACTION::PAUSE));
+            eventMessenger.queueEvent(WindowResizeEvent(event));
             break;
 
         case sf::Event::KeyPressed:

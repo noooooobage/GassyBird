@@ -133,6 +133,8 @@ void ResourceCache::init() {
 
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
 
+    loadFontResource("JOYSTIX_FONT", "../data/joystix.monospace.ttf");
+
     // POLYGONS ////////////////////////////////////////////
 
     // this hitbox will always encompass the full texture recangle in a rectangle shape
