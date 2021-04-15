@@ -77,6 +77,18 @@ public:
      */
     void requestBirdPoop();
 
+    /**
+     * This method is called by the NPCView to start and stop the npc from moving out of the scroll
+     * speed. When the npc is "moving" it goes against the scroll (positive) otherwise it moves
+     * negative.
+     */
+    void requestNPCStep();
+
+    /**
+     * Called by NPCView to cause the NPC to activate its action
+     */
+    void requestTriggerAction();
+
 private:
 
     /**
@@ -185,6 +197,12 @@ private:
      * the world that have type GROUND or GENERIC_OBSTACLE.
      */
     void setWorldScrollSpeed(const float& amount);
+
+    /**
+     * updateNPCs runs through the list of npcs and randomly decides to move them 
+     * but decides to stop moving them based on time constraints for a step.
+     */
+    void updateNPCs();
 
     bool _initialized;
 

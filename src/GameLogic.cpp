@@ -245,6 +245,27 @@ void GameLogic::gamePauseHandler(const Event& event) {
     }
 }
 
+void GameLogic::requestNPCStep() {
+
+    assert(_initialized);
+    //Get some random NPC from the NPC list
+
+    //if the game is playing
+        //Get that NPCs body
+        //Change the velocity
+        //start time of entity since it last moved
+}
+
+void GameLogic::requestTriggerAction(){
+    assert(_initialized);
+
+    //Get some random NPC from the NPC list
+
+    //if the game is playing
+        //get that NPC actor and activate its animation
+        //spawn a rock obstacle and set its velocity in the direction of the board
+}
+
 void GameLogic::createMap() {
 
     // create the ground objects
@@ -525,4 +546,14 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
 
     // update the _worldScrollSpeed variable
     _worldScrollSpeed = amount;
+}
+
+void GameLogic::updateNPCs(){
+    assert(_initialized);
+
+    //iterate through the NPCs
+        //Check their move timer
+            //Compare and decide if it needs to be reset
+        //Check their throw timer
+            //Compare and decide if it needs to be reset
 }
