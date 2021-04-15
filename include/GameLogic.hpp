@@ -205,11 +205,19 @@ private:
     float _worldScrollSpeed; // Effectively the bird's horizontal speed (meters per second) --
                              // increasing this speed makes objects move faster to the left.
 
+    // ground stuff
+    const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
+    const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
+    const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
+    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all ground obstacles
+
     // playable bird stuff
     PlayableBird _playableBirdActor;
     b2Body* _playableBirdBody;
-    const float _BIRD_DEMO_X_POSITION; // x-position of bird in demo mode
-    const float _BIRD_DEMO_GROUND_OFFSET; // height of bird off the ground in demo mode
+    const b2Vec2 _BIRD_DEMO_POSITION; // position of the bird in DEMO mode
+    const float _BIRD_MAX_HEIGHT; // highest y-position that the bird can reach
+    const float _BIRD_SLOW_HEIGHT; // height at which the bird starts slowing down
+    const float _BIRD_MAX_VELOCITY; // fastest the bird can move in the y-direction
     const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
@@ -218,12 +226,6 @@ private:
 
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
-
-    // ground stuff
-    const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
-    const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
-    const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
-    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all ground obstacles
 
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;

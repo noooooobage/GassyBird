@@ -25,15 +25,18 @@ GameLogic::GameLogic() :
     _INITIAL_WORLD_SCROLL_SPEED(7.0f),
     _worldScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED),
 
-    _BIRD_DEMO_X_POSITION(8.0f),
-    _BIRD_DEMO_GROUND_OFFSET(9.5f),
-    _BIRD_POOP_DURATION(1.0f),
-    _BIRD_MAX_POOPS(2),
-    _POOP_DOWNWARD_VELOCITY(3.0f),
-
     _NUM_GROUNDS(4),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
-    _GROUND_OFFSET_METERS(0.5f)
+    _GROUND_OFFSET_METERS(0.5f),
+
+    _BIRD_DEMO_POSITION(b2Vec2(8.0f, 10.0f)),
+    _BIRD_MAX_HEIGHT(NATIVE_RESOLUTION.y * METERS_PER_PIXEL - 0.5f),
+    _BIRD_SLOW_HEIGHT(_BIRD_MAX_HEIGHT - 1.0f),
+    _BIRD_MAX_VELOCITY(sqrtf((NATIVE_RESOLUTION.y * METERS_PER_PIXEL -_GROUND_OFFSET_METERS) *
+            -_GRAVITY.y * 2.0f)),
+    _BIRD_POOP_DURATION(1.0f),
+    _BIRD_MAX_POOPS(2),
+    _POOP_DOWNWARD_VELOCITY(3.0f)
 {}
 
 GameLogic::~GameLogic() {
@@ -97,13 +100,16 @@ void GameLogic::toDemo() {
 
     assert(_initialized);
 
+    // set state, also the game should not be paused
+    _state = DEMO;
+    _isPaused = false;
+
     // remove all actors and create initial map
     removeAllFromWorld();
     createMap();
 
     // add the playable bird to the physical world
-    b2Vec2 position(_BIRD_DEMO_X_POSITION, _GROUND_OFFSET_METERS + _BIRD_DEMO_GROUND_OFFSET);
-    _playableBirdBody = addToWorld(_playableBirdActor, position, false);
+    _playableBirdBody = addToWorld(_playableBirdActor, _BIRD_DEMO_POSITION, false);
 
     // set bird to demo state
     _playableBirdActor.stopPooping();
@@ -111,15 +117,14 @@ void GameLogic::toDemo() {
 
     // turn off gravity for the bird
     _playableBirdBody->SetGravityScale(0.0f);
-
-    // set state, also the game should not be paused
-    _state = DEMO;
-    _isPaused = false;
 }
 
 void GameLogic::toPlaying() {
 
     assert(_initialized);
+
+    // set state
+    _state = PLAYING;
 
     // set bird to initial playing state
     _timeSinceLastPoop = 0.0f;
@@ -132,9 +137,6 @@ void GameLogic::toPlaying() {
     _playableBirdBody->SetGravityScale(1.0f);
     _playableBirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
     _playableBirdBody->SetAwake(true);
-
-    // set state
-    _state = PLAYING;
 }
 
 bool GameLogic::isPaused() const {
@@ -315,7 +317,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
         // Determine a random height and face direction. If the game is in DEMO mode, then don't
         // create a streetlight that will hit the bird.
         float minHeight = 4.0f;
-        float maxHeight = _state == DEMO ? _BIRD_DEMO_GROUND_OFFSET - 1.0f :
+        float maxHeight = _state == DEMO ? _BIRD_DEMO_POSITION.y - _GROUND_OFFSET_METERS - 1.0f :
                 (NATIVE_RESOLUTION.y * METERS_PER_PIXEL) - _GROUND_OFFSET_METERS - 1.5f;
         float height = randomFloat(minHeight, maxHeight);
         bool faceLeft = randomBool();
@@ -437,9 +439,22 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
 
     // If the game is in DEMO state, then enforce that the bird is in its demo position. This is
     // just in case an obstacle comes that collides with the bird.
-    if (_state == DEMO) {
-        b2Vec2 position(_BIRD_DEMO_X_POSITION, _GROUND_OFFSET_METERS + _BIRD_DEMO_GROUND_OFFSET);
-        _playableBirdBody->SetTransform(position, _playableBirdBody->GetAngle());
+    if (_state == DEMO)
+        _playableBirdBody->SetTransform(_BIRD_DEMO_POSITION, _playableBirdBody->GetAngle());
+
+    // Prevent the bird from going past the top of the screen. Accomplished by having an area at the
+    // top of the screen that gradually caps the bird's upward velocity.
+    const b2Vec2& velocity = _playableBirdBody->GetLinearVelocity();
+    const b2Vec2& position = _playableBirdBody->GetPosition();
+    if (position.y > _BIRD_SLOW_HEIGHT) {
+        float lerpValue = clamp((position.y - _BIRD_SLOW_HEIGHT) /
+                (_BIRD_MAX_HEIGHT - _BIRD_SLOW_HEIGHT), 0.0f, 1.0f);
+        float maxVelocity = _BIRD_MAX_VELOCITY * (1.0f - lerpValue);
+        if (velocity.y > maxVelocity)
+            _playableBirdBody->SetLinearVelocity(b2Vec2(velocity.x, maxVelocity));
+        if (position.y > _BIRD_MAX_HEIGHT)
+            _playableBirdBody->SetTransform(b2Vec2(position.x, _BIRD_MAX_HEIGHT),
+                    _playableBirdBody->GetAngle());
     }
 
     // call bird's own update() method
