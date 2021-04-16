@@ -16,6 +16,7 @@
 #include "Obstacle.hpp"
 #include "EventListener.hpp"
 #include "Event.hpp"
+#include "ContactListener.hpp"
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -97,6 +98,12 @@ private:
     void gamePauseHandler(const Event& event);
 
     /**
+     * Handles CollisionEvents. Ends the game if the bird hits an obstacle, increases the score if a
+     * poop hits an NPC.
+     */
+    void collisionHandler(const Event& event);
+
+    /**
      * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
      * other entities in there as well. This does not add the playable bird to the world, so need to
      * do that separately.
@@ -123,7 +130,8 @@ private:
 
     /**
      * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
-     * physical actors map.
+     * physical actors map. The user data of the created box2d body is set to the address of the
+     * given actor.
      * 
      * @param actor the PhysicalActor to add to the world
      * @param position position at which the body is placed, defaults to (0, 0)
@@ -177,7 +185,7 @@ private:
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
-    b2Body* getBody(const PhysicalActor& actor) const;
+    b2Body* getBody(const PhysicalActor* actor) const;
     
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
@@ -208,6 +216,10 @@ private:
 
     // event listeners
     EventListener _gamePauseListener;
+    EventListener _collisionListener;
+
+    // contact listener which creates CollisionEvents, this is NOT an EventListener
+    ContactListener _contactListener;
 
     // different possible states
     enum STATE {DEMO, PLAYING, GAME_OVER};

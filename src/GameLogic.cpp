@@ -16,6 +16,7 @@
 #include "NPCFactory.hpp"
 #include "Event.hpp"
 #include "Events/GamePauseEvent.hpp"
+#include "Events/CollisionEvent.hpp"
 
 GameLogic::GameLogic() :
 
@@ -43,6 +44,7 @@ GameLogic::~GameLogic() {
 
     // remove event listeners
     eventMessenger.removeListener(GamePauseEvent::TYPE, _gamePauseListener);
+    eventMessenger.removeListener(CollisionEvent::TYPE, _collisionListener);
 
     // remove every actor
     removeAllFromWorld();
@@ -60,10 +62,15 @@ void GameLogic::init() {
 
     // initialize and add event listeners
     _gamePauseListener.init(&GameLogic::gamePauseHandler, this);
+    _collisionListener.init(&GameLogic::collisionHandler, this);
     eventMessenger.addListener(GamePauseEvent::TYPE, _gamePauseListener);
+    eventMessenger.addListener(CollisionEvent::TYPE, _collisionListener);
 
     // create world from gravity
     _world = std::make_shared<b2World>(_GRAVITY);
+
+    // assign the contact listener to the world
+    _world->SetContactListener(&_contactListener);
 
     // initialize playable bird
     _playableBirdActor.init();
@@ -236,13 +243,29 @@ void GameLogic::gamePauseHandler(const Event& event) {
     if (_state != PLAYING)
         return;
 
-    // for now, just set the _isPaused variable
-    // TODO: make this actually do something
+    // set the _isPaused variable accordingly
     if (e.action == GamePauseEvent::ACTION::PAUSE) {
         _isPaused = true;
     } else {
         _isPaused = false;
     }
+}
+
+void GameLogic::collisionHandler(const Event& event) {
+
+    assert(_initialized);
+
+    // make sure the event is a CollisionEvent and convert it
+    assert(event.getType() == CollisionEvent::TYPE);
+    const CollisionEvent& e = dynamic_cast<const CollisionEvent&>(event);
+
+    // Make sure that both actors currently exist -- this is necessary because this handler may have
+    // been called after the involved actors have been removed from the world.
+    b2Body* bodyA = getBody(e.actorA);
+    b2Body* bodyB = getBody(e.actorB);
+    assert(bodyA && bodyB);
+
+    // TODO: do stuff here
 }
 
 void GameLogic::requestNPCStep() {
@@ -369,7 +392,8 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
     // make sure that the number of shapes and fixtures are equal
     assert(shapes.size() == fixtureDefs.size());
 
-    // set the position and velocity of the body
+    // set the user data, position, and velocity of the body
+    bodyDef.userData.pointer = (uintptr_t)actorAddress;
     bodyDef.position = position;
     if (inheritWorldScroll)
         bodyDef.linearVelocity += b2Vec2(-_worldScrollSpeed, 0.0f);
@@ -394,7 +418,7 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
 
     // get the address and find the associated body
     PhysicalActor* actorAddress = (PhysicalActor*)&actor;
-    b2Body* body = getBody(actor);
+    b2Body* body = getBody(actorAddress);
 
     // if there is an associated body, then destroy it and nullify it
     if (body) {
@@ -421,12 +445,12 @@ void GameLogic::removeAllFromWorld() {
     }
 }
 
-b2Body* GameLogic::getBody(const PhysicalActor& actor) const {
+b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
 
     assert(_initialized);
 
     // return nullptr if actor does not have a physical body
-    PhysicalActor* actorAddress = (PhysicalActor*)&actor;
+    PhysicalActor* actorAddress = (PhysicalActor*)actor;
     if (_physicalActors.find(actorAddress) == _physicalActors.end())
         return nullptr;
     
@@ -491,7 +515,7 @@ void GameLogic::updateGround() {
 
         // get the leftmost ground (the one at the front of the list is always the leftmost)
         std::shared_ptr<Obstacle> leftGround = _grounds.front();
-        b2Body* leftGroundBody = getBody(*leftGround);
+        b2Body* leftGroundBody = getBody(leftGround.get());
 
         // sanity check -- make sure the body was able to be found
         assert(leftGroundBody);
@@ -501,7 +525,7 @@ void GameLogic::updateGround() {
         //   2. make this ground the rightmost ground in the list
         if (leftGroundBody->GetPosition().x <= -1.0f) {
 
-            b2Body* rightGroundBody = getBody(*_grounds.back());
+            b2Body* rightGroundBody = getBody(_grounds.back().get());
             assert(rightGroundBody);
 
             // step 1
