@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
 #include <box2d/box2d.h>
 
@@ -30,6 +31,7 @@ GameLogic::GameLogic() :
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
     _GROUND_OFFSET_METERS(0.5f),
 
+    _playableBirdBody(nullptr),
     _BIRD_DEMO_POSITION(b2Vec2(8.0f, 10.0f)),
     _BIRD_MAX_HEIGHT(NATIVE_RESOLUTION.y * METERS_PER_PIXEL - 0.5f),
     _BIRD_SLOW_HEIGHT(_BIRD_MAX_HEIGHT - 1.0f),
@@ -37,7 +39,8 @@ GameLogic::GameLogic() :
             -_GRAVITY.y * 2.0f)),
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
-    _POOP_DOWNWARD_VELOCITY(3.0f)
+    _POOP_DOWNWARD_VELOCITY(3.0f),
+    _lastPoop(nullptr)
 {}
 
 GameLogic::~GameLogic() {
@@ -100,7 +103,7 @@ void GameLogic::update(const float& timeDelta) {
     setWorldScrollSpeed(_worldScrollSpeed);
     
     // increment physics
-    _world->Step(timeDelta, 8, 3);
+    _world->Step(timeDelta, 8, 4);
 }
 
 void GameLogic::toDemo() {
@@ -115,8 +118,9 @@ void GameLogic::toDemo() {
     removeAllFromWorld();
     createMap();
 
-    // add the playable bird to the physical world
+    // add the playable bird to the physical world and reset _lastPoop
     _playableBirdBody = addToWorld(_playableBirdActor, _BIRD_DEMO_POSITION, false);
+    _lastPoop = nullptr;
 
     // set bird to demo state
     _playableBirdActor.stopPooping();
@@ -226,6 +230,7 @@ void GameLogic::requestBirdPoop() {
         // from the bird.
         _obstacles.push_back(ObstacleFactory::makePoop(_playableBirdBody->GetLinearVelocity().y -
                 _POOP_DOWNWARD_VELOCITY));
+        _lastPoop = _obstacles.back().get();
         addToWorld(*_obstacles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
                 false);
     }
@@ -265,7 +270,50 @@ void GameLogic::collisionHandler(const Event& event) {
     b2Body* bodyB = getBody(e.actorB);
     assert(bodyA && bodyB);
 
-    // TODO: do stuff here
+    // call respective helper methods
+    if (e.involvesType(PhysicalActor::TYPE::POOP))
+        handlePoopCollision(e);
+    if (e.involvesType(PhysicalActor::TYPE::PLAYABLE_BIRD))
+        handleBirdCollision(e);
+}
+
+void GameLogic::handlePoopCollision(const CollisionEvent& e) {
+
+    // do not consider if the state isn't PLAYING or if the bird pooped on itself (lmao)
+    if (_state != PLAYING || e.involvesType(PhysicalActor::TYPE::PLAYABLE_BIRD))
+        return;
+
+    // get the actor which is the poop
+    PhysicalActor* poop =
+            e.actorA->getType() == PhysicalActor::TYPE::POOP ? e.actorA : e.actorB;
+
+    // if the poop isn't already in the dead poops list, it can still have an effect
+    if (std::find(_deadPoops.begin(), _deadPoops.end(), poop) == _deadPoops.end()) {
+
+        // add to dead poops list
+        _deadPoops.push_back(poop);
+
+        // if it collided with an NPC, then increase the score and reset poops left
+        if (e.involvesType(PhysicalActor::TYPE::NPC)) {
+            ++_playerScore;
+            _numPoopsLeft = _BIRD_MAX_POOPS;
+        
+        // If it didn't collide with an NPC, it's the last poop, and they're aren't any poops
+        // left, then it's game over.
+        } else if (poop == _lastPoop && _numPoopsLeft <= 0) {
+            std::cout << "game over" << std::endl;
+        }
+    }
+}
+
+void GameLogic::handleBirdCollision(const CollisionEvent& e) {
+
+    // do not consider if the state isn't playing or the bird collided with its own poop
+    if (_state != PLAYING || e.involvesType(PhysicalActor::TYPE::POOP))
+        return;
+
+    // the bird collided with something, so that's game over bro
+    std::cout << "game over" << std::endl;
 }
 
 void GameLogic::requestNPCStep() {
@@ -434,6 +482,7 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
     removeFromList(actor, _grounds);
     removeFromList(actor, _obstacles);
     removeFromList(actor, _NPCs);
+    _deadPoops.remove(actorAddress);
 }
 
 void GameLogic::removeAllFromWorld() {
@@ -476,21 +525,19 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
         float force = _playableBirdBody->GetMass() * targetAccel;
         _playableBirdBody->ApplyForceToCenter(b2Vec2(0.0f, force), true);
     }
+
+    // get bird's position and velocity
+    const b2Vec2& velocity = _playableBirdBody->GetLinearVelocity();
+    const b2Vec2& position = _playableBirdBody->GetPosition();
     
     // Set the bird's rotation based on its velocity, dampen the rotation slightly so it's not so
-    // severe.
+    // severe. Also make sure the bird is in its demo x-position.
+    // TODO: when it's game over, the bird's x-position should be "unlocked"
     float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _worldScrollSpeed * 2.0f);
-    _playableBirdBody->SetTransform(_playableBirdBody->GetPosition(), angle);
-
-    // If the game is in DEMO state, then enforce that the bird is in its demo position. This is
-    // just in case an obstacle comes that collides with the bird.
-    if (_state == DEMO)
-        _playableBirdBody->SetTransform(_BIRD_DEMO_POSITION, _playableBirdBody->GetAngle());
+    _playableBirdBody->SetTransform(b2Vec2(_BIRD_DEMO_POSITION.x, position.y), angle);
 
     // Prevent the bird from going past the top of the screen. Accomplished by having an area at the
     // top of the screen that gradually caps the bird's upward velocity.
-    const b2Vec2& velocity = _playableBirdBody->GetLinearVelocity();
-    const b2Vec2& position = _playableBirdBody->GetPosition();
     if (position.y > _BIRD_SLOW_HEIGHT) {
         float lerpValue = clamp((position.y - _BIRD_SLOW_HEIGHT) /
                 (_BIRD_MAX_HEIGHT - _BIRD_SLOW_HEIGHT), 0.0f, 1.0f);

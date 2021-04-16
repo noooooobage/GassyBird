@@ -104,6 +104,12 @@ private:
     void collisionHandler(const Event& event);
 
     /**
+     * Helper functions which handle collisions with specific types of physical actors.
+     */
+    void handlePoopCollision(const CollisionEvent& e);
+    void handleBirdCollision(const CollisionEvent& e);
+
+    /**
      * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
      * other entities in there as well. This does not add the playable bird to the world, so need to
      * do that separately.
@@ -162,9 +168,8 @@ private:
     void removeAllFromWorld();
 
     /**
-     * This should only be called by removeFromWorld(). This method searches for the shared pointer
-     * which holds the given actor in the given list of shared pointers. It frees the memory of all
-     * matches and removes the entries from the list.
+     * Searches for the shared pointer which holds the given actor in the given list of shared
+     * pointers. It frees the memory of all matches and removes the entries from the list.
      */
     template <typename T>
     void removeFromList(const PhysicalActor& actor, std::list<std::shared_ptr<T>>& list) {
@@ -253,6 +258,9 @@ private:
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
+    std::list<PhysicalActor*> _deadPoops; // list of poops that have already landed
+    PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
+                              // DEREFERENCE THIS!! for comparison purposes only
 
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
