@@ -18,6 +18,7 @@
 #include "Event.hpp"
 #include "Events/GamePauseEvent.hpp"
 #include "Events/CollisionEvent.hpp"
+#include "Events/GameOverEvent.hpp"
 
 GameLogic::GameLogic() :
 
@@ -90,6 +91,10 @@ void GameLogic::update(const float& timeDelta) {
     if (_isPaused)
         return;
 
+    // Ensure that scrolling actors are moving at the world scroll speed. This is necessary to do
+    // every frame because sometimes varying timeDeltas affects the velocity
+    setWorldScrollSpeed(_worldScrollSpeed);
+
     // perform removal and procedural generation
     removeOutOfBoundsActors();
     generateNewActors();
@@ -97,10 +102,6 @@ void GameLogic::update(const float& timeDelta) {
     // update actors
     updateGround();
     updatePlayableBird(timeDelta);
-
-    // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
-    // necessary to do every frame because sometimes varying timeDeltas affects the velocity
-    setWorldScrollSpeed(_worldScrollSpeed);
     
     // increment physics
     _world->Step(timeDelta, 8, 4);
@@ -148,6 +149,19 @@ void GameLogic::toPlaying() {
     _playableBirdBody->SetGravityScale(1.0f);
     _playableBirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
     _playableBirdBody->SetAwake(true);
+}
+
+void GameLogic::toGameOver() {
+
+    assert(_initialized);
+
+    // set the state to GAME_OVER
+    _state = GAME_OVER;
+
+    // set bird properties
+    _playableBirdActor.stopPooping();
+    _playableBirdActor.stopFlying();
+    _playableBirdActor.die();
 }
 
 bool GameLogic::isPaused() const {
@@ -302,7 +316,7 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
         // If it didn't collide with an NPC, it's the last poop, and they're aren't any poops
         // left, then it's game over.
         } else if (poop == _lastPoop && _numPoopsLeft <= 0) {
-            std::cout << "game over" << std::endl;
+            eventMessenger.triggerEvent(GameOverEvent());
         }
     }
 }
@@ -314,7 +328,7 @@ void GameLogic::handleBirdCollision(const CollisionEvent& e) {
         return;
 
     // the bird collided with something, so that's game over bro
-    std::cout << "game over" << std::endl;
+    eventMessenger.triggerEvent(GameOverEvent());
 }
 
 void GameLogic::requestNPCStep() {
@@ -532,10 +546,13 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     const b2Vec2& position = _playableBirdBody->GetPosition();
     
     // Set the bird's rotation based on its velocity, dampen the rotation slightly so it's not so
-    // severe. Also make sure the bird is in its demo x-position.
-    // TODO: when it's game over, the bird's x-position should be "unlocked"
-    float angle = atan2f(velocity.y, _worldScrollSpeed * 2.0f);
-    _playableBirdBody->SetTransform(b2Vec2(_BIRD_DEMO_POSITION.x, position.y), angle);
+    // severe. Also make sure the bird is in its demo x-position. Only do this if the state isn't
+    // GAME_OVER, so that the bird's body can ragdoll when the game is over
+    if (_state != GAME_OVER) {
+        float angle = atan2f(velocity.y, _worldScrollSpeed * 2.0f);
+        _playableBirdBody->SetTransform(b2Vec2(_BIRD_DEMO_POSITION.x, position.y), angle);
+        _playableBirdBody->SetLinearVelocity(b2Vec2(0.0f, velocity.y));
+    }
 
     // Prevent the bird from going past the top of the screen. Accomplished by having an area at the
     // top of the screen that gradually caps the bird's upward velocity.
@@ -601,19 +618,20 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
     // iterate through all bodies and change their velocities
     for (auto& pair : _physicalActors) {
 
-        // get the actor and skip if it's not of type GROUND or GENERIC_OBSTACLE
+        // get the actor
         PhysicalActor* actor = pair.first;
         assert(actor);
-        if (!(
+
+        // only apply velocity if it's of type GROUND, NPC, or GENERIC_OBSTACLE
+        if (
             actor->getType() == PhysicalActor::TYPE::GROUND ||
+            actor->getType() == PhysicalActor::TYPE::NPC ||
             actor->getType() == PhysicalActor::TYPE::GENERIC_OBSTACLE
-        ))
-            continue;
-        
-        // get the associated body and set its linear velocity accordingly
-        b2Body* body = pair.second;
-        assert(body);
-        body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
+        ) {
+            b2Body* body = pair.second;
+            assert(body);
+            body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
+        }
     }
 
     // update the _worldScrollSpeed variable

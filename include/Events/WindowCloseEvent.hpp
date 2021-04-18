@@ -1,8 +1,6 @@
 #ifndef _WINDOW_CLOSE_EVENT_
 #define _WINDOW_CLOSE_EVENT_
 
-#include <SFML/Graphics.hpp>
-
 #include "Event.hpp"
 
 /**

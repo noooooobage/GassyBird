@@ -13,6 +13,7 @@
 #include "Events/ButtonClickEvent.hpp"
 #include "Events/GamePauseEvent.hpp"
 #include "Events/CollisionEvent.hpp"
+#include "Events/GameOverEvent.hpp"
 
 const EventType WindowResizeEvent::TYPE = (EventType)&WindowResizeEvent::TYPE;
 const EventType WindowCloseEvent::TYPE =  (EventType)&WindowCloseEvent::TYPE;
@@ -24,3 +25,4 @@ const EventType MouseReleaseEvent::TYPE = (EventType)&MouseReleaseEvent::TYPE;
 const EventType ButtonClickEvent::TYPE =  (EventType)&ButtonClickEvent::TYPE;
 const EventType GamePauseEvent::TYPE =    (EventType)&GamePauseEvent::TYPE;
 const EventType CollisionEvent::TYPE =    (EventType)&CollisionEvent::TYPE;
+const EventType GameOverEvent::TYPE =     (EventType)&GameOverEvent::TYPE;

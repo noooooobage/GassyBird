@@ -6,15 +6,26 @@
 #include "PlayingActivity.hpp"
 #include "Globals.hpp"
 #include "Resources/SpriteResource.hpp"
+#include "Event.hpp"
+#include "Events/GameOverEvent.hpp"
 
 PlayingActivity::PlayingActivity() :
     _initialized(false),
     _currentActivity(nullptr)
 {}
 
+PlayingActivity::~PlayingActivity() {
+    // remove event listeners upon destruction
+    eventMessenger.removeListener(GameOverEvent::TYPE, _gameOverListener);
+}
+
 void PlayingActivity::init(sf::RenderTarget& target) {
 
     _initialized = true;
+    
+    // initialize event listeners and add them to event messenger
+    _gameOverListener.init(&PlayingActivity::toGameOver, this);
+    eventMessenger.addListener(GameOverEvent::TYPE, _gameOverListener);
 
     // initialize logic; if in DEBUG mode, also set its debug drawer
     _logic.init();
@@ -30,6 +41,7 @@ void PlayingActivity::init(sf::RenderTarget& target) {
     // initialize activities
     _mainMenuActivity.init(*this);
     _playingMenuActivity.init(*this, _logic);
+    _gameOverActivity.init(*this, _logic);
 
     // start with the main menu
     toMain();
@@ -66,6 +78,8 @@ void PlayingActivity::draw(sf::RenderTarget& target) {
 
 void PlayingActivity::toMain() {
 
+    assert(_initialized);
+
     // deactivate old activity
     if (_currentActivity)
         _currentActivity->deactivate();
@@ -80,6 +94,8 @@ void PlayingActivity::toMain() {
 
 void PlayingActivity::toPlaying() {
 
+    assert(_initialized);
+
     // deactivate old activity
     if (_currentActivity)
         _currentActivity->deactivate();
@@ -90,4 +106,23 @@ void PlayingActivity::toPlaying() {
 
     // set logic to playing
     _logic.toPlaying();
+}
+
+void PlayingActivity::toGameOver(const Event& event) {
+
+    assert(_initialized);
+
+    // make sure that the passed event was a GameOverEvent
+    assert(event.getType() == GameOverEvent::TYPE);
+
+    // deactivate old activity
+    if (_currentActivity)
+        _currentActivity->deactivate();
+    
+    // set current activity to playing menu and activate it
+    _currentActivity = &_gameOverActivity;
+    _currentActivity->activate();
+
+    // transition the logic to game over state
+    _logic.toGameOver();
 }

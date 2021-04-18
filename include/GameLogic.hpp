@@ -42,6 +42,7 @@ public:
      */
     void toDemo();
     void toPlaying();
+    void toGameOver();
 
     /**
      * Returns true if the game is paused, returns false otherwise.
@@ -93,14 +94,9 @@ public:
 private:
 
     /**
-     * Handles GamePauseEvents. When the game is paused, the world freezes.
+     * Handler callbacks for event listeners.
      */
     void gamePauseHandler(const Event& event);
-
-    /**
-     * Handles CollisionEvents. Ends the game if the bird hits an obstacle, increases the score if a
-     * poop hits an NPC.
-     */
     void collisionHandler(const Event& event);
 
     /**
@@ -207,7 +203,7 @@ private:
 
     /**
      * Sets the world scroll speed to the specified amount. This will affect all physical actors in
-     * the world that have type GROUND or GENERIC_OBSTACLE.
+     * the world that have type GROUND, NPC, and GENERIC_OBSTACLE.
      */
     void setWorldScrollSpeed(const float& amount);
 
