@@ -268,7 +268,8 @@ void GameLogic::collisionHandler(const Event& event) {
     // been called after the involved actors have been removed from the world.
     b2Body* bodyA = getBody(e.actorA);
     b2Body* bodyB = getBody(e.actorB);
-    assert(bodyA && bodyB);
+    if (!(bodyA && bodyB))
+        return;
 
     // call respective helper methods
     if (e.involvesType(PhysicalActor::TYPE::POOP))
@@ -503,7 +504,7 @@ b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
     if (_physicalActors.find(actorAddress) == _physicalActors.end())
         return nullptr;
     
-    // return cprresponding body pointer
+    // return corresponding body pointer
     return _physicalActors.at(actorAddress);
 }
 
@@ -533,7 +534,7 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     // Set the bird's rotation based on its velocity, dampen the rotation slightly so it's not so
     // severe. Also make sure the bird is in its demo x-position.
     // TODO: when it's game over, the bird's x-position should be "unlocked"
-    float angle = atan2f(_playableBirdBody->GetLinearVelocity().y, _worldScrollSpeed * 2.0f);
+    float angle = atan2f(velocity.y, _worldScrollSpeed * 2.0f);
     _playableBirdBody->SetTransform(b2Vec2(_BIRD_DEMO_POSITION.x, position.y), angle);
 
     // Prevent the bird from going past the top of the screen. Accomplished by having an area at the
