@@ -79,6 +79,7 @@ void GameLogic::update(const float& timeDelta) {
     // update actors
     updateGround();
     updatePlayableBird(timeDelta);
+    updateNPCs();
 
     // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
     // necessary to do every frame because sometimes varying timeDeltas affects the velocity
@@ -203,6 +204,7 @@ void GameLogic::requestNPCStep() {
         b2BodyDef body = item->getBodyDef();
         body.linearVelocity = (b2Vec2(_worldScrollSpeed, 0.f));
         //start time of entity since it last moved
+        item->isMoving = true;
     }
 }
 
@@ -220,6 +222,7 @@ void GameLogic::requestTriggerAction(){
         //curNPC->triggerAction();
         //get that NPC actor and activate its animation
         //spawn a rock obstacle and set its velocity in the direction of the board
+        std::cout << "Throw" << std::endl;
     }
 }
 
@@ -490,14 +493,11 @@ void GameLogic::updateNPCs(){
                 b2BodyDef body = curNPC->getBodyDef();
                 body.linearVelocity = (b2Vec2(-_worldScrollSpeed, 0.f));
                 //body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
+                curNPC->isMoving = false;
             }
                 
             //Check their throw timer
                 //Compare and decide if it needs to be reset
         }
-
-        
-        
     }
-        
 }
