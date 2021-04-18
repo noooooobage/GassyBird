@@ -10,9 +10,9 @@ public:
     ObstacleFactory() {}
 
     /**
-     * Creates and returns a streetlight obstacle whose height as close as possible to the given
-     * height in meters. faceLeft denotes whether the streetlight is facing left (true) or rught
-     * (false). Facing left means that the light is on the left of the pole.
+     * Creates and returns a streetlight obstacle whose height as close as possible to (but not
+     * above) to the given height in meters. faceLeft denotes whether the streetlight is facing left
+     * (true) or right (false). Facing left means that the light is on the left of the pole.
      */
     static std::shared_ptr<Obstacle> makeStreetlight(const float& heightMeters,
             const bool& faceLeft);

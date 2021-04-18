@@ -73,6 +73,10 @@ void ButtonManager::activate() {
         eventMessenger.addListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
     }
 
+    // set all buttons to base state
+    for (auto pair : _buttons)
+        pair.first->toBase();
+
     // if the keyboard can be used and there's at least one button, then set the first button to be
     // the currently hovered button
     if (_canUseKeyboard && !_buttons.empty()) {

@@ -9,20 +9,23 @@
 #include "Events/ButtonClickEvent.hpp"
 
 MainMenuActivity::MainMenuActivity() :
+
     _initialized(false),
-    _activated(false)
+    _activated(false),
+
+    _playingActivity(nullptr)
 {
     // set attributes of play button
     _playButton.setString("PLAY");
     _playButton.setPosition(sf::Vector2f(800.0f, 175.0f));
 
     // set attributes of exit button
-    _exitButton.setString("EXIT");
-    _exitButton.setPosition(sf::Vector2f(800.0f, 325.0f));
+    _quitButton.setString("QUIT");
+    _quitButton.setPosition(sf::Vector2f(800.0f, 325.0f));
 
     // put buttons in list
     _buttons.push_back(&_playButton);
-    _buttons.push_back(&_exitButton);
+    _buttons.push_back(&_quitButton);
 }
 
 MainMenuActivity::~MainMenuActivity() {
@@ -48,8 +51,8 @@ void MainMenuActivity::init(PlayingActivity& playingActivity) {
     _buttonManager.init(true);
 
     // add buttons                          above         right         below         left
-    _buttonManager.addButton(&_playButton, {&_exitButton, &_exitButton, &_exitButton, &_exitButton});
-    _buttonManager.addButton(&_exitButton, {&_playButton, &_playButton, &_playButton, &_playButton});
+    _buttonManager.addButton(&_playButton, {&_quitButton, &_quitButton, &_quitButton, &_quitButton});
+    _buttonManager.addButton(&_quitButton, {&_playButton, &_playButton, &_playButton, &_playButton});
 
     _initialized = true;
 }
@@ -66,10 +69,11 @@ void MainMenuActivity::activate() {
 
 void MainMenuActivity::deactivate() {
 
-    assert(_initialized);
+    // Intentionally do not have an assert(_initialized) here as this method can be called by the
+    // destructor.
 
-    _buttonManager.deactivate();
     eventMessenger.removeListener(ButtonClickEvent::TYPE, _buttonClickListener);
+    _buttonManager.deactivate();
 
     _activated = false;
 }
@@ -102,7 +106,7 @@ void MainMenuActivity::buttonClickHandler(const Event& event) {
         // transition the playing activity to playing
         _playingActivity->toPlaying();
 
-    } else if (e.button == &_exitButton) {
+    } else if (e.button == &_quitButton) {
         // queue a WindowCloseEvent
         eventMessenger.queueEvent(WindowCloseEvent());
     }

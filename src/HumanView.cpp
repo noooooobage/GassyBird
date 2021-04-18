@@ -12,6 +12,7 @@
 #include "Events/KeyPressEvent.hpp"
 #include "Events/KeyReleaseEvent.hpp"
 #include "Events/WindowCloseEvent.hpp"
+#include "Events/GamePauseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
 
@@ -20,7 +21,8 @@ HumanView::HumanView() :
     _initialized(false),
     
     _keyToFly(sf::Keyboard::Key::W),
-    _keyToPoop(sf::Keyboard::Key::Space)
+    _keyToPoop(sf::Keyboard::Key::Space),
+    _keyToPause(sf::Keyboard::Key::P)
 {}
 
 HumanView::~HumanView() {
@@ -91,6 +93,10 @@ void HumanView::keyPressHandler(const Event& event) {
 
     else if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
+    
+    else if (e.key == _keyToPause)
+        eventMessenger.queueEvent(GamePauseEvent(_logic->isPaused() ?
+                GamePauseEvent::ACTION::UNPAUSE : GamePauseEvent::ACTION::PAUSE));
     
     // A developer convenience to be able to close out of the window by pressing escape
     // TODO: remove this before final release

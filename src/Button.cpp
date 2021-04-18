@@ -10,8 +10,9 @@
 
 Button::Button() :
     _BASE_TEXT_COLOR(sf::Color::White),
+    _HOVERED_TEXT_COLOR(sf::Color::Black),
     _CLICKED_TEXT_COLOR(sf::Color::Black),
-    _BASE_FILL_COLOR(sf::Color(255, 255, 255, 50)),
+    _BASE_FILL_COLOR(sf::Color(0, 0, 0, 25)),
     _HOVERED_FILL_COLOR(sf::Color(255, 255, 255, 125)),
     _CLICKED_FILL_COLOR(sf::Color::White),
     _BASE_OUTLINE_THICKNESS(2.0f),
@@ -63,7 +64,7 @@ void Button::toBase() {
 void Button::toHovered() {
     _shape.setFillColor(_HOVERED_FILL_COLOR);
     _shape.setOutlineThickness(_HOVERED_OUTLINE_THICKNESS);
-    _text.setFillColor(_BASE_TEXT_COLOR);
+    _text.setFillColor(_HOVERED_TEXT_COLOR);
 }
 
 void Button::toClicked() {
