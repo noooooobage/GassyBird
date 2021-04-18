@@ -332,24 +332,27 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
 
     // Only two options right now: streetlight or default NPC, so just decide between the two with a
     // random bool.
-    bool spawnNPE = randomBool();
-
-    if (spawnNPE) {
-        // determine a random height and face direction
-        float heightMeters = randomFloat(4.0f, 9.0f);
-        bool spawnStreetlight = randomBool();
-        bool faceLeft = randomBool();
-        if(spawnStreetlight) {
+    //0: Streetlight
+    //1: Tree
+    //2: Cloud
+    int obstacleType = randomInt(0, 2);
+    float heightMeters = randomFloat(4.0f, 9.0f);
+    bool spawnStreetlight = randomBool();
+    bool faceLeft = randomBool();
+    switch(obstacleType) {
+        case 0:
             _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
-        } else {
+            addToWorld(*_obstacles.back(), position);
+            break;
+        case 1:
             _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
-        }
-        addToWorld(*_obstacles.back(), position);
-
-    } else {
-        // not spawning a streetlight, so spawn an NPC instead
-        _NPCs.push_back(NPCFactory::makeDefault());
-        addToWorld(*_NPCs.back(), position);
+            addToWorld(*_obstacles.back(), position);
+            break;
+        case 2:
+            float height = randomFloat(6.0f, 12.0f);
+            _obstacles.push_back(ObstacleFactory::makeCloud());
+            addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
+            break;
     }
 }
 

@@ -223,4 +223,19 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
         *spriteResource.sprite.getTexture(),
         spriteResource.scaleFactor
     ));
+
+    b2FixtureDef fixtureDef;
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height / 2.0f);
+    cloud->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("STREETLIGHT_BASE_HITBOX")->polygon},
+        -origin
+    );
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+
+    cloud->setBodyDef(bodyDef);
+    return cloud;
 }
