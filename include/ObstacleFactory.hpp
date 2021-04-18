@@ -26,6 +26,11 @@ public:
      * Creates and returns a poop obstacle, which has the given y-velocity.
      */
     static std::shared_ptr<Obstacle> makePoop(const float& yVelocity);
+
+    static std::shared_ptr<Obstacle> makeTree(const float& heightMeters,
+            const bool& faceLeft);
+
+    static std::shared_ptr<Obstacle> makeCloud();
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

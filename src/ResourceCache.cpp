@@ -63,6 +63,11 @@ void ResourceCache::init() {
         "../data/tempNPCtexture.png"
     );
 
+    loadTextureResource(
+        "TREE_TEXTURE",
+        "../data/tree_texture.png"
+    );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -129,6 +134,16 @@ void ResourceCache::init() {
         1.5f
     );
 
+    loadSpriteResource(
+        "TREE_SPRITE",
+        *getResource<TextureResource>("TREE_TEXTURE"),
+        {
+            {38, 65, 25, 9},
+            {46, 49, 19, 12},
+            {3, 13, 72, 31}
+        },
+        4.0f
+    );
     // FONTS ///////////////////////////////////////////////
 
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");

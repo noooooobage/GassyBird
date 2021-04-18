@@ -332,17 +332,18 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
 
     // Only two options right now: streetlight or default NPC, so just decide between the two with a
     // random bool.
-    bool spawnStreetlight = randomBool();
+    bool spawnNPE = randomBool();
 
-    if (spawnStreetlight) {
-        // Determine a random height and face direction. If the game is in DEMO mode, then don't
-        // create a streetlight that will hit the bird.
-        float minHeight = 4.0f;
-        float maxHeight = _state == DEMO ? _BIRD_DEMO_POSITION.y - _GROUND_OFFSET_METERS - 1.0f :
-                (NATIVE_RESOLUTION.y * METERS_PER_PIXEL) - _GROUND_OFFSET_METERS - 1.5f;
-        float height = randomFloat(minHeight, maxHeight);
+    if (spawnNPE) {
+        // determine a random height and face direction
+        float heightMeters = randomFloat(4.0f, 9.0f);
+        bool spawnStreetlight = randomBool();
         bool faceLeft = randomBool();
-        _obstacles.push_back(ObstacleFactory::makeStreetlight(height, faceLeft));
+        if(spawnStreetlight) {
+            _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+        } else {
+            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
+        }
         addToWorld(*_obstacles.back(), position);
 
     } else {

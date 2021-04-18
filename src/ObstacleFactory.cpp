@@ -161,3 +161,56 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
 
     return poop;
 }
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, const bool& faceLeft) {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("TREE_SPRITE");
+    std::shared_ptr<Obstacle> tree(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
+        *spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+    const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
+    const sf::IntRect& shaftRect = spriteResource.textureRects.at(1);
+    const sf::IntRect& topRect = spriteResource.textureRects.at(2);
+
+    b2FixtureDef fixtureDef;
+
+    sf::Vector2f baseOrigin(baseRect.width / 2.0f, baseRect.height);
+    tree->addComponent(
+        baseRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("STREETLIGHT_BASE_HITBOX")->polygon},
+        -baseOrigin
+    );
+    int numShafts = (heightMeters * PIXELS_PER_METER / spriteResource.scaleFactor -
+            baseRect.height - topRect.height) / shaftRect.height;
+    if (numShafts < 1)
+        numShafts = 1;
+        
+    sf::Vector2f bodyOrigin(baseOrigin.x, baseOrigin.y);
+
+    for (int i = 0; i < numShafts; ++i) {
+        bodyOrigin.y += shaftRect.height;
+        bodyOrigin.x -= 8;
+        tree->addComponent(
+            shaftRect,
+            fixtureDef,
+            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            -bodyOrigin
+        );
+    }
+    sf::Vector2f topOrigin(bodyOrigin.x+7, bodyOrigin.y+topRect.height-2);
+    
+    tree->addComponent(
+        topRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -topOrigin
+    );
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    tree->setBodyDef(bodyDef);
+    return tree;
+}
