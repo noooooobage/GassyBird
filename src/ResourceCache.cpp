@@ -68,6 +68,15 @@ void ResourceCache::init() {
         "../data/tree_texture.png"
     );
 
+    loadTextureResource(
+        "CLOUD_TEXTURE",
+        "../data/cloud_texture.png"
+    );
+
+    loadTextureResource(
+        "POOP_TEXTURE",
+        "../data/poop_texture.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -119,10 +128,10 @@ void ResourceCache::init() {
     );
 
     loadSpriteResource(
-        "TEST_POOP_SPRITE",
-        *getResource<TextureResource>("TEST_TEXTURE"),
-        {{7, 0, 7, 7}},
-        2.5f
+        "POOP_SPRITE",
+        *getResource<TextureResource>("POOP_TEXTURE"),
+        {{0, 0, 31, 41}},
+        1.0f
     );
 
     loadSpriteResource(
@@ -141,6 +150,15 @@ void ResourceCache::init() {
             {38, 65, 25, 9},
             {46, 49, 19, 12},
             {3, 13, 72, 31}
+        },
+        4.0f
+    );
+
+    loadSpriteResource(
+        "CLOUD_SPRITE",
+        *getResource<TextureResource>("CLOUD_TEXTURE"),
+        {
+            {3, 4, 27, 14}
         },
         4.0f
     );

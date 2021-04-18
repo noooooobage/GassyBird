@@ -127,7 +127,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
 
     // get the poop's sprite resource
     const SpriteResource& spriteResource =
-            *resourceCache.getResource<SpriteResource>("TEST_POOP_SPRITE");
+            *resourceCache.getResource<SpriteResource>("POOP_SPRITE");
     
     // make the poop obstacle
     std::shared_ptr<Obstacle> poop(new Obstacle(
@@ -213,4 +213,14 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
     bodyDef.type = b2_dynamicBody;
     tree->setBodyDef(bodyDef);
     return tree;
+}
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("CLOUD_SPRITE");
+    std::shared_ptr<Obstacle> cloud(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
+        *spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
 }

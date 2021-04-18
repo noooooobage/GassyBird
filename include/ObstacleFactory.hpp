@@ -31,6 +31,12 @@ public:
             const bool& faceLeft);
 
     static std::shared_ptr<Obstacle> makeCloud();
+
+    static std::shared_ptr<Obstacle> makeDocks(const float& widthMeters, const float& heightMeters);
+
+    static std::shared_ptr<Obstacle> makeLifeguard();
+
+    
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_
