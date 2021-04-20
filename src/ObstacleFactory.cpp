@@ -162,6 +162,39 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
     return poop;
 }
 
+std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
+    //functions similarly to a ground obstacle but with a different texture
+        // get the ground's sprite resource
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("SPLATTER_SPRITE");
+    
+    // determine scale such that the ground's width will be correct
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    // create the ground obstacle
+    std::shared_ptr<Obstacle> ground(new Obstacle(
+        PhysicalActor::TYPE::GROUND,
+        *spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+
+    b2FixtureDef fixtureDef;
+    // ground only has one component; it's origin should be at the top right
+    sf::Vector2f origin(textureRect.width, 0.0f);
+    ground->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+
+    // set the body definition
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    ground->setBodyDef(bodyDef);
+
+    return ground;
+}
+
 std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, const bool& faceLeft) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("TREE_SPRITE");

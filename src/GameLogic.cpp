@@ -319,6 +319,9 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
             eventMessenger.triggerEvent(GameOverEvent());
         }
     }
+    removeFromWorld(*poop);
+    _obstacles.push_back(ObstacleFactory::makePoopSplatter());
+    addToWorld(*_obstacles.back(), e.position);
 }
 
 void GameLogic::handleBirdCollision(const CollisionEvent& e) {

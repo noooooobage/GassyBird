@@ -72,10 +72,14 @@ void ResourceCache::init() {
         "CLOUD_TEXTURE",
         "../data/cloud_texture.png"
     );
-
     loadTextureResource(
         "POOP_TEXTURE",
         "../data/poop_texture.png"
+    );
+
+    loadTextureResource(
+        "POOP_SPLATTER_TEXTURE",
+        "../data/poop_splatter_texture.png"
     );
     // SPRITES /////////////////////////////////////////////
 
@@ -161,6 +165,15 @@ void ResourceCache::init() {
             {3, 4, 27, 14}
         },
         4.0f
+    );
+
+    loadSpriteResource(
+        "SPLATTER_SPRITE",
+        *getResource<TextureResource>("POOP_SPLATTER_TEXTURE"),
+        {
+            {2, 12, 43, 9}
+        },
+        1.0f
     );
     // FONTS ///////////////////////////////////////////////
 
