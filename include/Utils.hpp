@@ -17,6 +17,13 @@ namespace {
 }
 
 /**
+ * Returns the linear interpolation of the range [a, b] with parameter t.
+ */
+inline float lerp(const float& a, const float& b, const float& t) {
+    return a + t * (b - a);
+}
+
+/**
  * Returns the given value clamped to the range [low, high].
  */
 template <typename T>

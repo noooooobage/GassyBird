@@ -46,6 +46,13 @@ public:
     void setPosition(const sf::Vector2f& position);
 
     /**
+     * Sets the opacity of the button to the given opacity value, which is in the range [0, 1]. 
+     * Values outside of this range are clamped to the range. 0 means fully transparent, and 1 means
+     * fully opaque.
+     */
+    void setOpacity(const float& opacity);
+
+    /**
      * Returns true if the given point (graphical world coordinates, not pixel coordinates) is
      * inside the bounds of the button. Returns false otherwise.
      */
@@ -75,6 +82,10 @@ private:
 
     sf::Text _text;
     sf::RectangleShape _shape;
+
+    float _opacity;
+    sf::Color _opaqueTextColor;
+    sf::Color _opaqueShapeColor;
 
     const sf::Color _BASE_TEXT_COLOR; // normal fill color of text
     const sf::Color _HOVERED_TEXT_COLOR; // fill color of text when botton is hovered

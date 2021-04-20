@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
@@ -59,6 +60,20 @@ public:
     const std::vector<b2FixtureDef>& getFixtureDefs() const { return _fixtureDefs; }
 
     PhysicalActor::TYPE getType() const { return _TYPE; }
+
+    /**
+     * Returns the type represented as a string, used only for debug output.
+     */
+    std::string getTypeStr() const {
+        switch (_TYPE) {
+        case TYPE::GENERIC_OBSTACLE: return "GENERIC_OBSTACLE";
+        case TYPE::GROUND:           return "GROUND";
+        case TYPE::NPC:              return "NPC";
+        case TYPE::PLAYABLE_BIRD:    return "PLAYABLE_BIRD";
+        case TYPE::POOP:             return "POOP";
+        default:                     return "undefined";
+        }
+    }
 
 private:
 

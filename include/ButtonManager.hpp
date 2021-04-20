@@ -92,6 +92,11 @@ public:
     void deactivate();
 
     /**
+     * Returns whether the button manager is activated or not.
+     */
+    bool isActivated() { return _activated; }
+
+    /**
      * Adds the given button and adjacencies to the button manager. By default, the adjacencies are
      * set up such that the given button has no adjacencies.
      */
