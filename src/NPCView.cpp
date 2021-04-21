@@ -9,12 +9,11 @@
 #include "Globals.hpp"
 #include "Utils.hpp"
 #include "Resources/SpriteResource.hpp"
-#include "Events/KeyPressEvent.hpp"
-#include "Events/KeyReleaseEvent.hpp"
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/GamePauseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
+#include "NPC.hpp"
 
 NPCView::NPCView() :
 
@@ -40,10 +39,10 @@ void NPCView::init(GameLogic& logic) {
 
     // initialize and add event listeners
     _keyPressListener.init(&NPCView::keyPressHandler, this);
-    _keyReleaseListener.init(&NPCView::keyReleaseHandler, this);
+    // _keyReleaseListener.init(&NPCView::keyReleaseHandler, this);
 
     eventMessenger.addListener(KeyPressEvent::TYPE, _keyPressListener);
-    eventMessenger.addListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
+    // eventMessenger.addListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
 }
 
 void NPCView::update(const float& timeDelta) {
@@ -71,24 +70,18 @@ void NPCView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
+// intended to make random NPC throw something when bird poops
+
 void NPCView::keyPressHandler(const Event& event) {
+
+    // assert(isHit);
+
     assert(event.getType() == KeyPressEvent::TYPE);
 
     const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
 
-    //if(e.key == _keyToFly)
-    //    _logic->requestBirdStartFly();
-
-    //else if (e.key == _keyToPoop)
-    //    _logic->requestBirdPoop();
+    // if(e.key == _keyToPoop) {
+        logic->requestTriggerAction();
+    // }
 }
 
-void NPCView::keyReleaseHandler(const Event& event) {
-    assert(event.getType() == KeyReleaseEvent::TYPE);
-
-    const KeyReleaseEvent& e = dynamic_cast<const KeyReleaseEvent&>(event);
-
-    //if(e.key == _keyToFly) {
-    //    _logic->requestBirdStopFly();
-    //}
-}

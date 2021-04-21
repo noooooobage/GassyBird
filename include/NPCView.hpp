@@ -36,14 +36,14 @@ public:
 private:
 
     /**
-     * Called when a KeyPressEvent is triggered.
+     * Called when a KeyPressEvent is triggered. Asks the logic to make NPC respond to bird poop event
      */
     void keyPressHandler(const Event& event);
 
     /**
      * Called when a KeyReleaseEvent is triggered.
      */
-    void keyReleaseHandler(const Event& event);
+    // void keyReleaseHandler(const Event& event);
 
     bool _initialized;
 
@@ -55,8 +55,6 @@ private:
 
     // NPC list
     // std::list<std:shared_ptr<NPC>> _NPCs;
-
-    sf::Sprite _NPCSprite;
 };
 
 #endif // _NPC_VIEW_HPP_
