@@ -373,6 +373,9 @@ void GameLogic::requestTriggerAction(){
         //get that NPC actor and activate its animation
         //spawn a rock obstacle and set its velocity in the direction of the board
         std::cout << "Throw" << std::endl;
+
+        //_obstacles.push_back(ObstacleFactory::makePoop(_POOP_DOWNWARD_VELOCITY));
+        //addToWorld(*_obstacles.back(), (the NPC throwing)->GetPosition(), false);
     }
 }
 
