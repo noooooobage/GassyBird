@@ -134,8 +134,11 @@ Button* ButtonManager::getButtonContaining(const sf::Vector2f& point) {
 void ButtonManager::mouseMoveHandler(const Event& event) {
 
     assert(_initialized);
-    assert(_activated);
     assert(event.getType() == MouseMoveEvent::TYPE);
+
+    // if the button manager isn't activated, then do nothing
+    if (!_activated)
+        return;
 
     const MouseMoveEvent& e = dynamic_cast<const MouseMoveEvent&>(event);
 
@@ -170,8 +173,11 @@ void ButtonManager::mouseMoveHandler(const Event& event) {
 void ButtonManager::mousePressHandler(const Event& event) {
 
     assert(_initialized);
-    assert(_activated);
     assert(event.getType() == MousePressEvent::TYPE);
+
+    // if the button manager isn't activated, then do nothing
+    if (!_activated)
+        return;
 
     const MousePressEvent& e = dynamic_cast<const MousePressEvent&>(event);
 
@@ -185,8 +191,11 @@ void ButtonManager::mousePressHandler(const Event& event) {
 void ButtonManager::mouseReleaseHandler(const Event& event) {
 
     assert(_initialized);
-    assert(_activated);
     assert(event.getType() == MouseReleaseEvent::TYPE);
+
+    // if the button manager isn't activated, then do nothing
+    if (!_activated)
+        return;
 
     const MouseReleaseEvent& e = dynamic_cast<const MouseReleaseEvent&>(event);
 
@@ -202,8 +211,11 @@ void ButtonManager::mouseReleaseHandler(const Event& event) {
 void ButtonManager::keyPressHandler(const Event& event) {
 
     assert(_initialized);
-    assert(_activated);
     assert(event.getType() == KeyPressEvent::TYPE);
+
+    // if the button manager isn't activated, then do nothing
+    if (!_activated)
+        return;
 
     const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
 
@@ -235,8 +247,11 @@ void ButtonManager::keyPressHandler(const Event& event) {
 void ButtonManager::keyReleaseHandler(const Event& event) {
 
     assert(_initialized);
-    assert(_activated);
     assert(event.getType() == KeyReleaseEvent::TYPE);
+
+    // if the button manager isn't activated, then do nothing
+    if (!_activated)
+        return;
 
     const KeyReleaseEvent& e = dynamic_cast<const KeyReleaseEvent&>(event);
 

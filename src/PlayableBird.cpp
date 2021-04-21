@@ -26,7 +26,8 @@ PlayableBird::PlayableBird() :
     _frameTimer(0.0f),
 
     _isFlying(false),
-    _isPooping(false)
+    _isPooping(false),
+    _isDead(false)
 {}
 
 void PlayableBird::init() {
@@ -62,6 +63,7 @@ void PlayableBird::init() {
     b2FixtureDef fixtureDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
+    fixtureDef.restitution = 0.2f;
     addFixtureDef(fixtureDef);
 
     _initialized = true;
@@ -81,13 +83,17 @@ void PlayableBird::update(const float& timeDelta) {
         }
     }
 
-    // determine which starting frame to use; is either the start of the mouth closed flying
-    // sequence or the start of the mouth open one
-    int startFrame = _isPooping ? _FLYING_OPEN_START_FRAME : _FLYING_CLOSED_START_FRAME;
+    // only set the bird's frame if it isn't dead
+    if (!_isDead) {
 
-    // determine the actual frame and set the texture rectangle
-    int frame = startFrame + _FLYING_FRAMES.at(_currentFlyingFrame);
-    _sprite.setTextureRect(_textureRects.at(frame));
+        // determine which starting frame to use; is either the start of the mouth closed flying
+        // sequence or the start of the mouth open one
+        int startFrame = _isPooping ? _FLYING_OPEN_START_FRAME : _FLYING_CLOSED_START_FRAME;
+
+        // determine the actual frame and set the texture rectangle
+        int frame = startFrame + _FLYING_FRAMES.at(_currentFlyingFrame);
+        _sprite.setTextureRect(_textureRects.at(frame));
+    }
 }
 
 void PlayableBird::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -108,6 +114,7 @@ void PlayableBird::startFlying() {
     _frameTimer = 0.0f;
 
     _isFlying = true;
+    _isDead = false;
 }
 
 void PlayableBird::stopFlying() {
@@ -121,8 +128,17 @@ void PlayableBird::stopFlying() {
 
 void PlayableBird::startPooping() {
     _isPooping = true;
+    _isDead = false;
 }
 
 void PlayableBird::stopPooping() {
     _isPooping = false;
+}
+
+void PlayableBird::die() {
+
+    // set the frame to the dead frame
+    _sprite.setTextureRect(_textureRects.at(0));
+
+    _isDead = true;
 }

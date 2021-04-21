@@ -69,10 +69,10 @@ void ResourceCache::init() {
         "BIRD_SPRITE",
         *getResource<TextureResource>("BIRD_TEXTURE"),
         {
-            { 0,  0, 16, 16}, //  0 standing -- tall
-            {16,  0, 16, 16}, //  1     medium height
-            {32,  0, 16, 16}, //  2     low
-            {48,  0, 16, 16}, //  3     very low
+            { 0,  0, 16, 16}, //  0 dead
+            {16,  0, 16, 16}, //  1 standing -- tall
+            {32,  0, 16, 16}, //  2     medium height
+            {48,  0, 16, 16}, //  3     low
             {64,  0, 16, 16}, //  4 pecking
             { 0, 16, 16, 16}, //  5 flying mouth closed -- wings down
             {16, 16, 16, 16}, //  6     wings down-middle

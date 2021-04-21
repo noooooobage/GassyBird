@@ -9,6 +9,9 @@
 #include "Resources/FontResource.hpp"
 
 Button::Button() :
+
+    _opacity(1.0f),
+
     _BASE_TEXT_COLOR(sf::Color::White),
     _HOVERED_TEXT_COLOR(sf::Color::Black),
     _CLICKED_TEXT_COLOR(sf::Color::Black),
@@ -51,29 +54,62 @@ void Button::setPosition(const sf::Vector2f& position) {
     centerTextOnRect(_text, _shape.getGlobalBounds());
 }
 
+void Button::setOpacity(const float& opacity) {
+
+    _opacity = opacity;
+
+    _shape.setFillColor(sf::Color(
+        _opaqueShapeColor.r,
+        _opaqueShapeColor.g,
+        _opaqueShapeColor.b,
+        clamp((int)(_opacity * _opaqueShapeColor.a), 0, 255)
+    ));
+
+    _shape.setOutlineColor(sf::Color(255, 255, 255, clamp((int)(_opacity * 255), 0, 255)));
+
+    _text.setFillColor(sf::Color(
+        _opaqueTextColor.r,
+        _opaqueTextColor.g,
+        _opaqueTextColor.b,
+        clamp((int)(_opacity * _opaqueTextColor.a), 0, 255)
+    ));
+}
+
 bool Button::contains(const sf::Vector2f& point) {
     return _shape.getGlobalBounds().contains(point);
 }
 
 void Button::toBase() {
-    _shape.setFillColor(_BASE_FILL_COLOR);
+
+    _opaqueShapeColor = _BASE_FILL_COLOR;
+    _opaqueTextColor = _BASE_TEXT_COLOR;
+    
     _shape.setOutlineThickness(_BASE_OUTLINE_THICKNESS);
-    _text.setFillColor(_BASE_TEXT_COLOR);
+
+    setOpacity(_opacity);
 }
 
 void Button::toHovered() {
-    _shape.setFillColor(_HOVERED_FILL_COLOR);
+
+    _opaqueShapeColor = _HOVERED_FILL_COLOR;
+    _opaqueTextColor = _HOVERED_TEXT_COLOR;
+    
     _shape.setOutlineThickness(_HOVERED_OUTLINE_THICKNESS);
-    _text.setFillColor(_HOVERED_TEXT_COLOR);
+
+    setOpacity(_opacity);
 }
 
 void Button::toClicked() {
-    _shape.setFillColor(_CLICKED_FILL_COLOR);
+
+    _opaqueShapeColor = _CLICKED_FILL_COLOR;
+    _opaqueTextColor = _CLICKED_TEXT_COLOR;
+    
     _shape.setOutlineThickness(_HOVERED_OUTLINE_THICKNESS);
-    _text.setFillColor(_CLICKED_TEXT_COLOR);
+
+    setOpacity(_opacity);
 }
 
-void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const{
+void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(_shape);
     target.draw(_text);
 }

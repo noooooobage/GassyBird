@@ -9,6 +9,8 @@
 #include "DebugDrawer.hpp"
 #include "MainMenuActivity.hpp"
 #include "PlayingMenuActivity.hpp"
+#include "GameOverActivity.hpp"
+#include "EventListener.hpp"
 
 /**
  * The PlayingActivity is the core activity which is run by the game. It contains sub-activities
@@ -19,6 +21,8 @@ class PlayingActivity : public Activity {
 public:
 
     PlayingActivity();
+
+    ~PlayingActivity();
 
     /**
      * Initializes with a render target.
@@ -37,10 +41,14 @@ public:
      */
     void toMain();
     void toPlaying();
+    void toGameOver(const Event& event); // this one is actually an event listener
 
 private:
 
     bool _initialized;
+    
+    // event listener
+    EventListener _gameOverListener;
 
     DebugDrawer _debugDrawer;
 
@@ -51,6 +59,7 @@ private:
     // PlayingActivity has activities of its own, these act as user interfaces
     MainMenuActivity _mainMenuActivity;
     PlayingMenuActivity _playingMenuActivity;
+    GameOverActivity _gameOverActivity;
     Activity* _currentActivity;
 };
 

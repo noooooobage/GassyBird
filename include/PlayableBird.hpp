@@ -35,6 +35,7 @@ public:
     void stopFlying();
     void startPooping();
     void stopPooping();
+    void die();
 
     bool isFlying() { return _isFlying; }
     bool isPooping() { return _isPooping; }
@@ -56,9 +57,10 @@ private:
     int _currentFlyingFrame; // an index in the _FLYING_FRAMES vector
     float _frameTimer; // keeps track of when to advance the frame for flying
 
-    // whether the bird is flying or not / pooping or not.
+    // whether the bird is flying/pooping/dead
     bool _isFlying;
     bool _isPooping;
+    bool _isDead;
 };
 
 #endif // _PLAYABLE_BIRD_HPP_

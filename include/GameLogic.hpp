@@ -16,6 +16,7 @@
 #include "Obstacle.hpp"
 #include "EventListener.hpp"
 #include "Event.hpp"
+#include "ContactListener.hpp"
 
 /**
  * Encodes the mechanics of the game and stores actors with physical properties. Provides an API
@@ -41,6 +42,7 @@ public:
      */
     void toDemo();
     void toPlaying();
+    void toGameOver();
 
     /**
      * Returns true if the game is paused, returns false otherwise.
@@ -92,9 +94,16 @@ public:
 private:
 
     /**
-     * Handles GamePauseEvents. When the game is paused, the world freezes.
+     * Handler callbacks for event listeners.
      */
     void gamePauseHandler(const Event& event);
+    void collisionHandler(const Event& event);
+
+    /**
+     * Helper functions which handle collisions with specific types of physical actors.
+     */
+    void handlePoopCollision(const CollisionEvent& e);
+    void handleBirdCollision(const CollisionEvent& e);
 
     /**
      * Spawns the first physical actors into existence, i.e. creates the ground and sprinkles some
@@ -123,7 +132,8 @@ private:
 
     /**
      * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
-     * physical actors map.
+     * physical actors map. The user data of the created box2d body is set to the address of the
+     * given actor.
      * 
      * @param actor the PhysicalActor to add to the world
      * @param position position at which the body is placed, defaults to (0, 0)
@@ -154,9 +164,8 @@ private:
     void removeAllFromWorld();
 
     /**
-     * This should only be called by removeFromWorld(). This method searches for the shared pointer
-     * which holds the given actor in the given list of shared pointers. It frees the memory of all
-     * matches and removes the entries from the list.
+     * Searches for the shared pointer which holds the given actor in the given list of shared
+     * pointers. It frees the memory of all matches and removes the entries from the list.
      */
     template <typename T>
     void removeFromList(const PhysicalActor& actor, std::list<std::shared_ptr<T>>& list) {
@@ -177,7 +186,7 @@ private:
      * Given a physical actor, return the corresponding body which exists in the physical world. If
      * the actor does not have an associated physical body, then return nullptr.
      */
-    b2Body* getBody(const PhysicalActor& actor) const;
+    b2Body* getBody(const PhysicalActor* actor) const;
     
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
@@ -194,7 +203,7 @@ private:
 
     /**
      * Sets the world scroll speed to the specified amount. This will affect all physical actors in
-     * the world that have type GROUND or GENERIC_OBSTACLE.
+     * the world that have type GROUND, NPC, and GENERIC_OBSTACLE.
      */
     void setWorldScrollSpeed(const float& amount);
 
@@ -208,6 +217,10 @@ private:
 
     // event listeners
     EventListener _gamePauseListener;
+    EventListener _collisionListener;
+
+    // contact listener which creates CollisionEvents, this is NOT an EventListener
+    ContactListener _contactListener;
 
     // different possible states
     enum STATE {DEMO, PLAYING, GAME_OVER};
@@ -242,6 +255,9 @@ private:
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
     int _numPoopsLeft; // number of poops the bird has left
+    std::list<PhysicalActor*> _deadPoops; // list of poops that have already landed
+    PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
+                              // DEREFERENCE THIS!! for comparison purposes only
 
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
