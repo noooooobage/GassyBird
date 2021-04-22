@@ -272,3 +272,34 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
     cloud->setBodyDef(bodyDef);
     return cloud;
 }
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("LIFEGUARD_SPRITE");
+    std::shared_ptr<Obstacle> lifeguard(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
+        *spriteResource.sprite.getTexture(),
+        sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor, spriteResource.scaleFactor)
+    ));
+
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.5f;
+
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height / 2.0f);
+
+    lifeguard->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+
+    lifeguard->setBodyDef(bodyDef);
+    return lifeguard;
+}

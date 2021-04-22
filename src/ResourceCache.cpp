@@ -81,6 +81,11 @@ void ResourceCache::init() {
         "POOP_SPLATTER_TEXTURE",
         "../data/poop_splatter_texture.png"
     );
+
+    loadTextureResource(
+        "LIFEGUARD_TEXTURE",
+        "../data/lifeguard.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -174,6 +179,15 @@ void ResourceCache::init() {
             {2, 12, 43, 9}
         },
         1.0f
+    );
+
+    loadSpriteResource(
+        "LIFEGUARD_SPRITE",
+        *getResource<TextureResource>("LIFEGUARD_TEXTURE"),
+        {
+            {0, 0, 109, 56}
+        },
+        2.0f
     );
     // FONTS ///////////////////////////////////////////////
 
