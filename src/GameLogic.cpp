@@ -325,6 +325,9 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
             eventMessenger.triggerEvent(GameOverEvent());
         }
     }
+    removeFromWorld(*poop);
+    _obstacles.push_back(ObstacleFactory::makePoopSplatter());
+    addToWorld(*_obstacles.back(), e.position);
 }
 
 void GameLogic::handleBirdCollision(const CollisionEvent& e) {
@@ -456,23 +459,48 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
 
     // Only two options right now: streetlight or default NPC, so just decide between the two with a
     // random bool.
+    //0: Streetlight
+    //1: Tree
+    //2: Cloud
+    //3: Lifeguard Tower
+    //4: Docks
+    //5: Spawn NPC
+    int obstacleType = randomInt(0, 4);
+    float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
-
-    if (spawnStreetlight) {
-        // Determine a random height and face direction. If the game is in DEMO mode, then don't
-        // create a streetlight that will hit the bird.
-        float minHeight = 4.0f;
-        float maxHeight = _state == DEMO ? _BIRD_DEMO_POSITION.y - _GROUND_OFFSET_METERS - 1.0f :
-                (NATIVE_RESOLUTION.y * METERS_PER_PIXEL) - _GROUND_OFFSET_METERS - 1.5f;
-        float height = randomFloat(minHeight, maxHeight);
-        bool faceLeft = randomBool();
-        _obstacles.push_back(ObstacleFactory::makeStreetlight(height, faceLeft));
-        addToWorld(*_obstacles.back(), position);
-
-    } else {
-        // not spawning a streetlight, so spawn an NPC instead
-        _NPCs.push_back(NPCFactory::makeDefault());
-        addToWorld(*_NPCs.back(), position);
+    bool faceLeft = randomBool();
+    switch(obstacleType) {
+        case 0:
+            _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+            addToWorld(*_obstacles.back(), position);
+            break;
+        case 1:
+            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
+            addToWorld(*_obstacles.back(), position);
+            break;
+        case 2:
+            {
+            float height = randomFloat(6.0f, 12.0f);
+            _obstacles.push_back(ObstacleFactory::makeCloud());
+            addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
+            break;
+            }
+        case 3:
+            _obstacles.push_back(ObstacleFactory::makeLifeguard(faceLeft));
+            addToWorld(*_obstacles.back(), position);
+            break;
+        case 4:
+            {
+                int width = randomInt(1, 5);
+                int height = randomInt(1, 5);
+                _obstacles.push_back(ObstacleFactory::makeDocks(3, height));
+                addToWorld(*_obstacles.back(), position);
+            }
+            break;
+        case 5:
+            _NPCs.push_back(NPCFactory::makeDefault());
+            addToWorld(*_NPCs.back(), position);
+            break;
     }
 }
 

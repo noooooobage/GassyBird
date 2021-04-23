@@ -63,6 +63,34 @@ void ResourceCache::init() {
         "../data/tempNPCtexture.png"
     );
 
+    loadTextureResource(
+        "TREE_TEXTURE",
+        "../data/tree_texture.png"
+    );
+
+    loadTextureResource(
+        "CLOUD_TEXTURE",
+        "../data/cloud_texture.png"
+    );
+    loadTextureResource(
+        "POOP_TEXTURE",
+        "../data/poop_texture.png"
+    );
+
+    loadTextureResource(
+        "POOP_SPLATTER_TEXTURE",
+        "../data/poop_splatter_texture.png"
+    );
+
+    loadTextureResource(
+        "LIFEGUARD_TEXTURE",
+        "../data/lifeguard.png"
+    );
+
+    loadTextureResource(
+        "DOCKS_TEXTURE",
+        "../data/docks.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -114,10 +142,10 @@ void ResourceCache::init() {
     );
 
     loadSpriteResource(
-        "TEST_POOP_SPRITE",
-        *getResource<TextureResource>("TEST_TEXTURE"),
-        {{7, 0, 7, 7}},
-        2.5f
+        "POOP_SPRITE",
+        *getResource<TextureResource>("POOP_TEXTURE"),
+        {{0, 0, 31, 41}},
+        1.0f
     );
 
     loadSpriteResource(
@@ -129,6 +157,57 @@ void ResourceCache::init() {
         1.5f
     );
 
+    loadSpriteResource(
+        "TREE_SPRITE",
+        *getResource<TextureResource>("TREE_TEXTURE"),
+        {
+            {38, 65, 25, 9},
+            {46, 49, 19, 12},
+            {3, 13, 72, 31}
+        },
+        4.0f
+    );
+
+    loadSpriteResource(
+        "CLOUD_SPRITE",
+        *getResource<TextureResource>("CLOUD_TEXTURE"),
+        {
+            {3, 4, 27, 14}
+        },
+        4.0f
+    );
+
+    loadSpriteResource(
+        "SPLATTER_SPRITE",
+        *getResource<TextureResource>("POOP_SPLATTER_TEXTURE"),
+        {
+            {2, 12, 43, 9}
+        },
+        1.0f
+    );
+
+    loadSpriteResource(
+        "LIFEGUARD_SPRITE",
+        *getResource<TextureResource>("LIFEGUARD_TEXTURE"),
+        {
+            {0, 0, 109, 56}
+        },
+        2.0f
+    );
+
+    loadSpriteResource(
+        "DOCKS_SPRITE",
+        *getResource<TextureResource>("DOCKS_TEXTURE"),
+        {
+            {4, 6, 47, 20},
+            {58, 6, 44, 20},
+            {119, 6, 51, 20},
+            {4, 30, 47, 16},
+            {58, 30, 44, 16},
+            {119, 30, 48, 16}
+        },
+        2.0f
+    );
     // FONTS ///////////////////////////////////////////////
 
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
