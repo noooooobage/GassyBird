@@ -37,6 +37,8 @@ public:
     static std::shared_ptr<Obstacle> makeLifeguard(const bool& faceLeft);
 
     static std::shared_ptr<Obstacle> makePoopSplatter();
+
+    static std::shared_ptr<Obstacle> makeRock();
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

@@ -24,7 +24,8 @@ public:
         NPC,
         POOP,
         GROUND,
-        GENERIC_OBSTACLE
+        GENERIC_OBSTACLE,
+        PROJECTILE
     };
 
     /**

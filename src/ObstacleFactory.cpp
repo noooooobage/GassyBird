@@ -388,3 +388,39 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     lifeguard->setBodyDef(bodyDef);
     return lifeguard;
 }
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
+    const SpriteResource& spriteResource =
+        *resourceCache.getResource<SpriteResource>("ROCK_SPRITE");
+    
+    std::shared_ptr<Obstacle> rock(new Obstacle(
+        PhysicalActor::TYPE::PROJECTILE,*spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+
+    // fixture definition to applied to all added shapes
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 1.0f;
+
+    // rock also only has one component, origin should be in the middle
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height / 2.0f);
+    rock->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+
+    // set the body definition
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.bullet = true;
+    bodyDef.angle = - PI / 4.0f;
+    bodyDef.linearVelocity.y = 0.f;
+    rock->setBodyDef(bodyDef);
+
+    return rock;
+
+}
