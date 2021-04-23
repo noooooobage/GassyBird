@@ -382,9 +382,9 @@ void GameLogic::requestTriggerAction(){
             b2Body* tbody = getBody(curNPC->get());
 
             if (tbody != nullptr){
-                //_obstacles.push_back(ObstacleFactory::makePoop(0.f));
-                //addToWorld(*_obstacles.back(), {body->GetPosition().x, body->GetPosition().y + 10.f}, false);
-                std::cout << tbody->GetPosition().x << " , " << tbody->GetPosition().y << std::endl;
+                _obstacles.push_back(ObstacleFactory::makeRock());
+                addToWorld(*_obstacles.back(), {tbody->GetPosition().x, 5.f}, true);
+                //std::cout << tbody->GetPosition().x << " , " << tbody->GetPosition().y << std::endl;
             }
 
             std::cout << " " << std::endl;
