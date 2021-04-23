@@ -376,18 +376,32 @@ void GameLogic::requestTriggerAction(){
             //Call the change of animation frames
             //curNPC->triggerAction();
             //get that NPC actor and activate its animation
-            //spawn a rock obstacle and set its velocity in the direction of the board
 
             //Temp code for trigger event            
             b2Body* tbody = getBody(curNPC->get());
 
+            //Safety check for null pointer
             if (tbody != nullptr){
-                _obstacles.push_back(ObstacleFactory::makeRock());
-                addToWorld(*_obstacles.back(), {tbody->GetPosition().x, 5.f}, true);
-                //std::cout << tbody->GetPosition().x << " , " << tbody->GetPosition().y << std::endl;
-            }
+                //Calculate the angle for the throw
+                float opp = (_playableBirdBody->GetPosition().y - tbody->GetPosition().y);
+                float adj = (_playableBirdBody->GetPosition().x - tbody->GetPosition().x);
+                float angle = (1 / (tan(opp/adj)));
 
-            std::cout << " " << std::endl;
+                //Create the rock
+                _projectiles.push_back(ObstacleFactory::makeRock(angle));
+                auto rBody = addToWorld(*_projectiles.back(), {tbody->GetPosition().x, 5.f}, true);
+                
+
+                //Safety check for nullptr
+                if(rBody != nullptr){
+                    float targetAccel = -2.0f;
+                    float force = rBody->GetMass() * targetAccel;
+                    rBody->ApplyForceToCenter(b2Vec2(-200.0f, force), true);
+                    std::cout << "Push" << std::endl;
+                }
+
+                
+            }
         }
     }
     //Temp else
@@ -587,7 +601,6 @@ b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
     PhysicalActor* actorAddress = (PhysicalActor*)actor;
 
     if (_physicalActors.find(actorAddress) == _physicalActors.end()){
-        std::cout << "null \n";
         return nullptr;    
     }
     

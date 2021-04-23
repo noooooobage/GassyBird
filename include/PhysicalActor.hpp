@@ -72,6 +72,7 @@ public:
         case TYPE::NPC:              return "NPC";
         case TYPE::PLAYABLE_BIRD:    return "PLAYABLE_BIRD";
         case TYPE::POOP:             return "POOP";
+        case TYPE::PROJECTILE:       return "PROJECTILE";
         default:                     return "undefined";
         }
     }

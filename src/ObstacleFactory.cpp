@@ -389,7 +389,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     return lifeguard;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
+std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
     const SpriteResource& spriteResource =
         *resourceCache.getResource<SpriteResource>("ROCK_SPRITE");
     
@@ -416,9 +416,10 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     // set the body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
+    bodyDef.gravityScale = (0.5f);
     bodyDef.bullet = true;
-    bodyDef.angle = - PI / 4.0f;
-    bodyDef.linearVelocity.y = 0.f;
+    bodyDef.angle = tAngle;
+    bodyDef.linearVelocity.y = 2.f;
     rock->setBodyDef(bodyDef);
 
     return rock;

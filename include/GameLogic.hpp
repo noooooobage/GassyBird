@@ -267,6 +267,9 @@ private:
 
     // list of all NPCs
     std::list<std::shared_ptr<NPC>> _NPCs;
+
+    // list of all projectiles
+    std::list<std::shared_ptr<Obstacle>> _projectiles;
     
     // stores all physical actors, maps them to their physical bodies
     std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
