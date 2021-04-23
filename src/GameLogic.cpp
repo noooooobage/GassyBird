@@ -362,21 +362,32 @@ void GameLogic::requestNPCStep() {
 void GameLogic::requestTriggerAction(){
     assert(_initialized);
 
-    //Get some random NPC from the NPC list
-    int index = randomInt(0,_NPCs.size());
-    auto curNPC = _NPCs.begin();
-    std::advance(curNPC, index);
-    //if the game is playing
-    if (_state == PLAYING){
-        //Call the change of animation frames
-        //curNPC->triggerAction();
-        //get that NPC actor and activate its animation
-        //spawn a rock obstacle and set its velocity in the direction of the board
-        std::cout << "Throw" << std::endl;
+    
+    //If there are NPCs to trigger
+    if (_NPCs.size() > 0){
+        //Get some random NPC from the NPC list
+        int index = randomInt(0,_NPCs.size());
+        auto curNPC = _NPCs.begin();
+        std::advance(curNPC, index);
+        //if the game is playing
+        if (_state == PLAYING){
+            //Call the change of animation frames
+            //curNPC->triggerAction();
+            //get that NPC actor and activate its animation
+            //spawn a rock obstacle and set its velocity in the direction of the board
 
-        //_obstacles.push_back(ObstacleFactory::makePoop(_POOP_DOWNWARD_VELOCITY));
-        //addToWorld(*_obstacles.back(), (the NPC throwing)->GetPosition(), false);
+            //Temp code for trigger event
+            std::cout << "Throw" << std::endl;
+
+            //_obstacles.push_back(ObstacleFactory::makePoop(_POOP_DOWNWARD_VELOCITY));
+            //addToWorld(*_obstacles.back(), (the NPC throwing)->GetPosition(), false);
+        }
     }
+    //Temp else
+    else{
+        std::cout << "No NPCs" << std::endl;
+    }
+    
 }
 
 void GameLogic::createMap() {
