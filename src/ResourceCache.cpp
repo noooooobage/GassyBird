@@ -86,6 +86,11 @@ void ResourceCache::init() {
         "LIFEGUARD_TEXTURE",
         "../data/lifeguard.png"
     );
+
+    loadTextureResource(
+        "DOCKS_TEXTURE",
+        "../data/docks.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -186,6 +191,20 @@ void ResourceCache::init() {
         *getResource<TextureResource>("LIFEGUARD_TEXTURE"),
         {
             {0, 0, 109, 56}
+        },
+        2.0f
+    );
+
+    loadSpriteResource(
+        "DOCKS_SPRITE",
+        *getResource<TextureResource>("DOCKS_TEXTURE"),
+        {
+            {4, 6, 47, 20},
+            {58, 6, 44, 20},
+            {119, 6, 51, 20},
+            {4, 30, 47, 16},
+            {58, 30, 44, 16},
+            {119, 30, 48, 16}
         },
         2.0f
     );

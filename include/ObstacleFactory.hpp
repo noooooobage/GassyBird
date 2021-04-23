@@ -32,7 +32,7 @@ public:
 
     static std::shared_ptr<Obstacle> makeCloud();
 
-    static std::shared_ptr<Obstacle> makeDocks(const float& widthMeters, const float& heightMeters);
+    static std::shared_ptr<Obstacle> makeDocks(const int& widthMeters, const int& heightMeters);
 
     static std::shared_ptr<Obstacle> makeLifeguard(const bool& faceLeft);
 

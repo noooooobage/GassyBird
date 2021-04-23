@@ -273,6 +273,91 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
     return cloud;
 }
 
+std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, const int& heightMeters) {
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("DOCKS_SPRITE");
+    std::shared_ptr<Obstacle> docks(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
+        *spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+    const sf::IntRect& leftTopRect = spriteResource.textureRects.at(0);
+    const sf::IntRect& middleTopRect = spriteResource.textureRects.at(1);
+    const sf::IntRect& rightTopRect = spriteResource.textureRects.at(2);
+    const sf::IntRect& leftBottomRect = spriteResource.textureRects.at(3);
+    const sf::IntRect& middleBottomRect = spriteResource.textureRects.at(4);
+    const sf::IntRect& rightBottomRect = spriteResource.textureRects.at(5);
+
+    b2FixtureDef fixtureDef;
+    float width = rightBottomRect.width;
+    float height = rightBottomRect.height;
+    for (int j = 0; j < heightMeters; j++) {
+        sf::Vector2f leftBottom(width / 2.0f, height);
+        docks->addComponent(
+            rightBottomRect,
+            fixtureDef,
+            {},
+            -leftBottom
+        );
+        height += leftBottomRect.height;
+    }
+    
+    sf::Vector2f rightTop(width / 2.0f, height);
+    docks->addComponent(
+        rightTopRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -rightTop
+    );
+    width += rightBottomRect.width - 6;
+    height = middleBottomRect.height;
+    for (int i = 1; i < widthMeters-1; i++) {
+        for (int j = 0; j < heightMeters; j++) {
+            sf::Vector2f rightBottom(width - (rightBottomRect.width / 2.0f), height);
+            docks->addComponent(
+                middleBottomRect,
+                fixtureDef,
+                {},
+                -rightBottom
+            );
+            height += middleBottomRect.height;
+        }
+
+        sf::Vector2f middleTop(width - (middleTopRect.width / 2.0f), height);
+        docks->addComponent(
+            middleTopRect,
+            fixtureDef,
+            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            -middleTop
+        );
+        width += middleBottomRect.width;
+        height = middleBottomRect.height;
+    }
+    for (int j = 0; j < heightMeters; j++) {
+        sf::Vector2f leftBottom(width - (leftBottomRect.width / 2.0f), height);
+        docks->addComponent(
+            leftBottomRect,
+            fixtureDef,
+            {},
+            -leftBottom
+        );
+        height += leftBottomRect.height;
+    }
+    sf::Vector2f leftTop(width - (leftTopRect.width / 2.0f), height);
+    docks->addComponent(
+        leftTopRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -leftTop
+    );
+
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+
+    docks->setBodyDef(bodyDef);
+    return docks;
+}
 std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("LIFEGUARD_SPRITE");
@@ -288,7 +373,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
 
-    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height / 2.0f);
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
 
     lifeguard->addComponent(
         textureRect,

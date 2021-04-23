@@ -425,7 +425,8 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //1: Tree
     //2: Cloud
     //3: Lifeguard Tower
-    //4: Spawn NPC
+    //4: Docks
+    //5: Spawn NPC
     int obstacleType = randomInt(0, 4);
     float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
@@ -451,6 +452,14 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             addToWorld(*_obstacles.back(), position);
             break;
         case 4:
+            {
+                int width = randomInt(1, 5);
+                int height = randomInt(1, 5);
+                _obstacles.push_back(ObstacleFactory::makeDocks(3, height));
+                addToWorld(*_obstacles.back(), position);
+            }
+            break;
+        case 5:
             _NPCs.push_back(NPCFactory::makeDefault());
             addToWorld(*_NPCs.back(), position);
             break;
