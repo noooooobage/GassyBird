@@ -368,10 +368,9 @@ void GameLogic::requestTriggerAction(){
     
     //If there are NPCs to trigger
     if (_NPCs.size() > 0){
-        //Get some random NPC from the NPC list
-        int index = randomInt(0,_NPCs.size());
+        //Get NPC from the NPC list
         auto curNPC = _NPCs.begin();
-        std::advance(curNPC, index);
+        
         //if the game is playing
         if (_state == PLAYING){
             //Call the change of animation frames
@@ -379,11 +378,16 @@ void GameLogic::requestTriggerAction(){
             //get that NPC actor and activate its animation
             //spawn a rock obstacle and set its velocity in the direction of the board
 
-            //Temp code for trigger event
-            std::cout << "Throw" << std::endl;
+            //Temp code for trigger event            
+            b2Body* tbody = getBody(curNPC->get());
 
-            //_obstacles.push_back(ObstacleFactory::makePoop(_POOP_DOWNWARD_VELOCITY));
-            //addToWorld(*_obstacles.back(), (the NPC throwing)->GetPosition(), false);
+            if (tbody != nullptr){
+                //_obstacles.push_back(ObstacleFactory::makePoop(0.f));
+                //addToWorld(*_obstacles.back(), {body->GetPosition().x, body->GetPosition().y + 10.f}, false);
+                std::cout << tbody->GetPosition().x << " , " << tbody->GetPosition().y << std::endl;
+            }
+
+            std::cout << " " << std::endl;
         }
     }
     //Temp else
@@ -465,7 +469,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //3: Lifeguard Tower
     //4: Docks
     //5: Spawn NPC
-    int obstacleType = randomInt(0, 4);
+    int obstacleType = randomInt(0, 5);
     float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
     bool faceLeft = randomBool();
@@ -581,8 +585,11 @@ b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
 
     // return nullptr if actor does not have a physical body
     PhysicalActor* actorAddress = (PhysicalActor*)actor;
-    if (_physicalActors.find(actorAddress) == _physicalActors.end())
-        return nullptr;
+
+    if (_physicalActors.find(actorAddress) == _physicalActors.end()){
+        std::cout << "null \n";
+        return nullptr;    
+    }
     
     // return corresponding body pointer
     return _physicalActors.at(actorAddress);
@@ -707,29 +714,32 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
 void GameLogic::updateNPCs(){
     assert(_initialized);
 
-    //iterate through the _NPCs
-    for (auto& item : _NPCs) {
+    if (_NPCs.size() > 0){
+        
+        //iterate through the _NPCs
+        for (auto& item : _NPCs) {
 
-        std::shared_ptr<NPC> curNPC = item;
+            std::shared_ptr<NPC> curNPC = item;
 
-        // make sure actor and body aren't nullptr
-        assert(curNPC);
+            // make sure actor and body aren't nullptr
+            assert(curNPC);
 
-        if (curNPC->getType() == PhysicalActor::TYPE::NPC){
-            //Check their move timer
-            //Compare and decide if it needs to be reset
-            if (curNPC->getTimeMoving() == _STEP_TIME){
-                //Set time to zero and speed to world speed
-                curNPC->setTimeMoving();
-
-                b2BodyDef body = curNPC->getBodyDef();
-                body.linearVelocity = (b2Vec2(-_worldScrollSpeed, 0.f));
-                //body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
-                curNPC->isMoving = false;
-            }
-                
-            //Check their throw timer
+            if (curNPC->getType() == PhysicalActor::TYPE::NPC){
+                //Check their move timer
                 //Compare and decide if it needs to be reset
+                if (curNPC->getTimeMoving() == _STEP_TIME){
+                    //Set time to zero and speed to world speed
+                    curNPC->setTimeMoving();
+
+                    b2BodyDef body = curNPC->getBodyDef();
+                    body.linearVelocity = (b2Vec2(-_worldScrollSpeed, 0.f));
+                    //body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
+                    curNPC->isMoving = false;
+                }
+                    
+                //Check their throw timer
+                    //Compare and decide if it needs to be reset
+            }
         }
     }
 }
