@@ -370,8 +370,6 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
 
     b2FixtureDef fixtureDef;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.5f;
 
     sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
 

@@ -91,6 +91,16 @@ void ResourceCache::init() {
         "DOCKS_TEXTURE",
         "../data/docks.png"
     );
+
+    loadTextureResource(
+        "BEACH_BALL_TEXTURE",
+        "../data/beach-ball-texture.png"
+    );
+
+    loadTextureResource(
+        "UMBRELLA_STATIC_TEXTURE",
+        "../data/umbrella_static_texture.png"
+    );
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -215,6 +225,24 @@ void ResourceCache::init() {
             {0,0,7,7}
         },
         1.0f
+    );
+
+    loadSpriteResource(
+        "BEACH_BALL_SPRITE",
+        *getResource<TextureResource>("BEACH_BALL_TEXTURE"),
+        {
+            {1, 1, 49, 49}
+        },
+        2.0f
+    );
+
+    loadSpriteResource(
+        "UMBRELLA_TEXTURE",
+        *getResource<TextureResource>("UMBRELLA_STATIC_TEXTURE"),
+        {
+            {1, 1, 59, 65}
+        },
+        2.0f
     );
     // FONTS ///////////////////////////////////////////////
 
