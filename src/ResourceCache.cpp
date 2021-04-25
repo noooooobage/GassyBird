@@ -237,7 +237,7 @@ void ResourceCache::init() {
     );
 
     loadSpriteResource(
-        "UMBRELLA_TEXTURE",
+        "UMBRELLA_SPRITE",
         *getResource<TextureResource>("UMBRELLA_STATIC_TEXTURE"),
         {
             {1, 1, 59, 65}

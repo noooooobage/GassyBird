@@ -34,6 +34,8 @@ public:
 
     static std::shared_ptr<Obstacle> makeDocks(const int& widthMeters, const int& heightMeters);
 
+    static std::shared_ptr<Obstacle> makeUmbrella();
+
     static std::shared_ptr<Obstacle> makeLifeguard(const bool& faceLeft);
 
     static std::shared_ptr<Obstacle> makePoopSplatter();

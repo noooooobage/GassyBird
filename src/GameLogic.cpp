@@ -443,7 +443,7 @@ void GameLogic::removeOutOfBoundsActors() {
 
         // The actor is out of bounds if its body is 5 meters to the left of the screen. Doesn't
         // care about ground obstacles or the bird itself.
-        bool isOutOfBounds = body->GetPosition().x < -5.0f &&
+        bool isOutOfBounds = body->GetPosition().x < -10.0f &&
                 actor->getType() != PhysicalActor::TYPE::PLAYABLE_BIRD &&
                 actor->getType() != PhysicalActor::TYPE::GROUND;
         if (isOutOfBounds)
@@ -483,7 +483,8 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //3: Lifeguard Tower
     //4: Docks
     //5: Spawn NPC
-    int obstacleType = randomInt(0, 5);
+    //6: Umbrella
+    int obstacleType = randomInt(0, 6);
     float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
     bool faceLeft = randomBool();
@@ -518,6 +519,13 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
         case 5:
             _NPCs.push_back(NPCFactory::makeDefault());
             addToWorld(*_NPCs.back(), position);
+            break;
+        case 6:
+            {
+                float angle = randomFloat(0.0f, 45.0f);
+                _obstacles.push_back(ObstacleFactory::makeUmbrella());
+                addToWorld(*_obstacles.back(), position);
+            }
             break;
     }
 }

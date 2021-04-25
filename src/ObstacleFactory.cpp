@@ -423,3 +423,28 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
     return rock;
 
 }
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella() {
+    const SpriteResource& spriteResource =
+        *resourceCache.getResource<SpriteResource>("UMBRELLA_SPRITE");
+    
+    std::shared_ptr<Obstacle> umbrella(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,*spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+
+    b2FixtureDef fixtureDef;
+
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
+    umbrella->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    umbrella->setBodyDef(bodyDef);
+    return umbrella;
+}
