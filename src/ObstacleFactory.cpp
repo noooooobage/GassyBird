@@ -189,7 +189,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
 
     // set the body definition
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
     ground->setBodyDef(bodyDef);
 
     return ground;
@@ -243,7 +243,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
     );
 
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
     tree->setBodyDef(bodyDef);
     return tree;
 }
@@ -267,7 +267,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
         -origin
     );
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     cloud->setBodyDef(bodyDef);
     return cloud;
@@ -353,7 +353,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
 
 
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     docks->setBodyDef(bodyDef);
     return docks;
@@ -381,7 +381,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     );
 
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     lifeguard->setBodyDef(bodyDef);
     return lifeguard;
@@ -444,7 +444,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {
         -origin
     );
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
     bodyDef.angle = angle;
     umbrella->setBodyDef(bodyDef);
     return umbrella;
