@@ -34,13 +34,15 @@ public:
 
     static std::shared_ptr<Obstacle> makeDocks(const int& widthMeters, const int& heightMeters);
 
-    static std::shared_ptr<Obstacle> makeUmbrella();
+    static std::shared_ptr<Obstacle> makeUmbrella(const float angle);
 
     static std::shared_ptr<Obstacle> makeLifeguard(const bool& faceLeft);
 
     static std::shared_ptr<Obstacle> makePoopSplatter();
 
     static std::shared_ptr<Obstacle> makeRock(float tAngle);
+
+    static std::shared_ptr<Obstacle> makeBeachBall(float tAngle);
 };
 
 #endif // _OBSTACLE_FACTORY_HPP_

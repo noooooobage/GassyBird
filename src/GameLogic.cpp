@@ -468,7 +468,7 @@ void GameLogic::generateNewActors() {
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
     if (needToSpawn) {
-        float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
+        float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(3.0f, 6.0f);
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
 }
@@ -522,8 +522,8 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             break;
         case 6:
             {
-                float angle = randomFloat(0.0f, 45.0f);
-                _obstacles.push_back(ObstacleFactory::makeUmbrella());
+                float angle = randomFloat(-PI/4.0f, PI / 4.0f);
+                _obstacles.push_back(ObstacleFactory::makeUmbrella(angle));
                 addToWorld(*_obstacles.back(), position);
             }
             break;

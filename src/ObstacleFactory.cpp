@@ -424,7 +424,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
 
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella() {
+std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {
     const SpriteResource& spriteResource =
         *resourceCache.getResource<SpriteResource>("UMBRELLA_SPRITE");
     
@@ -445,6 +445,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella() {
     );
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
+    bodyDef.angle = angle;
     umbrella->setBodyDef(bodyDef);
     return umbrella;
 }
