@@ -444,7 +444,7 @@ void GameLogic::removeOutOfBoundsActors() {
 
         // The actor is out of bounds if its body is 5 meters to the left of the screen. Doesn't
         // care about ground obstacles or the bird itself.
-        bool isOutOfBounds = body->GetPosition().x < -5.0f &&
+        bool isOutOfBounds = body->GetPosition().x < -10.0f &&
                 actor->getType() != PhysicalActor::TYPE::PLAYABLE_BIRD &&
                 actor->getType() != PhysicalActor::TYPE::GROUND;
         if (isOutOfBounds)
@@ -528,7 +528,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
                 bool spawnNPC = randomBool();
                 if(spawnNPC) {
                     _NPCs.push_back(NPCFactory::makeDefault());
-                    addToWorld(*_NPCs.back(), b2Vec2(position.x-randomFloat(0.0f, width), height));
+                    addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height));
                     _timeSinceLastNPC = 0.0f;
                 }
             }

@@ -209,7 +209,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
 
     b2FixtureDef fixtureDef;
 
-    sf::Vector2f baseOrigin(baseRect.width / 2.0f, baseRect.height);
+    sf::Vector2f baseOrigin(baseRect.width, baseRect.height);
     tree->addComponent(
         baseRect,
         fixtureDef,
@@ -289,69 +289,67 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
     const sf::IntRect& rightBottomRect = spriteResource.textureRects.at(5);
 
     b2FixtureDef fixtureDef;
-    float width = rightBottomRect.width;
-    float height = rightBottomRect.height;
+    float width = leftBottomRect.width;
+    float height = leftBottomRect.height;
     for (int j = 0; j < heightMeters; j++) {
-        sf::Vector2f leftBottom(width / 2.0f, height);
-        docks->addComponent(
-            rightBottomRect,
-            fixtureDef,
-            {},
-            -leftBottom
-        );
-        height += leftBottomRect.height;
-    }
-    
-    sf::Vector2f rightTop(width / 2.0f, height);
-    docks->addComponent(
-        rightTopRect,
-        fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-        -rightTop
-    );
-    width += rightBottomRect.width - 6;
-    height = middleBottomRect.height;
-    for (int i = 1; i < widthMeters-1; i++) {
-        for (int j = 0; j < heightMeters; j++) {
-            sf::Vector2f rightBottom(width - (rightBottomRect.width / 2.0f), height);
-            docks->addComponent(
-                middleBottomRect,
-                fixtureDef,
-                {},
-                -rightBottom
-            );
-            height += middleBottomRect.height;
-        }
-
-        sf::Vector2f middleTop(width - (middleTopRect.width / 2.0f), height);
-        docks->addComponent(
-            middleTopRect,
-            fixtureDef,
-            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-            -middleTop
-        );
-        width += middleBottomRect.width;
-        height = middleBottomRect.height;
-    }
-    for (int j = 0; j < heightMeters; j++) {
-        sf::Vector2f leftBottom(width - (leftBottomRect.width / 2.0f), height);
+        sf::Vector2f leftBottom(width / 2.0f, -height);
         docks->addComponent(
             leftBottomRect,
             fixtureDef,
             {},
-            -leftBottom
+            leftBottom
         );
         height += leftBottomRect.height;
     }
-    sf::Vector2f leftTop(width - (leftTopRect.width / 2.0f), height);
+    sf::Vector2f leftTop(width / 2.0f, -height);
     docks->addComponent(
         leftTopRect,
         fixtureDef,
         {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-        -leftTop
+        leftTop
     );
+    width += (middleBottomRect.width / 2.0f);
+    height = middleBottomRect.height;
+    for (int i = 1; i < widthMeters-1; i++) {
+        for (int j = 0; j < heightMeters; j++) {
+            sf::Vector2f middleBottom(width, -height);
+            docks->addComponent(
+                middleBottomRect,
+                fixtureDef,
+                {},
+                middleBottom
+            );
+            height += middleBottomRect.height;
+        }
 
+        sf::Vector2f middleTop(width, -height);
+        docks->addComponent(
+            middleTopRect,
+            fixtureDef,
+            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            middleTop
+        );
+        width += middleBottomRect.width;
+        height = middleBottomRect.height;
+    }
 
+    for (int j = 0; j < heightMeters; j++) {
+        sf::Vector2f rightBottom(width, -height);
+        docks->addComponent(
+            rightBottomRect,
+            fixtureDef,
+            {},
+            rightBottom
+        );
+        height += rightBottomRect.height;
+    }
+    sf::Vector2f rightTop(width, -height);
+    docks->addComponent(
+        rightTopRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        rightTop
+    );
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
 
