@@ -383,32 +383,29 @@ void GameLogic::requestTriggerAction(){
             //Safety check for null pointer
             if (tbody != nullptr){
                 //Calculate the angle for the throw
-                float opp = (_playableBirdBody->GetPosition().y - tbody->GetPosition().y);
-                float adj = (_playableBirdBody->GetPosition().x - tbody->GetPosition().x);
-                float angle = (1 / (tan(opp/adj)));
-
-                //Create the rock
+                float opp, adj, angle; //variables for storing calc
+                //If the bird is to the left
+                opp = (_playableBirdBody->GetPosition().y - tbody->GetPosition().y);
+                adj = (_playableBirdBody->GetPosition().x - tbody->GetPosition().x);
+                angle = (float) atan((opp/adj));
+            
+                //Create the rock and add it to the world
                 _projectiles.push_back(ObstacleFactory::makeRock(angle));
-                auto rBody = addToWorld(*_projectiles.back(), {tbody->GetPosition().x, 5.f}, true);
+                auto rBody = addToWorld(*_projectiles.back(), {tbody->GetPosition().x, 3.1f}, true);
                 
-
                 //Safety check for nullptr
                 if(rBody != nullptr){
-                    float targetAccel = -2.0f;
-                    float force = rBody->GetMass() * targetAccel;
-                    rBody->ApplyForceToCenter(b2Vec2(-200.0f, force), true);
-                    std::cout << "Push" << std::endl;
-                }
 
-                
+                    //Get The Acceleration for the rock and the magnitude of the distance
+                    float targetAccel = .5f * (std::abs(adj) / (adj));
+
+                    //Get The Force by angle and apply it to the rock
+                    b2Vec2 force = b2Vec2((cos(angle) * targetAccel) , (sin(angle) * targetAccel));
+                    rBody->ApplyLinearImpulseToCenter(force, true);
+                }
             }
         }
     }
-    //Temp else
-    else{
-        std::cout << "No NPCs" << std::endl;
-    }
-    
 }
 
 void GameLogic::createMap() {
