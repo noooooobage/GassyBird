@@ -211,7 +211,7 @@ private:
      * updateNPCs runs through the list of npcs and randomly decides to move them 
      * but decides to stop moving them based on time constraints for a step.
      */
-    void updateNPCs();
+    void updateNPCs(const float& timeDelta);
 
     bool _initialized;
 

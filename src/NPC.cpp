@@ -28,7 +28,9 @@ NPC::NPC() :
     _HEIGHT_PIXELS(_HEIGHT_METERS * PIXELS_PER_METER),
 
     //The entity is "live" or not hit by default, even if it's not drawable
-    isHit(false)
+    isHit(false),
+
+    isMoving(false)
 {}
 
 void NPC::init() {

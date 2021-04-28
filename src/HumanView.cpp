@@ -104,7 +104,7 @@ void HumanView::keyPressHandler(const Event& event) {
         eventMessenger.queueEvent(WindowCloseEvent());
     // A developer convenience to trigger actions by key. Remove before release.
     else if (e.key == sf::Keyboard::Key::T){
-        _logic->requestTriggerAction();
+        _logic->requestNPCStep();
     }
 }
 
