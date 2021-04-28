@@ -28,6 +28,7 @@ GameLogic::GameLogic() :
     _INITIAL_WORLD_SCROLL_SPEED(7.0f),
     _worldScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED),
     _STEP_TIME(2.f),
+    _ACTION_TIME(2.f),
 
     _NUM_GROUNDS(4),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
@@ -388,32 +389,37 @@ void GameLogic::requestTriggerAction(){
             //Call the change of animation frames
             //curNPC->triggerAction();
             //get that NPC actor and activate its animation
+            NPC* npc = curNPC->get();
 
-            //Temp code for trigger event            
-            b2Body* tbody = getBody(curNPC->get());
+            if (npc->isActionable == true){
+                b2Body* tbody = getBody(curNPC->get());
 
-            //Safety check for null pointer
-            if (tbody != nullptr){
-                //Calculate the angle for the throw
-                float opp, adj, angle; //variables for storing calc
-                //If the bird is to the left
-                opp = (_playableBirdBody->GetPosition().y - tbody->GetPosition().y);
-                adj = (_playableBirdBody->GetPosition().x - tbody->GetPosition().x);
-                angle = (float) atan((opp/adj));
-            
-                //Create the rock and add it to the world
-                _projectiles.push_back(ObstacleFactory::makeRock(angle));
-                auto rBody = addToWorld(*_projectiles.back(), {tbody->GetPosition().x, 3.1f}, true);
+                //Safety check for null pointer
+                if (tbody != nullptr){
+                    //Calculate the angle for the throw
+                    float opp, adj, angle; //variables for storing calc
+                    //If the bird is to the left
+                    opp = (_playableBirdBody->GetPosition().y - tbody->GetPosition().y);
+                    adj = (_playableBirdBody->GetPosition().x - tbody->GetPosition().x);
+                    angle = (float) atan((opp/adj));
                 
-                //Safety check for nullptr
-                if(rBody != nullptr){
+                    //Create the rock and add it to the world
+                    _projectiles.push_back(ObstacleFactory::makeRock(angle));
+                    auto rBody = addToWorld(*_projectiles.back(), {tbody->GetPosition().x, 3.1f}, true);
+                    
+                    //Safety check for nullptr
+                    if(rBody != nullptr){
 
-                    //Get The Acceleration for the rock and the magnitude of the distance
-                    float targetAccel = .5f * (std::abs(adj) / (adj));
+                        //Get The Acceleration for the rock and the magnitude of the distance
+                        float targetAccel = .5f * (std::abs(adj) / (adj));
 
-                    //Get The Force by angle and apply it to the rock
-                    b2Vec2 force = b2Vec2((cos(angle) * targetAccel) , (sin(angle) * targetAccel));
-                    rBody->ApplyLinearImpulseToCenter(force, true);
+                        //Get The Force by angle and apply it to the rock
+                        b2Vec2 force = b2Vec2((cos(angle) * targetAccel) , (sin(angle) * targetAccel));
+                        rBody->ApplyLinearImpulseToCenter(force, true);
+
+                        //set the actionable to false
+                        npc->isActionable = false;
+                    }
                 }
             }
         }
@@ -736,40 +742,59 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
 void GameLogic::updateNPCs(const float& timeDelta){
     assert(_initialized);
 
+    //If there are npcs to work with
     if (_NPCs.size() > 0){
         
-        
+        //Loop through npcs
         for (int i=0; i<_NPCs.size(); i++){
+            //iterate through npcs
             auto curNPC = _NPCs.begin();
             std::advance(curNPC, i);
 
+            //npc to work with
             NPC* npc = curNPC->get();
 
+            //check the type to make sure nothing is wrong in the pipeline
             if (npc->getType() == PhysicalActor::TYPE::NPC){
-                if (npc->isMoving == true){
-                    //Check their move timer
-                    //Compare and decide if it needs to be reset
-                    if (npc->getTimeMoving() >= _STEP_TIME){
-                        //Set time to zero and speed to world speed
-                        npc->setTimeMoving(0.f);
 
-                        npc->isMoving = false;
+                //Check if the npc is hit
+                if (npc->isHit == false){
+
+                    //Check if the npc is mving
+                    if (npc->isMoving == true){
+
+                        //Check their move timer
+                        //Compare and decide if it needs to be reset
+                        if (npc->getTimeMoving() >= _STEP_TIME){
+                            //Set time to zero and speed to world speed
+                            npc->setTimeMoving(0.f);
+
+                            npc->isMoving = false;
+                        }
+                        //if the npc needs to keep moving make it step
+                        else if (npc->getTimeMoving() > 0 && npc->getTimeMoving() < _STEP_TIME){
+
+                            //move the npc and set the time moving             
+                            npc->setTimeMoving((npc->getTimeMoving()) + timeDelta);
+                            b2Body* tbody = getBody(npc);
+                            tbody->SetTransform(b2Vec2((tbody->GetPosition().x + .001f),(tbody->GetPosition().y)), tbody->GetAngle());
+                        }
                     }
-                    else if (npc->getTimeMoving() > 0 && npc->getTimeMoving() < _STEP_TIME){
-                        
-                        npc->setTimeMoving((npc->getTimeMoving()) + timeDelta);
 
-                        b2Body* tbody = getBody(npc);
-
-                        tbody->SetTransform(b2Vec2((tbody->GetPosition().x + .001f),(tbody->GetPosition().y)), tbody->GetAngle());
-                        std::cout << "step" << std::endl;
+                    // check if the npc can act
+                    if (npc->isActionable == false){
+                        //If we can reset the action timer
+                        if (npc->getTimeSinceAction() >= _ACTION_TIME){
+                            npc->setTimeSinceAction(0.f);
+                            npc->isActionable = true;
+                        }
+                        //If it's not the time yet
+                        else if (npc->getTimeSinceAction() > 0 && npc->getTimeSinceAction() < _ACTION_TIME){
+                            npc->setTimeSinceAction((npc->getTimeSinceAction()) + timeDelta);
+                        }
                     }
-                }
-                    
-                //Check their throw timer
-                    //Compare and decide if it needs to be reset
+                } 
             }
         }
-
     }
 }

@@ -29,6 +29,7 @@ class NPC : public PhysicalActor {
         //The is hit boolean follows
         bool isHit;
         bool isMoving;
+        bool isActionable;
 
         void triggerAction();
         void moveRight();

@@ -106,6 +106,9 @@ void HumanView::keyPressHandler(const Event& event) {
     else if (e.key == sf::Keyboard::Key::T){
         _logic->requestNPCStep();
     }
+    else if (e.key == sf::Keyboard::Key::L){
+        _logic->requestTriggerAction();
+    }
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {

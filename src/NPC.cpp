@@ -30,7 +30,9 @@ NPC::NPC() :
     //The entity is "live" or not hit by default, even if it's not drawable
     isHit(false),
 
-    isMoving(false)
+    isMoving(false),
+
+    isActionable(true)
 {}
 
 void NPC::init() {
