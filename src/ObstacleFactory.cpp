@@ -172,7 +172,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
     // create the ground obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
-        PhysicalActor::TYPE::GROUND,
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
         *spriteResource.sprite.getTexture(),
         spriteResource.scaleFactor
     ));

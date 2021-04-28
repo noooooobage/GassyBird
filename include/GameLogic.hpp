@@ -254,7 +254,9 @@ private:
     const float _BIRD_DEATH_TIME;
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
+
     float _timeSinceLastPoop; // time elapsed since last poop
+    float _timeSinceLastNPC; //time elapsed since last NPX was spawned
     int _numPoopsLeft; // number of poops the bird has left
     std::list<PhysicalActor*> _deadPoops; // list of poops that have already landed
     PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
@@ -264,6 +266,7 @@ private:
     int _playerScore;
 
     int _lastObstacleSpawned;
+
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 

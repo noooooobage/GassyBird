@@ -42,7 +42,7 @@ GameLogic::GameLogic() :
     _BIRD_POOP_DURATION(1.0f),
     _BIRD_MAX_POOPS(2),
     _POOP_DOWNWARD_VELOCITY(3.0f),
-    _BIRD_DEATH_TIME(15.0f),
+    _BIRD_DEATH_TIME(60.0f),
     _lastPoop(nullptr)
 {}
 
@@ -105,7 +105,7 @@ void GameLogic::update(const float& timeDelta) {
     updateGround();
     updatePlayableBird(timeDelta);
     updateNPCs();
-
+    _timeSinceLastNPC += timeDelta;
     // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
     // necessary to do every frame because sometimes varying timeDeltas affects the velocity
     setWorldScrollSpeed(_worldScrollSpeed);
@@ -452,8 +452,9 @@ void GameLogic::removeOutOfBoundsActors() {
     }
 
     // next, iterate through the list of out of bounds actors and remove each one from the world
-    for (auto actor : OOBActors)
+    for (auto actor : OOBActors) {
         removeFromWorld(*actor);
+    }
 }
 
 void GameLogic::generateNewActors() {
@@ -465,13 +466,18 @@ void GameLogic::generateNewActors() {
     // sophisticated method of determining when to spawn things.
     int numEntities = _obstacles.size() + _NPCs.size();
     bool needToSpawn = numEntities < 4;
-
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
+    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 10.0f);
     if (needToSpawn) {
-        float xPosition = (NATIVE_RESOLUTION.x * METERS_PER_PIXEL) + randomFloat(2.0f, 5.0f);
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
+    // else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
+    //     std::cout << "Game should be forced to spawn an NPC" << std::endl;
+    //     _NPCs.push_back(NPCFactory::makeDefault());
+    //     addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
+    //     _timeSinceLastNPC = 0.0f;
+    // }
 }
 
 void GameLogic::spawnNPE(const b2Vec2& position) {
@@ -523,6 +529,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
                 if(spawnNPC) {
                     _NPCs.push_back(NPCFactory::makeDefault());
                     addToWorld(*_NPCs.back(), b2Vec2(position.x-randomFloat(0.0f, width), height));
+                    _timeSinceLastNPC = 0.0f;
                 }
             }
             break;
@@ -536,6 +543,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
         case 6:
             _NPCs.push_back(NPCFactory::makeDefault());
             addToWorld(*_NPCs.back(), position);
+            _timeSinceLastNPC = 0.0f;
             break;
     }
     if(obstacleType != 5) {
