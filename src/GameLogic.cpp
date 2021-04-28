@@ -468,16 +468,16 @@ void GameLogic::generateNewActors() {
     bool needToSpawn = numEntities < 4;
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
-    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 10.0f);
+    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
     if (needToSpawn) {
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
-    // else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
-    //     std::cout << "Game should be forced to spawn an NPC" << std::endl;
-    //     _NPCs.push_back(NPCFactory::makeDefault());
-    //     addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-    //     _timeSinceLastNPC = 0.0f;
-    // }
+    else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
+        // std::cout << "Game should be forced to spawn an NPC" << std::endl;
+        _NPCs.push_back(NPCFactory::makeDefault());
+        addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
+        _timeSinceLastNPC = 0.0f;
+    }
 }
 
 void GameLogic::spawnNPE(const b2Vec2& position) {
