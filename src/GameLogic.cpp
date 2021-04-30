@@ -43,7 +43,8 @@ GameLogic::GameLogic() :
     _BIRD_MAX_POOPS(2),
     _POOP_DOWNWARD_VELOCITY(3.0f),
     _BIRD_DEATH_TIME(60.0f),
-    _lastPoop(nullptr)
+    _lastPoop(nullptr),
+    _numGroundsPassed(0)
 {}
 
 GameLogic::~GameLogic() {
@@ -112,6 +113,8 @@ void GameLogic::update(const float& timeDelta) {
     
     // increment physics
     _world->Step(timeDelta, 8, 4);
+    //this is used as an approximation 
+    _totalTimePassed += timeDelta;
 }
 
 void GameLogic::toDemo() {
@@ -469,7 +472,8 @@ void GameLogic::generateNewActors() {
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
     float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
-    if (needToSpawn) {
+    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 10.0f) {
+        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
     else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
@@ -501,9 +505,12 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     bool faceLeft = randomBool();
     switch(obstacleType) {
         case 0:
+            {
             _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+            
             addToWorld(*_obstacles.back(), position);
             break;
+            }
         case 1:
             _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
             addToWorld(*_obstacles.back(), position);
@@ -720,6 +727,7 @@ void GameLogic::updateGround() {
 
             // step 2
             _grounds.pop_front();
+            _numGroundsPassed++;
             _grounds.push_back(leftGround);
 
         // if this ground isn't to the left of the screen, then stop

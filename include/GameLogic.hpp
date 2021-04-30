@@ -265,8 +265,11 @@ private:
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
 
-    int _lastObstacleSpawned;
+    int _lastObstacleSpawned; //index of last obstacle spawned
 
+    float _spawnPositionLastObstacle;
+    int _numGroundsPassed;
+    float _totalTimePassed;
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 
