@@ -44,7 +44,7 @@ GameLogic::GameLogic() :
     _POOP_DOWNWARD_VELOCITY(3.0f),
     _BIRD_DEATH_TIME(60.0f),
     _lastPoop(nullptr),
-    _numGroundsPassed(0)
+    _difficulty(3)
 {}
 
 GameLogic::~GameLogic() {
@@ -106,6 +106,7 @@ void GameLogic::update(const float& timeDelta) {
     updateGround();
     updatePlayableBird(timeDelta);
     updateNPCs();
+    updateDifficulty();
     _timeSinceLastNPC += timeDelta;
     // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
     // necessary to do every frame because sometimes varying timeDeltas affects the velocity
@@ -113,7 +114,7 @@ void GameLogic::update(const float& timeDelta) {
     
     // increment physics
     _world->Step(timeDelta, 8, 4);
-    //this is used as an approximation 
+    //this is used as an approximation
     _totalTimePassed += timeDelta;
 }
 
@@ -136,6 +137,8 @@ void GameLogic::toDemo() {
     // set bird to demo state
     _playableBirdActor.stopPooping();
     _playableBirdActor.startFlying();
+    _totalTimePassed = 0.0f;
+    _difficulty = 3;
 
     // turn off gravity for the bird
     _playableBirdBody->SetGravityScale(0.0f);
@@ -154,6 +157,9 @@ void GameLogic::toPlaying() {
     _playerScore = 0;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
+    _totalTimePassed = 0.0f;
+    _difficulty = 3;
+    _spawnPositionLastObstacle = 0.0f;
 
     // set initial values for bird's physical body
     _playableBirdBody->SetGravityScale(1.0f);
@@ -468,7 +474,7 @@ void GameLogic::generateNewActors() {
     // TODO: This is an okay placeholder, but we might want to think about using a more
     // sophisticated method of determining when to spawn things.
     int numEntities = _obstacles.size() + _NPCs.size();
-    bool needToSpawn = numEntities < 4;
+    bool needToSpawn = numEntities < _difficulty;
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
     float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
@@ -727,7 +733,6 @@ void GameLogic::updateGround() {
 
             // step 2
             _grounds.pop_front();
-            _numGroundsPassed++;
             _grounds.push_back(leftGround);
 
         // if this ground isn't to the left of the screen, then stop
@@ -735,6 +740,11 @@ void GameLogic::updateGround() {
             break;
         }
     }
+}
+
+void GameLogic::updateDifficulty() {
+    _difficulty = (_totalTimePassed / 60) + 3;
+
 }
 
 void GameLogic::setWorldScrollSpeed(const float& amount) {
