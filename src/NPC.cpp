@@ -11,46 +11,60 @@
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 
-NPC::NPC() :
+NPC::NPC(const NPC::TYPE& type) :
 
-    // call super constructor with NPC type
+    // call super constructor
     PhysicalActor(PhysicalActor::TYPE::NPC),
 
-    //Default settings for an entity
+    _TYPE(type),
     _initialized(false),
+    _state(IDLE),
 
-    //Frame rate settings
-    _frameChangeTimer(0.0f),
-    _FRAME_CHANGE_TIME_DELTA(0.5f),
-    _WIDTH_METERS(2),
-    _HEIGHT_METERS(2),
-    _WIDTH_PIXELS(_WIDTH_METERS * PIXELS_PER_METER),
-    _HEIGHT_PIXELS(_HEIGHT_METERS * PIXELS_PER_METER),
+    _IDLE_FRAME_DURATION(0.2f),
+    _IDLE_START_FRAME(0),
+    _NUM_IDLE_FRAMES(4),
 
-    //The entity is "live" or not hit by default, even if it's not drawable
-    isHit(false),
+    _WALK_FRAME_DURATION(0.15f),
+    _WALK_START_FRAME(4),
+    _NUM_WALK_FRAMES(6),
 
-    isMoving(false),
+    _THROW_FRAME_DURATION(0.1f),
+    _START_THROW_START_FRAME(10),
+    _NUM_START_THROW_FRAMES(3),
+    _FINISH_THROW_START_FRAME(13),
+    _NUM_FINISH_THROW_FRAMES(3),
 
-    isActionable(true)
+    _frameDuration(1.0f),
+    _startFrame(0),
+    _numFrames(1),
+    _currentFrame(0),
+    _frameTimer(0.0f),
+
+    _isFacingLeft(false),
+    _isReadyToFinishThrowing(false),
+    _actionTimeRemaining(0.0f),
+    _prepareTimeRemaining(0.0f),
+    _nextAction(ACTION::IDLE),
+    _nextActionDuration(0.0f)
 {}
 
 void NPC::init() {
 
-     // get the sprite and texture rectangles
-    const SpriteResource& spriteResource =
-            *resourceCache.getResource<SpriteResource>("NPC_SPRITE");
-    _NPCsprite = spriteResource.sprite;
-    _textureRects = spriteResource.textureRects;
+     // get the sprite and texture rectangles according to the type
+    const SpriteResource* spriteResource;
+    if (_TYPE == TYPE::MALE)
+        spriteResource = resourceCache.getResource<SpriteResource>("NPC_MALE_SPRITE");
+    else
+        spriteResource = resourceCache.getResource<SpriteResource>("NPC_FEMALE_SPRITE");
+    _sprite = spriteResource->sprite;
+    _textureRects = spriteResource->textureRects;
 
     // set origin to the bottom middle
-    _NPCsprite.setOrigin(_textureRects.at(0).width / 2.0f, (float)_textureRects.at(0).height);
+    _sprite.setOrigin(_textureRects.at(0).width / 2.0f, (float)_textureRects.at(0).height);
 
-    // put at graphical position (0, 0) so transformations work as intended
-    _NPCsprite.setPosition(0.0f, 0.0f);
-
-    // scale the sprite based on the resource's scaleFactor
-    _NPCsprite.scale(spriteResource.scaleFactor, spriteResource.scaleFactor);
+    // scale the sprite based on the resource's scaleFactor, then face the sprite to the left
+    _sprite.scale(spriteResource->scaleFactor, spriteResource->scaleFactor);
+    setFacingLeft(true);
 
     // body definition -- make it have fixed rotation so the NPC is always upright
     b2BodyDef bodyDef;
@@ -62,7 +76,7 @@ void NPC::init() {
     // TODO: This is only temporarily a rectangular hitbox. Change this eventually to a better
     // fitting hitbox for the torso.
     b2PolygonShape torso = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
-    fitPolygonToSprite(torso, _NPCsprite);
+    fitPolygonToSprite(torso, _sprite);
     addShape(torso);
 
     // fixture definition
@@ -71,51 +85,157 @@ void NPC::init() {
     fixtureDef.friction = 0.5f;
     addFixtureDef(fixtureDef);
 
-    _initialized = true;
+    // NPC should start out in the idle state
+    toIdle();
 
+    _initialized = true;
 }
-//Call an update of the NPC
+
 void NPC::update(const float& timeDelta) {
 
     assert(_initialized);
 
     //TODO: Add check for if the npc has been hit and display death frame
 
-    // Advance the frame change timer and increment the current frame if it exceeds
-    // _FRAME_CHANGE_TIME_DELTA
-    _frameChangeTimer += timeDelta;
-    if (_frameChangeTimer >= _FRAME_CHANGE_TIME_DELTA) {
-        _spriteCurrentFrame = 0;
-        _NPCsprite.setTextureRect(_textureRects.at(_spriteCurrentFrame));
-        _frameChangeTimer = 0.0f;
+    // set the sprite to the current frame
+    _sprite.setTextureRect(_textureRects.at(_currentFrame));
+
+    // Increment the frame. Loop the animation only if the NPC isn't starting to throw.
+    _frameTimer += timeDelta;
+    _currentFrame = _startFrame + _frameTimer / _frameDuration;
+    int endFrame = _startFrame + _numFrames - 1;
+    if (_currentFrame > endFrame) {
+        if (_state == STARTING_THROW)
+            _currentFrame = endFrame;
+        else
+            _currentFrame = _startFrame + (_currentFrame - _startFrame) % _numFrames;
     }
 
-    //logic to increment movement time
-    if (isMoving){
-        _timeMoving += timeDelta;
+    // Decrement the action timer, and if it reaches 0, then set the NPC to idle. Don't do this if
+    // the NPC is starting to throw.
+    _actionTimeRemaining -= timeDelta;
+    if (_actionTimeRemaining <= 0.0f && _state != IDLE && _state != PREPARING) {
+        _actionTimeRemaining = 0.0f;
+        if (_state == STARTING_THROW)
+            _isReadyToFinishThrowing = true;
+        else
+            toIdle();
     }
 
+    // Decrement the prepare timer, and when it reaches 0 do the next action, unless that action is
+    // idle.
+    _prepareTimeRemaining -= timeDelta;
+    if (_prepareTimeRemaining <= 0.0f && _nextAction != ACTION::IDLE) {
+
+        _prepareTimeRemaining = 0.0f;
+
+        if (_nextAction == ACTION::WALK)
+            walk(_nextActionDuration);
+        else if (_nextAction == ACTION::START_THROW)
+            startThrowing(_nextActionDuration);
+
+        _nextAction = ACTION::IDLE;
+        _nextActionDuration = 0.0f;
+
+    // set the state to PREPARING if we're waiting to do an action and the current state is IDLE
+    } else if (_prepareTimeRemaining > 0.0f && _state == IDLE) {
+        _state = PREPARING;
+    }
 }
 
 void NPC::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     assert(_initialized);
     
-    // draw sprite
-    target.draw(_NPCsprite, states);
+    target.draw(_sprite, states);
 }
 
-//trigger the moving right animation set
-void NPC::moveRight() {
-    assert(_initialized);
-    //TODO: Flip the sprite to face the other way.
-    std::cout << "moveRight Start" << std::endl;
-    
+void NPC::doAction(const NPC::ACTION& action, const float& delay, const float& duration) {
+
+    if (action == ACTION::FINISH_THROW) {
+        finishThrowing();
+
+    } else {
+        _nextAction = action;
+        _prepareTimeRemaining = delay;
+        _nextActionDuration = duration;
+    }
 }
 
-//trigger the animation for throwing
-void NPC::triggerAction() {
-    assert(_initialized);
-    //TODO trigger action animation for sprite
-    std::cout << "triggerAction Start" << std::endl;
+void NPC::setFacingLeft(const bool& faceLeft) {
+    if (faceLeft != _isFacingLeft) {
+        _sprite.scale(-1.0f, 1.0f);
+        _isFacingLeft = faceLeft;
+    }
+}
+
+void NPC::stopWalking() {
+
+    if (isWalking()) {
+
+        toIdle();
+        
+        if (_nextAction == ACTION::WALK) {
+            _nextAction == ACTION::IDLE;
+            _prepareTimeRemaining = 0.0f;
+        }
+    }
+}
+
+void NPC::walk(const float& duration) {
+
+    if (!isThrowing()) {
+
+        _state = WALKING;
+        _isReadyToFinishThrowing = false;
+
+        _frameDuration = _WALK_FRAME_DURATION;
+        _startFrame = _WALK_START_FRAME;
+        _numFrames = _NUM_WALK_FRAMES;
+        _currentFrame = _startFrame;
+
+        _frameTimer = 0.0f;
+        _actionTimeRemaining = duration;
+    }
+}
+
+void NPC::startThrowing(const float& duration) {
+
+    _state = STARTING_THROW;
+    _isReadyToFinishThrowing = false;
+
+    _frameDuration = _THROW_FRAME_DURATION;
+    _startFrame = _START_THROW_START_FRAME;
+    _numFrames = _NUM_START_THROW_FRAMES;
+    _currentFrame = _startFrame;
+
+    _frameTimer = 0.0f;
+    _actionTimeRemaining = duration;
+}
+
+void NPC::finishThrowing() {
+
+    _state = FINISHING_THROW;
+    _isReadyToFinishThrowing = false;
+
+    _frameDuration = _THROW_FRAME_DURATION;
+    _startFrame = _FINISH_THROW_START_FRAME;
+    _numFrames = _NUM_FINISH_THROW_FRAMES;
+    _currentFrame = _startFrame;
+
+    _frameTimer = 0.0f;
+    _actionTimeRemaining = _numFrames * _frameDuration;
+}
+
+void NPC::toIdle() {
+
+    _state = IDLE;
+    _isReadyToFinishThrowing = false;
+
+    _frameDuration = _IDLE_FRAME_DURATION;
+    _startFrame = _IDLE_START_FRAME;
+    _numFrames = _NUM_IDLE_FRAMES;
+    _currentFrame = randomInt(_startFrame, _startFrame + _numFrames - 1);
+
+    _frameTimer = 0.0f;
 }

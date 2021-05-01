@@ -10,51 +10,24 @@
 
 
 /**
- * Receives user input to control playable actors via the game logic. Also is resposible for
- * displaying visuals and sound to the user.
+ * Controls the NPCs. Will make them walk around and throw objects at the bird. The NPCs will throw
+ * objects more frequently as the logic's difficulty increases.
  */
-class NPCView : public sf::Drawable {
+class NPCView {
 
 public:
 
     NPCView();
 
-    ~NPCView();
-
     void init(GameLogic& logic);
 
-    /**
-     *
-     */
     void update(const float& timeDelta);
-
-    /**
-     * Draws all actors.
-     */
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
 
-    /**
-     * Called when a KeyPressEvent is triggered. Asks the logic to make NPC respond to bird poop event
-     */
-    void keyPressHandler(const Event& event);
-
-    /**
-     * Called when a KeyReleaseEvent is triggered.
-     */
-    // void keyReleaseHandler(const Event& event);
-
     bool _initialized;
 
-    // pointer to game logic; make sure it isn't nullptr before doing stuff with it
     GameLogic* _logic;
-
-    EventListener _keyPressListener;
-    EventListener _keyReleaseListener;
-
-    // NPC list
-    // std::list<std:shared_ptr<NPC>> _NPCs;
 };
 
 #endif // _NPC_VIEW_HPP_

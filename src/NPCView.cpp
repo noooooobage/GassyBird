@@ -9,79 +9,47 @@
 #include "Globals.hpp"
 #include "Utils.hpp"
 #include "Resources/SpriteResource.hpp"
-#include "Events/WindowCloseEvent.hpp"
-#include "Events/GamePauseEvent.hpp"
+#include "Events/KeyPressEvent.hpp"
+#include "Events/KeyReleaseEvent.hpp"
 #include "ObstacleFactory.hpp"
 #include "PhysicalActor.hpp"
 #include "NPC.hpp"
 
 NPCView::NPCView() :
-
     _initialized(false)
-
 {}
-
-NPCView::~NPCView() {
-
-    // remove event listeners
-    eventMessenger.removeListener(KeyPressEvent::TYPE, _keyPressListener);
-    eventMessenger.removeListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
-
-    // nullify pointers
-    _logic = nullptr;
-}
 
 void NPCView::init(GameLogic& logic) {
 
     _initialized = true;
 
     _logic = &logic;
-
-    // initialize and add event listeners
-    _keyPressListener.init(&NPCView::keyPressHandler, this);
-    // _keyReleaseListener.init(&NPCView::keyReleaseHandler, this);
-
-    eventMessenger.addListener(KeyPressEvent::TYPE, _keyPressListener);
-    // eventMessenger.addListener(KeyReleaseEvent::TYPE, _keyReleaseListener);
 }
 
 void NPCView::update(const float& timeDelta) {
-    assert(_initialized);
-}
-
-void NPCView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     assert(_initialized);
 
-    // draw all visible actors given by the logic
-    for (auto& pair : _logic->getVisibleActors()) {
+    for (auto npc : _logic->getNPCs()) {
 
-        const PhysicalActor* actor = pair.first;
-        const b2Body* body = pair.second;
+        // finish throwing if the npc is ready to throw
+        if (npc->isThrowing()) {
+            if (npc->isReadyToFinishThrowing())
+                _logic->requestNPCAction(*npc, NPC::ACTION::FINISH_THROW, 0.0f, 0.0f);
 
-        assert(actor);
-        assert(body);
+        } else if (npc->isIdle()) {
 
-        // Set a transform to draw the actor in the correct position and rotation graphically. This
-        // assumes that the actor is at graphical position (0, 0).
-        sf::RenderStates statesCopy = states;
-        statesCopy.transform *= physicalToGraphicalTransform(*body);
-        target.draw(*actor, statesCopy);
+            // choose whether to make the NPC walk or throw
+            // TODO: base this on the game's difficulty
+            bool shouldWalk = randomFloat(0.0f, 1.0f) >= 0.4f;
+
+            if (shouldWalk) {
+                npc->setFacingLeft(randomBool());
+                _logic->requestNPCAction(*npc, NPC::ACTION::WALK, 0.5f, 1.2f);
+
+            } else {
+                _logic->requestNPCAction(*npc, NPC::ACTION::START_THROW, 0.0f, 0.5f);
+            }
+        }
     }
 }
-
-// intended to make random NPC throw something when bird poops
-
-void NPCView::keyPressHandler(const Event& event) {
-
-    // assert(isHit);
-
-    assert(event.getType() == KeyPressEvent::TYPE);
-
-    const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
-
-    // if(e.key == _keyToPoop) {
-        logic->requestTriggerAction();
-    // }
-}
-

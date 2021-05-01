@@ -37,6 +37,7 @@ void PlayingActivity::init(sf::RenderTarget& target) {
 
     // initialize views with logic
     _humanView.init(_logic);
+    _npcView.init(_logic);
 
     // initialize activities
     _mainMenuActivity.init(*this);
@@ -54,6 +55,7 @@ void PlayingActivity::update(const float& timeDelta) {
 
     // update views
     _humanView.update(timeDelta);
+    _npcView.update(timeDelta);
 
     // update logic
     _logic.update(timeDelta);

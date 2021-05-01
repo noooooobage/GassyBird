@@ -6,6 +6,7 @@
 #include "Activity.hpp"
 #include "GameLogic.hpp"
 #include "HumanView.hpp"
+#include "NPCView.hpp"
 #include "DebugDrawer.hpp"
 #include "MainMenuActivity.hpp"
 #include "PlayingMenuActivity.hpp"
@@ -55,6 +56,7 @@ private:
     GameLogic _logic;
 
     HumanView _humanView;
+    NPCView _npcView;
 
     // PlayingActivity has activities of its own, these act as user interfaces
     MainMenuActivity _mainMenuActivity;

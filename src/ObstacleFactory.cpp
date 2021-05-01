@@ -389,7 +389,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     return lifeguard;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
+std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     const SpriteResource& spriteResource =
         *resourceCache.getResource<SpriteResource>("ROCK_SPRITE");
     
@@ -402,6 +402,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
     b2FixtureDef fixtureDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 1.0f;
+    fixtureDef.restitution = 0.5f;
 
     // rock also only has one component, origin should be in the middle
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
@@ -416,12 +417,8 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(float tAngle){
     // set the body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.gravityScale = (0.5f);
     bodyDef.bullet = true;
-    bodyDef.angle = tAngle;
-    bodyDef.linearVelocity.y = 2.f;
     rock->setBodyDef(bodyDef);
 
     return rock;
-
 }

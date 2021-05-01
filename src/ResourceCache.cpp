@@ -31,7 +31,7 @@ void ResourceCache::init() {
 
     _initialized = true;
     
-    // TEXTURES ////////////////////////////////////////////
+    // TEXTURES ////////////////////////////////////////////////////////////////////////////////////
 
     loadTextureResource(
         "TEST_TEXTURE",
@@ -59,8 +59,13 @@ void ResourceCache::init() {
     );
 
     loadTextureResource(
-        "NPC_TEXTURE",
-        "../data/tempNPCtexture.png"
+        "NPC_MALE_TEXTURE",
+        "../data/NPC_man.png"
+    );
+
+    loadTextureResource(
+        "NPC_FEMALE_TEXTURE",
+        "../data/NPC_woman.png"
     );
 
     loadTextureResource(
@@ -91,7 +96,8 @@ void ResourceCache::init() {
         "DOCKS_TEXTURE",
         "../data/docks.png"
     );
-    // SPRITES /////////////////////////////////////////////
+
+    // SPRITES /////////////////////////////////////////////////////////////////////////////////////
 
     loadSpriteResource(
         "BIRD_SPRITE",
@@ -113,7 +119,7 @@ void ResourceCache::init() {
             {48, 32, 16, 16}, // 13     wings up-middle
             {64, 32, 16, 16}  // 14     wings up
         },
-        60.0f / 16 // scale so that the final width is 60 pixels
+        50.0f / 16 // scale so that the final width is 50 pixels
     );
 
     loadSpriteResource(
@@ -149,12 +155,34 @@ void ResourceCache::init() {
     );
 
     loadSpriteResource(
-        "NPC_SPRITE",
-        *getResource<TextureResource>("NPC_TEXTURE"),
+        "NPC_MALE_SPRITE",
+        *getResource<TextureResource>("NPC_MALE_TEXTURE"),
         {
-            {10, 18, 57, 65} // 0 idle still
+            { 0,   0, 32, 48}, // idle
+            {32,   0, 32, 48},
+            {64,   0, 32, 48},
+            {96,   0, 32, 48},
+            { 0,  48, 32, 48}, // walk
+            {32,  48, 32, 48},
+            {64,  48, 32, 48},
+            {96,  48, 32, 48},
+            { 0,  96, 32, 48},
+            {32,  96, 32, 48},
+            {64,  96, 32, 48}, // throw
+            {96,  96, 32, 48},
+            { 0, 144, 32, 48},
+            {32, 144, 32, 48},
+            {64, 144, 32, 48},
+            {96, 144, 32, 48},
         },
-        1.5f
+        3.5f
+    );
+
+    loadSpriteResource(
+        "NPC_FEMALE_SPRITE",
+        *getResource<TextureResource>("NPC_FEMALE_TEXTURE"),
+        getResource<SpriteResource>("NPC_MALE_SPRITE")->textureRects,
+        3.5f
     );
 
     loadSpriteResource(
@@ -214,15 +242,16 @@ void ResourceCache::init() {
         {
             {0,0,7,7}
         },
-        1.0f
+        2.5f
     );
-    // FONTS ///////////////////////////////////////////////
+
+    // FONTS ///////////////////////////////////////////////////////////////////////////////////////
 
     loadFontResource("ARCADE_FONT", "../data/ARCADECLASSIC.ttf");
 
     loadFontResource("JOYSTIX_FONT", "../data/joystix.monospace.ttf");
 
-    // POLYGONS ////////////////////////////////////////////
+    // POLYGONS ////////////////////////////////////////////////////////////////////////////////////
 
     // this hitbox will always encompass the full texture recangle in a rectangle shape
     loadPolygonResource(
