@@ -503,7 +503,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //5: Spawn NPC
     //6: Umbrella
     int obstacleType = randomInt(0, 6);
-    float metersOffset;
+    int numEntities = _obstacles.size() + _NPCs.size(); //used for checking whether an obstacle was actually generated or not
     //if the same type of obstacle is chosen twice in a row, repoll the random number generator
     while(obstacleType == _lastObstacleSpawned) {
         obstacleType = randomInt(0, 6);
@@ -514,14 +514,16 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     switch(obstacleType) {
         case 0:
             {
-            _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
-            
-            addToWorld(*_obstacles.back(), position);
-            break;
+                if(_lastObstacleSpawned != 1) { //don't spawn streetlights directly after trees
+                    _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+                    
+                    addToWorld(*_obstacles.back(), position);
+                }
+                break;
             }
         case 1:
             _obstacles.push_back(ObstacleFactory::makeTree(heightMeters));
-            _spawnPositionLastObstacle += 1.44f;
+            _spawnPositionLastObstacle += 1.44f + heightMeters;
             addToWorld(*_obstacles.back(), position);
             break;
         case 2:
@@ -535,9 +537,11 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             break;
             }
         case 3:
-            _obstacles.push_back(ObstacleFactory::makeLifeguard(faceLeft));
-            addToWorld(*_obstacles.back(), position);
-            break;
+            if(_lastObstacleSpawned != 4) { //don't spawn lifeguard towers directly after docks (doesn't make sense)
+                _obstacles.push_back(ObstacleFactory::makeLifeguard(faceLeft));
+                addToWorld(*_obstacles.back(), position);
+                break;
+            }
         case 4:
             {
                 int width = randomInt(1, 5);
@@ -566,7 +570,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             _timeSinceLastNPC = 0.0f;
             break;
     }
-    if(obstacleType != 5) {
+    if(obstacleType != 6 && numEntities != _obstacles.size() + _NPCs.size()) { //this is called in all cases regardless of whether an obstacle was actually spawned or not
         _lastObstacleSpawned = obstacleType;
     }
 }

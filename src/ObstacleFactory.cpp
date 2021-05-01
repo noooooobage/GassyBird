@@ -434,7 +434,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {
     umbrella->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("HALF_HITBOX")->polygon},
         -origin
     );
     b2BodyDef bodyDef;

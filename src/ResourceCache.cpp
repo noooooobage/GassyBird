@@ -264,6 +264,16 @@ void ResourceCache::init() {
     );
 
     loadPolygonResource(
+        "HALF_HITBOX",
+        {
+            { 0.5f, 0.5f},
+            {-0.5f, 0.5f},
+            {-0.5f, 0.0f},
+            { 0.5f, 0.0f}
+        }
+    );
+
+    loadPolygonResource(
         "BIRD_HITBOX",
         {
             { 7.5f / 16,  0.5f / 16},
