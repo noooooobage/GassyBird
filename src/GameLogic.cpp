@@ -47,9 +47,9 @@ GameLogic::GameLogic() :
     _lastPoop(nullptr),
 
     _NPC_WALK_SPEED(2.0f),
-    _DEFAULT_NPC_THROW_SPEED(20.0f)
+    _DEFAULT_NPC_THROW_SPEED(20.0f),
+    _BIRD_DEATH_TIME(60.f),
     
-    _BIRD_DEATH_TIME(60.0f),
     _difficulty(3)
 {}
 
@@ -456,20 +456,13 @@ void GameLogic::generateNewActors() {
     // TODO: This is an okay placeholder, but we might want to think about using a more
     // sophisticated method of determining when to spawn things.
     int numEntities = _obstacles.size() + _NPCs.size();
-    bool needToSpawn = numEntities < _difficulty;
+    bool needToSpawn = numEntities < 3;
+
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
-    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
-    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 5.0f) {
-        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
+    if (needToSpawn) {
+        float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-    }
-    else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
-        // std::cout << "Game should be forced to spawn an NPC" << std::endl;
-        _NPCs.push_back(NPCFactory::makeDefault());
-        addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
-        _timeSinceLastNPC = 0.0f;
     }
 }
 
@@ -483,35 +476,22 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //3: Lifeguard Tower
     //4: Docks
     //5: Spawn NPC
-    //6: Umbrella
-    int obstacleType = randomInt(0, 6);
-    float metersOffset;
-    //if the same type of obstacle is chosen twice in a row, repoll the random number generator
-    while(obstacleType == _lastObstacleSpawned) {
-        obstacleType = randomInt(0, 6);
-    }
+    int obstacleType = randomInt(0, 5);
     float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
     bool faceLeft = randomBool();
     switch(obstacleType) {
         case 0:
-            {
             _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
-            
             addToWorld(*_obstacles.back(), position);
             break;
-            }
         case 1:
             _obstacles.push_back(ObstacleFactory::makeTree(heightMeters));
-            _spawnPositionLastObstacle += 1.44f;
             addToWorld(*_obstacles.back(), position);
             break;
         case 2:
             {
             float height = randomFloat(6.0f, 12.0f);
-            if(_state == DEMO && height == _BIRD_DEMO_POSITION.y) {
-                height = 11.0f;
-            }
             _obstacles.push_back(ObstacleFactory::makeCloud());
             addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
             break;
@@ -524,25 +504,14 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             {
                 int width = randomInt(1, 5);
                 int height = randomInt(1, 5);
-                _obstacles.push_back(ObstacleFactory::makeDocks(width, height));
+                _obstacles.push_back(ObstacleFactory::makeDocks(3, height));
                 addToWorld(*_obstacles.back(), position);
-                _spawnPositionLastObstacle += width;
-                bool spawnNPC = randomBool();
-                if(spawnNPC) {
-                    _NPCs.push_back(NPCFactory::makeDefault());
-                    addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height));
-                    _timeSinceLastNPC = 0.0f;
-                }
-                break;
             }
+            break;
         case 5:
             _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
             addToWorld(*_NPCs.back(), position);
-            _timeSinceLastNPC = 0.0f;
             break;
-    }
-    if(obstacleType != 5) {
-        _lastObstacleSpawned = obstacleType;
     }
 }
 
