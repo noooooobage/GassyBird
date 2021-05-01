@@ -478,7 +478,7 @@ void GameLogic::generateNewActors() {
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
     float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
-    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 10.0f) {
+    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 5.0f) {
         _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
@@ -486,6 +486,7 @@ void GameLogic::generateNewActors() {
         // std::cout << "Game should be forced to spawn an NPC" << std::endl;
         _NPCs.push_back(NPCFactory::makeDefault());
         addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
+        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
         _timeSinceLastNPC = 0.0f;
     }
 }
@@ -502,6 +503,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //5: Spawn NPC
     //6: Umbrella
     int obstacleType = randomInt(0, 6);
+    float metersOffset;
     //if the same type of obstacle is chosen twice in a row, repoll the random number generator
     while(obstacleType == _lastObstacleSpawned) {
         obstacleType = randomInt(0, 6);
@@ -518,12 +520,16 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             break;
             }
         case 1:
-            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
+            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters));
+            _spawnPositionLastObstacle += 1.44f;
             addToWorld(*_obstacles.back(), position);
             break;
         case 2:
             {
             float height = randomFloat(6.0f, 12.0f);
+            if(_state == DEMO && height == _BIRD_DEMO_POSITION.y) {
+                height = 11.0f;
+            }
             _obstacles.push_back(ObstacleFactory::makeCloud());
             addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
             break;
@@ -538,21 +544,22 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
                 int height = randomInt(1, 5);
                 _obstacles.push_back(ObstacleFactory::makeDocks(width, height));
                 addToWorld(*_obstacles.back(), position);
+                _spawnPositionLastObstacle += width;
                 bool spawnNPC = randomBool();
                 if(spawnNPC) {
                     _NPCs.push_back(NPCFactory::makeDefault());
                     addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height));
                     _timeSinceLastNPC = 0.0f;
                 }
+                break;
             }
-            break;
         case 5:
             {
                 float angle = randomFloat(-PI/4.0f, PI / 4.0f);
                 _obstacles.push_back(ObstacleFactory::makeUmbrella(angle));
                 addToWorld(*_obstacles.back(), position);
+                break;
             }
-            break;
         case 6:
             _NPCs.push_back(NPCFactory::makeDefault());
             addToWorld(*_NPCs.back(), position);
@@ -743,7 +750,7 @@ void GameLogic::updateGround() {
 }
 
 void GameLogic::updateDifficulty() {
-    _difficulty = (_totalTimePassed / 60) + 3;
+    _difficulty = (_totalTimePassed / 30) + 3;
 
 }
 

@@ -195,7 +195,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     return ground;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, const bool& faceLeft) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("TREE_SPRITE");
     std::shared_ptr<Obstacle> tree(new Obstacle(
@@ -206,7 +206,6 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
     const sf::IntRect& shaftRect = spriteResource.textureRects.at(1);
     const sf::IntRect& topRect = spriteResource.textureRects.at(2);
-
     b2FixtureDef fixtureDef;
 
     sf::Vector2f baseOrigin(baseRect.width, baseRect.height);
@@ -220,9 +219,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
             baseRect.height - topRect.height) / shaftRect.height;
     if (numShafts < 1)
         numShafts = 1;
-        
     sf::Vector2f bodyOrigin(baseOrigin.x, baseOrigin.y);
-
     for (int i = 0; i < numShafts; ++i) {
         bodyOrigin.y += shaftRect.height;
         bodyOrigin.x -= 8;
@@ -241,7 +238,6 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
         {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
         -topOrigin
     );
-
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
     tree->setBodyDef(bodyDef);
