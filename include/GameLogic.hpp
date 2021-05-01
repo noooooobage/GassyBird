@@ -261,7 +261,6 @@ private:
     float _timeSinceLastPoop; // time elapsed since last poop
     float _timeSinceLastNPC; //time elapsed since last NPX was spawned
     int _numPoopsLeft; // number of poops the bird has left
-    std::list<PhysicalActor*> _deadPoops; // list of poops that have already landed
     PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
                               // DEREFERENCE THIS!! for comparison purposes only
 

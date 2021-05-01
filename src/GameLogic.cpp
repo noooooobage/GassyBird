@@ -115,12 +115,10 @@ void GameLogic::update(const float& timeDelta) {
     
     updateDifficulty();
     _timeSinceLastNPC += timeDelta;
-    // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
-    // necessary to do every frame because sometimes varying timeDeltas affects the velocity
-    setWorldScrollSpeed(_worldScrollSpeed);
     
     // increment physics
     _world->Step(timeDelta, 8, 4);
+
     //this is used as an approximation
     _totalTimePassed += timeDelta;
 }
@@ -362,23 +360,20 @@ void GameLogic::collisionHandler(const Event& event) {
 }
 
 void GameLogic::handlePoopCollision(const CollisionEvent& e) {
-
-    // do not consider if the state isn't PLAYING or if the bird pooped on itself (lmao)
-    if (_state != PLAYING || e.involvesType(PhysicalActor::TYPE::PLAYABLE_BIRD))
-        return;
-
+    
     // get the actor which is the poop
     PhysicalActor* poop =
             e.actorA->getType() == PhysicalActor::TYPE::POOP ? e.actorA : e.actorB;
+    
+    // do not consider if the bird pooped on itself (lmao), or if the poop doesn't exist anymore
+    if (e.involvesType(PhysicalActor::TYPE::PLAYABLE_BIRD) || getBody(poop) == nullptr)
+        return;
 
-    // if the poop isn't already in the dead poops list, it can still have an effect
-    if (std::find(_deadPoops.begin(), _deadPoops.end(), poop) == _deadPoops.end()) {
-
-        // add to dead poops list
-        _deadPoops.push_back(poop);
+    // if PLAYING, then the poop can have an effect
+    if (_state == PLAYING) {
 
         // if it collided with an NPC, then increase the score and reset poops left
-        if (e.involvesType(PhysicalActor::TYPE::NPC)) {
+        if (e.involvesType(PhysicalActor::TYPE::NPC) && _state == PLAYING) {
             ++_playerScore;
             _numPoopsLeft = _BIRD_MAX_POOPS;
         
@@ -388,6 +383,8 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
             eventMessenger.triggerEvent(GameOverEvent());
         }
     }
+
+    // remove the poop from the world and add a poop splatter
     removeFromWorld(*poop);
     _obstacles.push_back(ObstacleFactory::makePoopSplatter());
     addToWorld(*_obstacles.back(), e.position);
@@ -574,7 +571,7 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
     removeFromList(actor, _grounds);
     removeFromList(actor, _obstacles);
     removeFromList(actor, _NPCs);
-    _deadPoops.remove(actorAddress);
+    removeFromList(actor, _projectiles);
 }
 
 void GameLogic::removeAllFromWorld() {
@@ -659,15 +656,20 @@ void GameLogic::updateNPCs(const float& timeDelta) {
 
     for (auto npc : _NPCs) {
 
+        b2Body* npcBody = getBody(npc.get());
+        assert(npcBody);
+
         // if the npc is walking, then move it in the direction it's facing
         if (npc->isWalking()) {
-
-            b2Body* npcBody = getBody(npc.get());
-            assert(npcBody);
 
             float xVelocity = -_worldScrollSpeed +
                     _NPC_WALK_SPEED * (npc->isFacingLeft() ? -1.0f : 1.0f);
             npcBody->SetLinearVelocity(b2Vec2(xVelocity, npcBody->GetLinearVelocity().y));
+        
+        // if the npc is throwing, then make it always face the bird
+        } else if (npc->isThrowing()) {
+            bool shouldFaceLeft = _playableBirdBody->GetPosition().x < npcBody->GetPosition().x;
+            npc->setFacingLeft(shouldFaceLeft);
         }
 
         npc->update(timeDelta);
@@ -688,10 +690,10 @@ void GameLogic::updateGround() {
         // sanity check -- make sure the body was able to be found
         assert(leftGroundBody);
 
-        // if this ground obstacle is a little to the left of the screen, then need to:
+        // if this ground obstacle is close enough to the left of the screen, then need to:
         //   1. move this ground to the right of the rightmost ground
         //   2. make this ground the rightmost ground in the list
-        if (leftGroundBody->GetPosition().x <= -1.0f) {
+        if (leftGroundBody->GetPosition().x <= 2.0f) {
 
             b2Body* rightGroundBody = getBody(_grounds.back().get());
             assert(rightGroundBody);
