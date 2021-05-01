@@ -9,8 +9,14 @@
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 
-std::shared_ptr<NPC> NPCFactory::makeDefault(){
-    std::shared_ptr<NPC> _mob(new NPC());
+std::shared_ptr<NPC> NPCFactory::makeMale() {
+    std::shared_ptr<NPC> _mob(new NPC(NPC::TYPE::MALE));
+    _mob->init();
+    return _mob;
+}
+
+std::shared_ptr<NPC> NPCFactory::makeFemale() {
+    std::shared_ptr<NPC> _mob(new NPC(NPC::TYPE::FEMALE));
     _mob->init();
     return _mob;
 }

@@ -42,9 +42,6 @@ void PlayableBird::init() {
     float originalPixelWidth = _textureRects.at(0).width;
     _sprite.setOrigin(originalPixelWidth / 2.0f, originalPixelWidth / 2.0f);
 
-    // put at graphical position (0, 0) so transformations work as intended
-    _sprite.setPosition(0.0f, 0.0f);
-
     // scale the sprite based on the resource's scaleFactor
     _sprite.scale(spriteResource.scaleFactor, spriteResource.scaleFactor);
 

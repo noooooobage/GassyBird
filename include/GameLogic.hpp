@@ -2,7 +2,7 @@
 #define _GAME_LOGIC_HPP_
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <list>
 #include <iostream>
 
@@ -58,7 +58,12 @@ public:
     /**
      * Returns all visible actors and their corresponding bodies.
      */
-    const std::unordered_map<PhysicalActor*, b2Body*> getVisibleActors() const;
+    const std::map<PhysicalActor*, b2Body*> getVisibleActors() const;
+
+    /**
+     * Returns all NPCs.
+     */
+    const std::list<std::shared_ptr<NPC>> getNPCs() const;
 
     /**
      * Methods called by PlayingMenuActivity to update UI elements.
@@ -80,16 +85,11 @@ public:
     void requestBirdPoop();
 
     /**
-     * This method is called by the NPCView to start and stop the npc from moving out of the scroll
-     * speed. When the npc is "moving" it goes against the scroll (positive) otherwise it moves
-     * negative.
+     * Called by NPCView to cause the specified NPC to do the specified action. The action starts
+     * once `delay` seconds has elapsed, and that action lasts for `duration` seconds.
      */
-    void requestNPCStep();
-
-    /**
-     * Called by NPCView to cause the NPC to activate its action
-     */
-    void requestTriggerAction();
+    void requestNPCAction(NPC& npc, const NPC::ACTION& action, const float& delay,
+            const float& duration);
 
 private:
 
@@ -195,6 +195,11 @@ private:
     void updatePlayableBird(const float& timeDelta);
 
     /**
+     * Sets the velocities of the NPCs based on their movement status.
+     */
+    void updateNPCs(const float& timeDelta);
+
+    /**
      * Updates the ground obstacles so that the ground is always visible. If any of the ground
      * obstacles are behind the screen by a certain threshold, then they are placed to the right of
      * the rightmost ground.
@@ -206,12 +211,6 @@ private:
      * the world that have type GROUND, NPC, and GENERIC_OBSTACLE.
      */
     void setWorldScrollSpeed(const float& amount);
-
-    /**
-     * updateNPCs runs through the list of npcs and randomly decides to move them 
-     * but decides to stop moving them based on time constraints for a step.
-     */
-    void updateNPCs(const float& timeDelta);
 
     bool _initialized;
 
@@ -266,14 +265,16 @@ private:
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 
-    // list of all NPCs
+    // NPC stuff
     std::list<std::shared_ptr<NPC>> _NPCs;
+    const float _NPC_WALK_SPEED;
+    const float _DEFAULT_NPC_THROW_SPEED;
 
     // list of all projectiles
     std::list<std::shared_ptr<Obstacle>> _projectiles;
     
     // stores all physical actors, maps them to their physical bodies
-    std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
+    std::map<PhysicalActor*, b2Body*> _physicalActors;
 };
 
 #endif // _GAME_LOGIC_HPP_

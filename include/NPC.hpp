@@ -9,74 +9,138 @@
 #include "Resources/SpriteResource.hpp"
 
 /**
- * Parent Class of The NPC people that serve as targets and enemies to the bird.
+ * Parent Class of The NPC people that serve as targets and enemies to the bird. Currently there are
+ * two possible NPC types and they are both contained by this parent class, so no subclasses are
+ * necessary yet.
  */
 class NPC : public PhysicalActor {
 
-    //Public
-    public:
-        //Constructor
-        NPC();
+//Public
+public:
 
-        void init();
-        //Override update method
-        void update(const float& timeDelta) override;
+    // defines the possible types of the NPC, for now there are two
+    enum class TYPE {
+        MALE,
+        FEMALE
+    };
 
-        //Override draw method
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    // defines various actions that the NPC can do
+    enum class ACTION {
+        IDLE,
+        WALK,
+        START_THROW,
+        FINISH_THROW
+    };
 
+    //Override update method
+    void update(const float& timeDelta) override;
 
-        //The is hit boolean follows
-        bool isHit;
-        bool isMoving;
-        bool isActionable;
+    //Override draw method
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-        void triggerAction();
-        void moveRight();
+    /**
+     * Does the specified action after the given delay in seconds has passed. The action will last
+     * for the given duration. If the action is FINISH_THROW, then delay and duration are ignored.
+     */
+    void doAction(const NPC::ACTION& action, const float& delay, const float& duration);
 
-        //Method returns the height in Meters for use with Box2D
-        float getHeight(){ return _HEIGHT_METERS;};
+    /**
+     * Sets the sprite to face either left or right if faceLeft is true or false, respectively.
+     */
+    void setFacingLeft(const bool& faceLeft);
 
-        //track moving time for local npc
-        float getTimeMoving() {return _timeMoving;};
-        float getTimeSinceAction() {return _actionTimer;};
-        
-        //methods to reset timer
-        void setTimeMoving(float time = 0.f){ _timeMoving = time;};
-        void setTimeSinceAction(float time = 0.f){ _actionTimer = time;};
+    /**
+     * Stops the walking animation and returns to the idle state, if the NPC was indeed walking.
+     * This may need to be called if the NPC bumps into an obstacle.
+     */
+    void stopWalking();
 
-    private:
+    // various accessors
+    bool isFacingLeft() { return _isFacingLeft; }
+    bool isIdle() { return _state == IDLE; }
+    bool isWalking() { return _state == WALKING; }
+    bool isThrowing() { return _state == STARTING_THROW || _state == FINISHING_THROW; }
+    bool isReadyToFinishThrowing() { return _isReadyToFinishThrowing; }
+    NPC::ACTION getNextAction() { return _nextAction; }
 
-        //Variables 
-        bool _initialized;
-        bool _spriteSet;                    //Track if the sprite has been set before drawing
-        bool _inScope;
+    // only allow NPCFactory to access private constructor
+    friend class NPCFactory;
 
-        float _timeMoving;
+private:
 
-        sf::Sprite _NPCsprite;
-        std::vector<sf::IntRect> _textureRects;
+    // Constructor and initializer are private so that only the NPCFactory is able to make NPCs
+    NPC(const NPC::TYPE& type);
+    void init();
 
+    /**
+     * Walks for the given duration in seconds, in the direction given by walkLeft. Once the NPC has
+     * finished walking, it returns to the idle state. This method does nothing if the NPC is
+     * throwing something.
+     */
+    void walk(const float& duration);
 
-        // This tells the game what sprite on the sheet to draw
-        int _spriteCurrentFrame;
+    /**
+     * Causes the NPC to raise their arm like they're taking aim. This will interrupt any walking
+     * that may be taking place. After duration seconds has elapsed, isReadyToFinishThrowing() will
+     * return true.
+     */
+    void startThrowing(const float& duration);
 
-        // the sprite's frame will change after this amount of time in seconds passes
-        const float _FRAME_CHANGE_TIME_DELTA;
-        
-        //These are tracked for comparison to standards in the game logic
-        float _frameChangeTimer;
-        float _actionTimer;
-        
-        const float _WIDTH_METERS; // Unit width in meters
-        const float _HEIGHT_METERS; //Unit height in meters
-        const float _WIDTH_PIXELS; // store the width in pixels after scaling
-        const float _HEIGHT_PIXELS; //store the height in pixels after scaling
+    /**
+     * Finishes the throwing animation, then returns to the idle state.
+     */
+    void finishThrowing();
 
-        b2FixtureDef _top; //Fixture for the head of the body
-        b2FixtureDef _bottom;  //Fixture for the torso of the body
+    /**
+     * Transitions to the idle state.
+     */
+    void toIdle();
 
-        
+    const TYPE _TYPE;
+
+    bool _initialized;
+
+    sf::Sprite _sprite;
+    std::vector<sf::IntRect> _textureRects;
+
+    // different possible states
+    enum STATE {
+        IDLE,
+        PREPARING, // about to do an action, but visually is idling
+        WALKING,
+        STARTING_THROW,
+        FINISHING_THROW
+    };
+    STATE _state;
+
+    // animation stuff
+    const float _IDLE_FRAME_DURATION;
+    const int _IDLE_START_FRAME;
+    const int _NUM_IDLE_FRAMES;
+
+    const float _WALK_FRAME_DURATION;
+    const int _WALK_START_FRAME;
+    const int _NUM_WALK_FRAMES;
+
+    const float _THROW_FRAME_DURATION;
+    const int _START_THROW_START_FRAME;
+    const int _NUM_START_THROW_FRAMES;
+    const int _FINISH_THROW_START_FRAME;
+    const int _NUM_FINISH_THROW_FRAMES;
+
+    float _frameDuration;
+    int _startFrame;
+    int _numFrames;
+    int _currentFrame;
+    float _frameTimer;
+
+    // state stuff
+    bool _isFacingLeft;
+    bool _isReadyToFinishThrowing;
+    float _actionTimeRemaining;
+    float _prepareTimeRemaining;
+    ACTION _nextAction;
+    float _nextActionDuration;
 };
 
 #endif

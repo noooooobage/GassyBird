@@ -102,13 +102,6 @@ void HumanView::keyPressHandler(const Event& event) {
     // TODO: remove this before final release
     else if (e.key == sf::Keyboard::Key::Escape)
         eventMessenger.queueEvent(WindowCloseEvent());
-    // A developer convenience to trigger actions by key. Remove before release.
-    else if (e.key == sf::Keyboard::Key::T){
-        _logic->requestNPCStep();
-    }
-    else if (e.key == sf::Keyboard::Key::L){
-        _logic->requestTriggerAction();
-    }
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {
