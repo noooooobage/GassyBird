@@ -172,7 +172,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
     // create the ground obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
-        PhysicalActor::TYPE::GROUND,
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,
         *spriteResource.sprite.getTexture(),
         spriteResource.scaleFactor
     ));
@@ -189,13 +189,13 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
 
     // set the body definition
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
     ground->setBodyDef(bodyDef);
 
     return ground;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, const bool& faceLeft) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("TREE_SPRITE");
     std::shared_ptr<Obstacle> tree(new Obstacle(
@@ -206,10 +206,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
     const sf::IntRect& shaftRect = spriteResource.textureRects.at(1);
     const sf::IntRect& topRect = spriteResource.textureRects.at(2);
-
     b2FixtureDef fixtureDef;
 
-    sf::Vector2f baseOrigin(baseRect.width / 2.0f, baseRect.height);
+    sf::Vector2f baseOrigin(baseRect.width, baseRect.height);
     tree->addComponent(
         baseRect,
         fixtureDef,
@@ -220,9 +219,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
             baseRect.height - topRect.height) / shaftRect.height;
     if (numShafts < 1)
         numShafts = 1;
-        
     sf::Vector2f bodyOrigin(baseOrigin.x, baseOrigin.y);
-
     for (int i = 0; i < numShafts; ++i) {
         bodyOrigin.y += shaftRect.height;
         bodyOrigin.x -= 8;
@@ -241,9 +238,8 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, c
         {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
         -topOrigin
     );
-
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
     tree->setBodyDef(bodyDef);
     return tree;
 }
@@ -267,7 +263,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
         -origin
     );
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     cloud->setBodyDef(bodyDef);
     return cloud;
@@ -289,71 +285,69 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
     const sf::IntRect& rightBottomRect = spriteResource.textureRects.at(5);
 
     b2FixtureDef fixtureDef;
-    float width = rightBottomRect.width;
-    float height = rightBottomRect.height;
+    float width = leftBottomRect.width;
+    float height = leftBottomRect.height;
     for (int j = 0; j < heightMeters; j++) {
-        sf::Vector2f leftBottom(width / 2.0f, height);
-        docks->addComponent(
-            rightBottomRect,
-            fixtureDef,
-            {},
-            -leftBottom
-        );
-        height += leftBottomRect.height;
-    }
-    
-    sf::Vector2f rightTop(width / 2.0f, height);
-    docks->addComponent(
-        rightTopRect,
-        fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-        -rightTop
-    );
-    width += rightBottomRect.width - 6;
-    height = middleBottomRect.height;
-    for (int i = 1; i < widthMeters-1; i++) {
-        for (int j = 0; j < heightMeters; j++) {
-            sf::Vector2f rightBottom(width - (rightBottomRect.width / 2.0f), height);
-            docks->addComponent(
-                middleBottomRect,
-                fixtureDef,
-                {},
-                -rightBottom
-            );
-            height += middleBottomRect.height;
-        }
-
-        sf::Vector2f middleTop(width - (middleTopRect.width / 2.0f), height);
-        docks->addComponent(
-            middleTopRect,
-            fixtureDef,
-            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-            -middleTop
-        );
-        width += middleBottomRect.width;
-        height = middleBottomRect.height;
-    }
-    for (int j = 0; j < heightMeters; j++) {
-        sf::Vector2f leftBottom(width - (leftBottomRect.width / 2.0f), height);
+        sf::Vector2f leftBottom(width / 2.0f, -height);
         docks->addComponent(
             leftBottomRect,
             fixtureDef,
             {},
-            -leftBottom
+            leftBottom
         );
         height += leftBottomRect.height;
     }
-    sf::Vector2f leftTop(width - (leftTopRect.width / 2.0f), height);
+    sf::Vector2f leftTop(width / 2.0f, -height);
     docks->addComponent(
         leftTopRect,
         fixtureDef,
         {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
-        -leftTop
+        leftTop
     );
+    width += (middleBottomRect.width / 2.0f);
+    height = middleBottomRect.height;
+    for (int i = 1; i < widthMeters-1; i++) {
+        for (int j = 0; j < heightMeters; j++) {
+            sf::Vector2f middleBottom(width, -height);
+            docks->addComponent(
+                middleBottomRect,
+                fixtureDef,
+                {},
+                middleBottom
+            );
+            height += middleBottomRect.height;
+        }
 
+        sf::Vector2f middleTop(width, -height);
+        docks->addComponent(
+            middleTopRect,
+            fixtureDef,
+            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            middleTop
+        );
+        width += middleBottomRect.width;
+        height = middleBottomRect.height;
+    }
 
+    for (int j = 0; j < heightMeters; j++) {
+        sf::Vector2f rightBottom(width, -height);
+        docks->addComponent(
+            rightBottomRect,
+            fixtureDef,
+            {},
+            rightBottom
+        );
+        height += rightBottomRect.height;
+    }
+    sf::Vector2f rightTop(width, -height);
+    docks->addComponent(
+        rightTopRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        rightTop
+    );
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     docks->setBodyDef(bodyDef);
     return docks;
@@ -370,8 +364,6 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
 
     b2FixtureDef fixtureDef;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.5f;
 
     sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
 
@@ -383,7 +375,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     );
 
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_kinematicBody;
 
     lifeguard->setBodyDef(bodyDef);
     return lifeguard;
@@ -421,4 +413,31 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     rock->setBodyDef(bodyDef);
 
     return rock;
+
+}
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {
+    const SpriteResource& spriteResource =
+        *resourceCache.getResource<SpriteResource>("UMBRELLA_SPRITE");
+    
+    std::shared_ptr<Obstacle> umbrella(new Obstacle(
+        PhysicalActor::TYPE::GENERIC_OBSTACLE,*spriteResource.sprite.getTexture(),
+        spriteResource.scaleFactor
+    ));
+
+    b2FixtureDef fixtureDef;
+
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
+    umbrella->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_kinematicBody;
+    bodyDef.angle = angle;
+    umbrella->setBodyDef(bodyDef);
+    return umbrella;
 }

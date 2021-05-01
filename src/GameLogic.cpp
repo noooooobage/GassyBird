@@ -48,6 +48,9 @@ GameLogic::GameLogic() :
 
     _NPC_WALK_SPEED(2.0f),
     _DEFAULT_NPC_THROW_SPEED(20.0f)
+    
+    _BIRD_DEATH_TIME(60.0f),
+    _difficulty(3)
 {}
 
 GameLogic::~GameLogic() {
@@ -110,8 +113,16 @@ void GameLogic::update(const float& timeDelta) {
     updatePlayableBird(timeDelta);
     updateNPCs(timeDelta);
     
+    updateDifficulty();
+    _timeSinceLastNPC += timeDelta;
+    // Ensure that GROUND and GENERIC_OBSTACLE actors are moving at the world scroll speed. This is
+    // necessary to do every frame because sometimes varying timeDeltas affects the velocity
+    setWorldScrollSpeed(_worldScrollSpeed);
+    
     // increment physics
     _world->Step(timeDelta, 8, 4);
+    //this is used as an approximation
+    _totalTimePassed += timeDelta;
 }
 
 void GameLogic::toDemo() {
@@ -133,6 +144,8 @@ void GameLogic::toDemo() {
     // set bird to demo state
     _playableBirdActor.stopPooping();
     _playableBirdActor.startFlying();
+    _totalTimePassed = 0.0f;
+    _difficulty = 3;
 
     // turn off gravity for the bird
     _playableBirdBody->SetGravityScale(0.0f);
@@ -151,6 +164,9 @@ void GameLogic::toPlaying() {
     _playerScore = 0;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
+    _totalTimePassed = 0.0f;
+    _difficulty = 3;
+    _spawnPositionLastObstacle = 0.0f;
 
     // set initial values for bird's physical body
     _playableBirdBody->SetGravityScale(1.0f);
@@ -419,7 +435,7 @@ void GameLogic::removeOutOfBoundsActors() {
 
         // The actor is out of bounds if its body is 5 meters to the left of the screen. Doesn't
         // care about ground obstacles or the bird itself.
-        bool isOutOfBounds = body->GetPosition().x < -5.0f &&
+        bool isOutOfBounds = body->GetPosition().x < -10.0f &&
                 actor->getType() != PhysicalActor::TYPE::PLAYABLE_BIRD &&
                 actor->getType() != PhysicalActor::TYPE::GROUND;
         if (isOutOfBounds)
@@ -427,8 +443,9 @@ void GameLogic::removeOutOfBoundsActors() {
     }
 
     // next, iterate through the list of out of bounds actors and remove each one from the world
-    for (auto actor : OOBActors)
+    for (auto actor : OOBActors) {
         removeFromWorld(*actor);
+    }
 }
 
 void GameLogic::generateNewActors() {
@@ -439,13 +456,20 @@ void GameLogic::generateNewActors() {
     // TODO: This is an okay placeholder, but we might want to think about using a more
     // sophisticated method of determining when to spawn things.
     int numEntities = _obstacles.size() + _NPCs.size();
-    bool needToSpawn = numEntities < 3;
-
+    bool needToSpawn = numEntities < _difficulty;
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
-    if (needToSpawn) {
-        float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
+    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
+    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 5.0f) {
+        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
+    }
+    else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
+        // std::cout << "Game should be forced to spawn an NPC" << std::endl;
+        _NPCs.push_back(NPCFactory::makeDefault());
+        addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
+        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
+        _timeSinceLastNPC = 0.0f;
     }
 }
 
@@ -459,22 +483,35 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //3: Lifeguard Tower
     //4: Docks
     //5: Spawn NPC
-    int obstacleType = randomInt(0, 5);
+    //6: Umbrella
+    int obstacleType = randomInt(0, 6);
+    float metersOffset;
+    //if the same type of obstacle is chosen twice in a row, repoll the random number generator
+    while(obstacleType == _lastObstacleSpawned) {
+        obstacleType = randomInt(0, 6);
+    }
     float heightMeters = randomFloat(4.0f, 9.0f);
     bool spawnStreetlight = randomBool();
     bool faceLeft = randomBool();
     switch(obstacleType) {
         case 0:
+            {
             _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
+            
             addToWorld(*_obstacles.back(), position);
             break;
+            }
         case 1:
-            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
+            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters));
+            _spawnPositionLastObstacle += 1.44f;
             addToWorld(*_obstacles.back(), position);
             break;
         case 2:
             {
             float height = randomFloat(6.0f, 12.0f);
+            if(_state == DEMO && height == _BIRD_DEMO_POSITION.y) {
+                height = 11.0f;
+            }
             _obstacles.push_back(ObstacleFactory::makeCloud());
             addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
             break;
@@ -487,14 +524,25 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             {
                 int width = randomInt(1, 5);
                 int height = randomInt(1, 5);
-                _obstacles.push_back(ObstacleFactory::makeDocks(3, height));
+                _obstacles.push_back(ObstacleFactory::makeDocks(width, height));
                 addToWorld(*_obstacles.back(), position);
+                _spawnPositionLastObstacle += width;
+                bool spawnNPC = randomBool();
+                if(spawnNPC) {
+                    _NPCs.push_back(NPCFactory::makeDefault());
+                    addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height));
+                    _timeSinceLastNPC = 0.0f;
+                }
+                break;
             }
-            break;
         case 5:
             _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
             addToWorld(*_NPCs.back(), position);
+            _timeSinceLastNPC = 0.0f;
             break;
+    }
+    if(obstacleType != 5) {
+        _lastObstacleSpawned = obstacleType;
     }
 }
 
@@ -596,6 +644,9 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     if (_timeSinceLastPoop >= _BIRD_POOP_DURATION)
         _playableBirdActor.stopPooping();
 
+    if (_timeSinceLastPoop >= _BIRD_DEATH_TIME && _state == PLAYING) {
+        eventMessenger.triggerEvent(GameOverEvent());
+    }
     // if the bird is flying and state is PLAYING, then apply an upward force opposite to gravity
     if (_playableBirdActor.isFlying() && _state == PLAYING) {
         float targetAccel = -2.0f * _GRAVITY.y;
@@ -692,6 +743,11 @@ void GameLogic::updateGround() {
             break;
         }
     }
+}
+
+void GameLogic::updateDifficulty() {
+    _difficulty = (_totalTimePassed / 30) + 3;
+
 }
 
 void GameLogic::setWorldScrollSpeed(const float& amount) {

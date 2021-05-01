@@ -206,6 +206,10 @@ private:
      */
     void updateGround();
 
+    /**Difficulty is calculated based on the total time elapsed
+    */
+    void updateDifficulty();
+
     /**
      * Sets the world scroll speed to the specified amount. This will affect all physical actors in
      * the world that have type GROUND, NPC, and GENERIC_OBSTACLE.
@@ -251,9 +255,11 @@ private:
     const float _BIRD_SLOW_HEIGHT; // height at which the bird starts slowing down
     const float _BIRD_MAX_VELOCITY; // fastest the bird can move in the y-direction
     const float _BIRD_POOP_DURATION; // player must wait for this amount until they can poop again
+    const float _BIRD_DEATH_TIME;
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
+    float _timeSinceLastNPC; //time elapsed since last NPX was spawned
     int _numPoopsLeft; // number of poops the bird has left
     std::list<PhysicalActor*> _deadPoops; // list of poops that have already landed
     PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
@@ -262,6 +268,12 @@ private:
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
 
+    int _difficulty;
+
+    int _lastObstacleSpawned; //index of last obstacle spawned
+
+    float _spawnPositionLastObstacle;
+    float _totalTimePassed;
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 
