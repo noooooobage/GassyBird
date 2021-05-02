@@ -5,6 +5,7 @@
 #include <string>
 #include <type_traits>
 #include <iostream>
+#include <math.h>
 
 #include <SFML/Graphics.hpp>
 #include <box2d/box2d.h>
@@ -160,7 +161,14 @@ void ResourceCache::init() {
         "POOP_SPRITE",
         *getResource<TextureResource>("POOP_TEXTURE"),
         {{0, 0, 31, 41}},
-        1.0f
+        0.5f
+    );
+
+    loadSpriteResource(
+        "SPLATTER_SPRITE",
+        *getResource<TextureResource>("POOP_SPLATTER_TEXTURE"),
+        {{2, 12, 43, 9}},
+        0.75f
     );
 
     loadSpriteResource(
@@ -208,27 +216,14 @@ void ResourceCache::init() {
     loadSpriteResource(
         "CLOUD_SPRITE",
         *getResource<TextureResource>("CLOUD_TEXTURE"),
-        {
-            {3, 4, 27, 14}
-        },
+        {{3, 4, 27, 14}},
         4.0f
-    );
-
-    loadSpriteResource(
-        "SPLATTER_SPRITE",
-        *getResource<TextureResource>("POOP_SPLATTER_TEXTURE"),
-        {
-            {2, 12, 43, 9}
-        },
-        1.0f
     );
 
     loadSpriteResource(
         "LIFEGUARD_SPRITE",
         *getResource<TextureResource>("LIFEGUARD_TEXTURE"),
-        {
-            {0, 0, 109, 56}
-        },
+        {{0, 0, 109, 56}},
         2.0f
     );
 
@@ -248,27 +243,21 @@ void ResourceCache::init() {
     loadSpriteResource(
         "ROCK_SPRITE", 
         *getResource<TextureResource>("TEST_TEXTURE"),
-        {
-            {0,0,7,7}
-        },
+        {{0,0,7,7}},
         2.5f
     );
 
     loadSpriteResource(
         "BEACH_BALL_SPRITE",
         *getResource<TextureResource>("BEACH_BALL_TEXTURE"),
-        {
-            {1, 1, 49, 49}
-        },
+        {{1, 1, 49, 49}},
         2.0f
     );
 
     loadSpriteResource(
         "UMBRELLA_SPRITE",
         *getResource<TextureResource>("UMBRELLA_STATIC_TEXTURE"),
-        {
-            {1, 1, 59, 65}
-        },
+        {{1, 1, 59, 65}},
         2.0f
     );
     // FONTS ///////////////////////////////////////////////
@@ -290,6 +279,21 @@ void ResourceCache::init() {
         }
     );
 
+    // this hitbox always encompasses the full texture rectangle in an octagon
+    loadPolygonResource(
+        "OCTAGON_HITBOX",
+        {
+            {0.5f * cosf(0.0f *  PI), 0.5f * sinf(0.0f *  PI)},
+            {0.5f * cosf(0.25f * PI), 0.5f * sinf(0.25f * PI)},
+            {0.5f * cosf(0.5f *  PI), 0.5f * sinf(0.5f *  PI)},
+            {0.5f * cosf(0.75f * PI), 0.5f * sinf(0.75f * PI)},
+            {0.5f * cosf(1.0f *  PI), 0.5f * sinf(1.0f *  PI)},
+            {0.5f * cosf(1.25f * PI), 0.5f * sinf(1.25f * PI)},
+            {0.5f * cosf(1.5f *  PI), 0.5f * sinf(1.5f *  PI)},
+            {0.5f * cosf(1.75f * PI), 0.5f * sinf(1.75f * PI)}
+        }
+    );
+
     loadPolygonResource(
         "BIRD_HITBOX",
         {
@@ -300,6 +304,18 @@ void ResourceCache::init() {
             {-7.5f / 16, -1.5f / 16},
             {-4.5f / 16, -3.5f / 16},
             { 1.5f / 16, -3.5f / 16}
+        }
+    );
+
+    loadPolygonResource(
+        "NPC_HITBOX_BODY",
+        {
+            { 5.5f / 32, -23.5f / 48},
+            { 5.5f / 32,   3.5f / 48},
+            { 3.5f / 32,   7.5f / 48},
+            {-3.5f / 32,   7.5f / 48},
+            {-5.5f / 32,   3.5f / 48},
+            {-5.5f / 32, -23.5f / 48},
         }
     );
 

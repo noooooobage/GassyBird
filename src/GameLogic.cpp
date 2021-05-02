@@ -31,7 +31,7 @@ GameLogic::GameLogic() :
     _STEP_TIME(2.f),
     _ACTION_TIME(2.f),
 
-    _NUM_GROUNDS(4),
+    _NUM_GROUNDS(5),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
     _GROUND_OFFSET_METERS(0.5f),
 
@@ -47,7 +47,7 @@ GameLogic::GameLogic() :
     _lastPoop(nullptr),
 
     _NPC_WALK_SPEED(2.0f),
-    _DEFAULT_NPC_THROW_SPEED(20.0f),
+    _DEFAULT_NPC_THROW_SPEED(25.0f),
     _BIRD_DEATH_TIME(60.f),
     
     _difficulty(3)
@@ -295,23 +295,30 @@ void GameLogic::requestNPCAction(NPC& npc, const NPC::ACTION& action, const floa
         assert(npcBody);
 
         // determine spawn position of the rock and other initial variables
-        b2Vec2 spawnPos = npcBody->GetPosition() + b2Vec2(0.0f, 4.0f);
+        b2Vec2 spawnPos = npcBody->GetPosition() + b2Vec2(0.0f, 2.5f);
         b2Vec2 birdPos = _playableBirdBody->GetPosition();
-        float distance = b2Distance(spawnPos, birdPos);
-        float rockSpeed = _DEFAULT_NPC_THROW_SPEED;
-        float toi = distance / rockSpeed;
+        b2Vec2 birdVel = _playableBirdBody->GetLinearVelocity();
 
-        // Determine the velocity that the rock should have by doing some math
-        b2Vec2 targetPos = birdPos + (toi / 2.0f) * _playableBirdBody->GetLinearVelocity();
-        float angle = atan2f(targetPos.y - spawnPos.y, targetPos.x - spawnPos.x);
-        float pitchUp = cosf(angle) * toi / 1.8f + randomFloat(-0.07f, 0.07f);
-        float launchAngle = angle + pitchUp;
-        b2Vec2 rockVelocity = rockSpeed * b2Vec2(cosf(launchAngle), sinf(launchAngle));
+        // Determine the velocity of the rock by doing some math, also add some random jitter
+        // TODO: make throwing speed based on difficulty
+        float S = _DEFAULT_NPC_THROW_SPEED;
+        float G = -_GRAVITY.y;
+        float toi = b2Distance(spawnPos, birdPos) / S;
+        b2Vec2 P = (birdPos + toi * birdVel) - spawnPos;
+        float desc = powf(S, 4.0f) - G * (G * P.x * P.x + 2 * S * S * P.y);
+        float denom = G * P.x;
+        float angle;
+        if (desc >= 0.0f && denom != 0.0f)
+            angle = atan2f(S * S - sqrtf(desc), denom);
+        else
+            angle = atan2f(P.y, P.x);
+        angle += randomFloat(-0.1f, 0.1f);
+        b2Vec2 rockVelocity = S * b2Vec2(cosf(angle), sinf(angle));
 
         // add the rock to the world and set its physical properties
         _projectiles.push_back(ObstacleFactory::makeRock());
         b2Body* rockBody = addToWorld(*_projectiles.back(), spawnPos, false);
-        rockBody->SetLinearVelocity(rockVelocity);
+        rockBody->ApplyLinearImpulseToCenter(rockBody->GetMass() * rockVelocity, true);
 
         // TODO: also change the npc's direction if necessary
     }
@@ -690,10 +697,10 @@ void GameLogic::updateGround() {
         // sanity check -- make sure the body was able to be found
         assert(leftGroundBody);
 
-        // if this ground obstacle is close enough to the left of the screen, then need to:
+        // if this ground obstacle is a little past the left edge of the screen, then need to:
         //   1. move this ground to the right of the rightmost ground
         //   2. make this ground the rightmost ground in the list
-        if (leftGroundBody->GetPosition().x <= 2.0f) {
+        if (leftGroundBody->GetPosition().x <= -5.0f) {
 
             b2Body* rightGroundBody = getBody(_grounds.back().get());
             assert(rightGroundBody);

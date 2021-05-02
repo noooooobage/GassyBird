@@ -50,7 +50,7 @@ NPC::NPC(const NPC::TYPE& type) :
 
 void NPC::init() {
 
-     // get the sprite and texture rectangles according to the type
+    // get the sprite and texture rectangles according to the type
     const SpriteResource* spriteResource;
     if (_TYPE == TYPE::MALE)
         spriteResource = resourceCache.getResource<SpriteResource>("NPC_MALE_SPRITE");
@@ -72,12 +72,10 @@ void NPC::init() {
     bodyDef.fixedRotation = true;
     setBodyDef(bodyDef);
 
-    // shape definition
-    // TODO: This is only temporarily a rectangular hitbox. Change this eventually to a better
-    // fitting hitbox for the torso.
-    b2PolygonShape torso = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
-    fitPolygonToSprite(torso, _sprite);
-    addShape(torso);
+    // shape definitions
+    b2PolygonShape body = resourceCache.getResource<PolygonResource>("NPC_HITBOX_BODY")->polygon;
+    fitPolygonToSprite(body, _sprite);
+    addShape(body);
 
     // fixture definition
     b2FixtureDef fixtureDef;

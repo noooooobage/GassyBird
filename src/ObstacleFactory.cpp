@@ -147,7 +147,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoop(const float& yVelocity) {
     poop->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("OCTAGON_HITBOX")->polygon},
         -origin
     );
 
@@ -178,8 +178,8 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     ));
 
     b2FixtureDef fixtureDef;
-    // ground only has one component; it's origin should be at the top right
-    sf::Vector2f origin(textureRect.width, 0.0f);
+    // origin is in the middle toward the bottom
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height * 0.75f);
     ground->addComponent(
         textureRect,
         fixtureDef,
@@ -394,7 +394,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     b2FixtureDef fixtureDef;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 1.0f;
-    fixtureDef.restitution = 0.5f;
+    fixtureDef.restitution = 0.4f;
 
     // rock also only has one component, origin should be in the middle
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
