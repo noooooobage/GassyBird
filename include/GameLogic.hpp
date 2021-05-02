@@ -271,8 +271,9 @@ private:
 
     int _lastObstacleSpawned; //index of last obstacle spawned
 
-    float _spawnPositionLastObstacle;
+    float _timeLastObstacle;
     float _totalTimePassed;
+    float _BUFFER_TIME; //time that is supposed to pass before the game is allowed to spawn another obstacle
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 
