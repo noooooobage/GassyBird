@@ -487,10 +487,11 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     //3: Lifeguard Tower
     //4: Docks
     //5: Spawn NPC
-    int obstacleType = randomInt(0, 5);
+    //6: Umbrella
+    int obstacleType = randomInt(0, 6);
     float heightMeters = randomFloat(4.0f, 9.0f);
     int numEntities = _obstacles.size() + _NPCs.size(); //used for checking whether an obstacle was actually generated or not
-
+    //if the same type of obstacle is chosen twice in a row, repoll the random number generator
     while(obstacleType == _lastObstacleSpawned) {
         obstacleType = randomInt(0, 6);
     }
