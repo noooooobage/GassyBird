@@ -38,7 +38,7 @@ void ResourceCache::init() {
         "TEST_TEXTURE",
         "../data/test_texture.png"
     );
-    
+
     loadTextureResource(
         "BIRD_TEXTURE",
         "../data/bird_texture.png"
@@ -46,7 +46,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
-        "../data/beach-background.gif"
+        "../data/beach-background-redone.png"
     );
 
     loadTextureResource(
@@ -56,7 +56,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "GROUND_TEXTURE",
-        "../data/ground_texture.png" 
+        "../data/simple-sand.png"
     );
 
     loadTextureResource(
