@@ -8,6 +8,7 @@
 #include "NPC.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
+#include "GameLogic.hpp"
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 
@@ -77,8 +78,9 @@ void NPC::init() {
     fitPolygonToSprite(body, _sprite);
     addShape(body);
 
-    // fixture definition
+    // fixture definition, assign the poop splatter group so it doesn't collide with splatter
     b2FixtureDef fixtureDef;
+    fixtureDef.filter.groupIndex = GameLogic::POOP_SPLATTER_GROUP_INDEX;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
     addFixtureDef(fixtureDef);

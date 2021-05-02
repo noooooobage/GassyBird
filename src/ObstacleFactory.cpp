@@ -8,6 +8,7 @@
 #include "Obstacle.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
+#include "GameLogic.hpp"
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 #include "Resources/TextureResource.hpp"
@@ -177,7 +178,10 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
         spriteResource.scaleFactor
     ));
 
+    // assign the poop splatter group index so that it doesn't collide with NPCs
     b2FixtureDef fixtureDef;
+    fixtureDef.filter.groupIndex = GameLogic::POOP_SPLATTER_GROUP_INDEX;
+    
     // origin is in the middle toward the bottom
     sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height * 0.75f);
     ground->addComponent(

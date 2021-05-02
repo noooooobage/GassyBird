@@ -91,6 +91,10 @@ public:
      */
     void requestNPCAction(NPC& npc, const NPC::ACTION& action, const float& delay,
             const float& duration);
+    
+    // Store collision group info here so other classes may access them.
+    // When the poop splatter and NPCs both have this group index, then they won't collide.
+    static const int POOP_SPLATTER_GROUP_INDEX = -1;
 
 private:
 
