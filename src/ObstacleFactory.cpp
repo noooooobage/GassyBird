@@ -397,12 +397,14 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     fixtureDef.restitution = 0.4f;
 
     // rock also only has one component, origin should be in the middle
+    b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("OCTAGON_HITBOX")->polygon;
+    scalePolygon(hitbox, b2Vec2(0.8f, 0.8f));
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
     sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height / 2.0f);
     rock->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {hitbox},
         -origin
     );
 

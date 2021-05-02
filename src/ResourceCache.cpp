@@ -95,6 +95,11 @@ void ResourceCache::init() {
     );
 
     loadTextureResource(
+        "ROCK_TEXTURE",
+        "../data/rock.png"
+    );
+
+    loadTextureResource(
         "LIFEGUARD_TEXTURE",
         "../data/lifeguard.png"
     );
@@ -256,11 +261,12 @@ void ResourceCache::init() {
         },
         2.0f
     );
+
     loadSpriteResource(
         "ROCK_SPRITE", 
-        *getResource<TextureResource>("TEST_TEXTURE"),
-        {{0,0,7,7}},
-        2.5f
+        *getResource<TextureResource>("ROCK_TEXTURE"),
+        {{0, 0, 10, 10}},
+        2.0f
     );
 
     loadSpriteResource(
