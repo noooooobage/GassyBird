@@ -69,6 +69,7 @@ public:
      * Methods called by PlayingMenuActivity to update UI elements.
      */
     int getNumPoopsLeft() const;
+    float getPoopTimeLeft() const; // returns the value scales to [0, 1]
     int getPlayerScore() const;
 
     /**
@@ -272,7 +273,7 @@ private:
     int _lastObstacleSpawned; //index of last obstacle spawned
 
     float _spawnPositionLastObstacle;
-    float _totalTimePassed;
+    double _totalTimePassed;
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 

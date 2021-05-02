@@ -227,6 +227,13 @@ int GameLogic::getNumPoopsLeft() const {
     return _numPoopsLeft;
 }
 
+float GameLogic::getPoopTimeLeft() const {
+
+    assert(_initialized);
+
+    return 1.0f - _timeSinceLastPoop / _BIRD_DEATH_TIME;
+}
+
 int GameLogic::getPlayerScore() const {
 
     assert(_initialized);

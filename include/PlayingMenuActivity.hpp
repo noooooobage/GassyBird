@@ -2,6 +2,7 @@
 #define _PLAYING_MENU_ACTIVITY_HPP_
 
 #include <list>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
@@ -70,8 +71,17 @@ private:
     class PlayingActivity* _playingActivity;
     const GameLogic* _logic;
 
+    // indicators -- the top one is for the first poop, the bottom for the second
+    sf::Sprite _topPoopIndicator;
+    sf::Sprite _bottomPoopIndicator;
+    std::vector<sf::IntRect> _indicatorRects;
+    std::vector<sf::Sprite*> _indicators;
+
+    // shows how much time is left before the bird dies from not pooping
+    sf::RectangleShape _poopTimeLeftBar;
+    sf::RectangleShape _poopTimeLeftOutline;
+    
     // texts
-    sf::Text _poopsLeftText;
     sf::Text _scoreText;
     sf::Text _pausedText;
 

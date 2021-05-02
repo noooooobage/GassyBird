@@ -7,6 +7,7 @@
 #include "GameLogic.hpp"
 #include "Globals.hpp"
 #include "Resources/FontResource.hpp"
+#include "Resources/SpriteResource.hpp"
 #include "Utils.hpp"
 #include "Event.hpp"
 #include "Events/ButtonClickEvent.hpp"
@@ -21,7 +22,7 @@ PlayingMenuActivity::PlayingMenuActivity() :
     _playingActivity(nullptr),
     _logic(nullptr)
 {
-    // insert buttons that show up when the game is paused into the paused buttons list
+    _indicators = {&_bottomPoopIndicator, &_topPoopIndicator};
     _pausedButtons = {&_resumeButton, &_menuButton, &_quitButton};
 }
 
@@ -39,21 +40,42 @@ void PlayingMenuActivity::init(PlayingActivity& playingActivity, const GameLogic
     _buttonClickListener.init(&PlayingMenuActivity::buttonClickHandler, this);
     _gamePauseListener.init(&PlayingMenuActivity::gamePauseHandler, this);
 
-    // retrieve the used font resources
+    // retrieve resources
     const FontResource& arcadeFont = *resourceCache.getResource<FontResource>("ARCADE_FONT");
     const FontResource& joystixFont = *resourceCache.getResource<FontResource>("JOYSTIX_FONT");
+    const SpriteResource& indicatorSprite =
+            *resourceCache.getResource<SpriteResource>("CIRCLE_INDICATOR_SPRITE");
 
-    // set up poops left text
-    _poopsLeftText.setFont(arcadeFont.font);
-    _poopsLeftText.setFillColor(sf::Color::Black);
-    _poopsLeftText.setCharacterSize(40);
-    _poopsLeftText.setPosition(10.0f, 0.0f);
+    // set up indicators
+    _indicatorRects = indicatorSprite.textureRects;
+    for (sf::Sprite* indicator : _indicators) {
+        *indicator = indicatorSprite.sprite;
+        indicator->scale(indicatorSprite.scaleFactor, indicatorSprite.scaleFactor);
+    }
 
-    // set up score text
+    _topPoopIndicator.setPosition(50.0f, 15.0f);
+    _bottomPoopIndicator.setPosition(50.0f, 55.0f);
+
+    // set up score text, put origin in the top left
     _scoreText.setFont(arcadeFont.font);
     _scoreText.setFillColor(sf::Color::Black);
-    _scoreText.setCharacterSize(40);
-    _scoreText.setPosition(NATIVE_RESOLUTION.x - 250.0f, 0.0f);
+    _scoreText.setCharacterSize(72);
+    _scoreText.setPosition(100, 15.0f);
+    _scoreText.setString("0");
+    sf::FloatRect bounds = _scoreText.getLocalBounds();
+    _scoreText.setOrigin(bounds.left, bounds.top);
+
+    // set up poop time left bar, origin in bottom left
+    _poopTimeLeftBar.setSize(sf::Vector2f(12.0f, 64.0f));
+    _poopTimeLeftBar.setOrigin(0.0f, _poopTimeLeftBar.getSize().y);
+    _poopTimeLeftBar.setPosition(20.0f, 83.0f);
+    _poopTimeLeftBar.setFillColor(sf::Color::Black);
+    _poopTimeLeftOutline.setSize(_poopTimeLeftBar.getSize());
+    _poopTimeLeftOutline.setOrigin(_poopTimeLeftBar.getOrigin());
+    _poopTimeLeftOutline.setPosition(_poopTimeLeftBar.getPosition());
+    _poopTimeLeftOutline.setOutlineColor(sf::Color::White);
+    _poopTimeLeftOutline.setOutlineThickness(4.0f);
+    _poopTimeLeftOutline.setFillColor(sf::Color::Transparent);
 
     // set up paused text
     _pausedText.setFont(arcadeFont.font);
@@ -142,9 +164,16 @@ void PlayingMenuActivity::update(const float& timeDelta) {
     assert(_initialized);
     assert(_activated);
 
-    // update both texts
-    _poopsLeftText.setString("POOPS   LEFT  " + std::to_string(_logic->getNumPoopsLeft()));
-    _scoreText.setString("SCORE  " + std::to_string(_logic->getPlayerScore()));
+    // fill the indicators up to the amount of poops that the bird has left
+    int poopsLeft = _logic->getNumPoopsLeft();
+    for (int i = 0; i < _indicators.size(); ++i)
+        _indicators.at(i)->setTextureRect(_indicatorRects.at(i < poopsLeft ? 0 : 1));
+    
+    // fill the poop time left bar according to how much time the bird has left to poop
+    _poopTimeLeftBar.setScale(1.0f, _logic->getPoopTimeLeft());
+
+    // update the score text
+    _scoreText.setString(std::to_string(_logic->getPlayerScore()));
 
     // Update the text in the pause button to reflect the paused state of the logic -- if the game
     // is paused, then it needs to show the ">" (play symbol); else, show the "||" (pause symbol).
@@ -156,11 +185,11 @@ void PlayingMenuActivity::draw(sf::RenderTarget& target) {
     assert(_initialized);
     assert(_activated);
 
-    // draw both texts
-    target.draw(_poopsLeftText);
+    for (sf::Sprite* indicator : _indicators)
+        target.draw(*indicator);
+    target.draw(_poopTimeLeftOutline);
+    target.draw(_poopTimeLeftBar);
     target.draw(_scoreText);
-
-    // always draw the pause button
     target.draw(_pauseButton);
 
     // only draw paused stuff if the game is paused

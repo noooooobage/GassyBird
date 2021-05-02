@@ -50,6 +50,11 @@ void ResourceCache::init() {
     );
 
     loadTextureResource(
+        "CIRCLE_INDICATOR_TEXTURE",
+        "../data/circle-indicator.png"
+    );
+
+    loadTextureResource(
         "STREETLIGHT_TEXTURE",
         "../data/streetlight_texture.png"
     );
@@ -78,6 +83,7 @@ void ResourceCache::init() {
         "CLOUD_TEXTURE",
         "../data/cloud_texture.png"
     );
+
     loadTextureResource(
         "POOP_TEXTURE",
         "../data/poop_texture.png"
@@ -137,6 +143,16 @@ void ResourceCache::init() {
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {{0, 0, 200, 100}},
         NATIVE_RESOLUTION.x / 200.0f
+    );
+
+    loadSpriteResource(
+        "CIRCLE_INDICATOR_SPRITE",
+        *getResource<TextureResource>("CIRCLE_INDICATOR_TEXTURE"),
+        {
+            {0, 0, 8, 8}, // filled
+            {8, 0, 8, 8}  // empty
+        },
+        4.0f
     );
 
     loadSpriteResource(
