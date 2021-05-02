@@ -463,18 +463,18 @@ void GameLogic::generateNewActors() {
     bool needToSpawn = numEntities < _difficulty;
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
-    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + 1.0f;
+    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + 2.0f;
     if(needToSpawn && _totalTimePassed > _timeLastObstacle + _BUFFER_TIME) { //if the buffer time has passed
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
         _timeLastObstacle = _totalTimePassed;
-        _BUFFER_TIME = randomFloat(1.0f, 5.0f);
+        _BUFFER_TIME = randomFloat(2.0f, 4.0f);
     }
     else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
         // std::cout << "Game should be forced to spawn an NPC" << std::endl;
         _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
         addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
         _timeLastObstacle = _totalTimePassed;
-        _BUFFER_TIME = randomFloat(1.0f, 3.0f);
+        _BUFFER_TIME = randomFloat(2.0f, 4.0f);
         _timeSinceLastNPC = 0.0f;
     }
 }
