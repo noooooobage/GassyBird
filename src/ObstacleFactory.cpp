@@ -221,7 +221,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters) {
         numShafts = 1;
     sf::Vector2f bodyOrigin(baseOrigin.x, baseOrigin.y);
     for (int i = 0; i < numShafts; ++i) {
-        bodyOrigin.y += shaftRect.height;
+        bodyOrigin.y += shaftRect.height - 0.1; // <- 0.1 is so that there are no gaps
         bodyOrigin.x -= 8;
         tree->addComponent(
             shaftRect,
@@ -295,7 +295,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
             {},
             leftBottom
         );
-        height += leftBottomRect.height;
+        height += leftBottomRect.height - 0.1; // <- 0.1 is so that there are no gaps
     }
     sf::Vector2f leftTop(width / 2.0f, -height);
     docks->addComponent(
@@ -315,7 +315,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
                 {},
                 middleBottom
             );
-            height += middleBottomRect.height;
+            height += middleBottomRect.height - 0.1;
         }
 
         sf::Vector2f middleTop(width, -height);
@@ -337,7 +337,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
             {},
             rightBottom
         );
-        height += rightBottomRect.height;
+        height += rightBottomRect.height - 0.1;
     }
     sf::Vector2f rightTop(width, -height);
     docks->addComponent(
