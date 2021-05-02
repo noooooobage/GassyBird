@@ -41,14 +41,14 @@ GameLogic::GameLogic() :
     _BIRD_SLOW_HEIGHT(_BIRD_MAX_HEIGHT - 1.0f),
     _BIRD_MAX_VELOCITY(sqrtf((NATIVE_RESOLUTION.y * METERS_PER_PIXEL -_GROUND_OFFSET_METERS) *
             -_GRAVITY.y * 2.0f)),
-    _BIRD_POOP_DURATION(1.0f),
+    _BIRD_POOP_DURATION(0.5f),
     _BIRD_MAX_POOPS(2),
     _POOP_DOWNWARD_VELOCITY(3.0f),
     _lastPoop(nullptr),
 
     _NPC_WALK_SPEED(2.0f),
     _DEFAULT_NPC_THROW_SPEED(25.0f),
-    _BIRD_DEATH_TIME(60.f),
+    _BIRD_DEATH_TIME(15.0f),
     
     _difficulty(3)
 {}
@@ -142,7 +142,7 @@ void GameLogic::toDemo() {
     // set bird to demo state
     _playableBirdActor.stopPooping();
     _playableBirdActor.startFlying();
-    _totalTimePassed = 0.0f;
+    _totalTimePassed = 0.0;
     _difficulty = 3;
 
     // turn off gravity for the bird
@@ -162,7 +162,7 @@ void GameLogic::toPlaying() {
     _playerScore = 0;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
-    _totalTimePassed = 0.0f;
+    _totalTimePassed = 0.0;
     _difficulty = 3;
     _spawnPositionLastObstacle = 0.0f;
 
@@ -475,34 +475,31 @@ void GameLogic::generateNewActors() {
         _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
-    else if(_timeSinceLastNPC >= _BIRD_DEATH_TIME/2.0f) { //if the game has not spawned an NPC within the time limit, spawn one and return    
-        // std::cout << "Game should be forced to spawn an NPC" << std::endl;
-        _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
-        addToWorld(*_NPCs.back(), b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
-        _timeSinceLastNPC = 0.0f;
-    }
 }
 
 void GameLogic::spawnNPE(const b2Vec2& position) {
 
-    // Only two options right now: streetlight or default NPC, so just decide between the two with a
-    // random bool.
     //0: Streetlight
     //1: Tree
     //2: Cloud
     //3: Lifeguard Tower
     //4: Docks
-    //5: Spawn NPC
-    //6: Umbrella
+    //5: Umbrella
+    //6: NPC
     int obstacleType = randomInt(0, 6);
+    
+    //if the same type of obstacle is chosen twice in a row, repoll the random number generator
+    while(obstacleType == _lastObstacleSpawned)
+        obstacleType = randomInt(0, 6);
+
+    // force the spawning of an NPC if there aren't any on screen
+    if (_NPCs.size() == 0)
+        obstacleType = 6;
+
     float heightMeters = randomFloat(4.0f, 9.0f);
     int numEntities = _obstacles.size() + _NPCs.size(); //used for checking whether an obstacle was actually generated or not
-    //if the same type of obstacle is chosen twice in a row, repoll the random number generator
-    while(obstacleType == _lastObstacleSpawned) {
-        obstacleType = randomInt(0, 6);
-    }
     bool faceLeft = randomBool();
+
     switch(obstacleType) {
         case 0:
             {
@@ -665,9 +662,11 @@ void GameLogic::updatePlayableBird(const float& timeDelta) {
     if (_timeSinceLastPoop >= _BIRD_POOP_DURATION)
         _playableBirdActor.stopPooping();
 
+    // kill the bird if it hasn't pooped for a while
     if (_timeSinceLastPoop >= _BIRD_DEATH_TIME && _state == PLAYING) {
         eventMessenger.triggerEvent(GameOverEvent());
     }
+    
     // if the bird is flying and state is PLAYING, then apply an upward force opposite to gravity
     if (_playableBirdActor.isFlying() && _state == PLAYING) {
         float targetAccel = -2.0f * _GRAVITY.y;
