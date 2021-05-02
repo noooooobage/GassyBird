@@ -20,7 +20,6 @@ HumanView::HumanView() :
 
     _initialized(false),
     
-    _keyToFly(sf::Keyboard::Key::W),
     _keyToPoop(sf::Keyboard::Key::Space),
     _keyToPause(sf::Keyboard::Key::P)
 {}
@@ -88,20 +87,16 @@ void HumanView::keyPressHandler(const Event& event) {
 
     const KeyPressEvent& e = dynamic_cast<const KeyPressEvent&>(event);
 
-    if(e.key == _keyToFly)
-        _logic->requestBirdStartFly();
-
-    else if (e.key == _keyToPoop)
+    if (e.key == _keyToPoop)
         _logic->requestBirdPoop();
     
     else if (e.key == _keyToPause)
         eventMessenger.queueEvent(GamePauseEvent(_logic->isPaused() ?
                 GamePauseEvent::ACTION::UNPAUSE : GamePauseEvent::ACTION::PAUSE));
     
-    // A developer convenience to be able to close out of the window by pressing escape
-    // TODO: remove this before final release
-    else if (e.key == sf::Keyboard::Key::Escape)
-        eventMessenger.queueEvent(WindowCloseEvent());
+    // all keys besides those cause the bird to start flying
+    else
+        _logic->requestBirdStartFly();
 }
 
 void HumanView::keyReleaseHandler(const Event& event) {
@@ -109,7 +104,6 @@ void HumanView::keyReleaseHandler(const Event& event) {
 
     const KeyReleaseEvent& e = dynamic_cast<const KeyReleaseEvent&>(event);
 
-    if(e.key == _keyToFly) {
+    if(e.key != _keyToPoop && e.key != _keyToPause)
         _logic->requestBirdStopFly();
-    }
 }

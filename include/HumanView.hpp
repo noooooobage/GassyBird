@@ -54,9 +54,9 @@ private:
     EventListener _keyPressListener;
     EventListener _keyReleaseListener;
 
-    sf::Keyboard::Key _keyToFly; // key which causes the bird to fly
     sf::Keyboard::Key _keyToPoop; // key which causes the bird to poop
     sf::Keyboard::Key _keyToPause; // key which pauses/unpauses the game
+    // all other keys make the bird fly
 
     sf::Sprite _beachBackground; // beach background sprite
 };
