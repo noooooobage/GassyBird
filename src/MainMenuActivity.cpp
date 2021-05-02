@@ -7,6 +7,7 @@
 #include "Globals.hpp"
 #include "Events/WindowCloseEvent.hpp"
 #include "Events/ButtonClickEvent.hpp"
+#include "Resources/SpriteResource.hpp"
 
 MainMenuActivity::MainMenuActivity() :
 
@@ -40,6 +41,13 @@ void MainMenuActivity::init(PlayingActivity& playingActivity) {
 
     // set playing activity
     _playingActivity = &playingActivity;
+
+    // set up the logo
+    const SpriteResource& logoSprite =
+            *resourceCache.getResource<SpriteResource>("TITLE_LOGO_SPRITE");
+    _logo = logoSprite.sprite;
+    _logo.scale(logoSprite.scaleFactor, logoSprite.scaleFactor);
+    _logo.setPosition(200.0f, 160.0f);
 
     // set attributes common to all buttons
     for (Button* button : _buttons) {
@@ -87,6 +95,8 @@ void MainMenuActivity::draw(sf::RenderTarget& target) {
 
     assert(_initialized);
     assert(_activated);
+
+    target.draw(_logo);
 
     // draw all buttons
     for (Button* button : _buttons)

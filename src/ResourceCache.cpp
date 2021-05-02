@@ -45,6 +45,11 @@ void ResourceCache::init() {
     );
 
     loadTextureResource(
+        "TITLE_LOGO_TEXTURE",
+        "../data/GBLogoWarpedNoFill.png"
+    );
+
+    loadTextureResource(
         "BEACH_BACKGROUND_TEXTURE",
         "../data/beach-background-redone.png"
     );
@@ -148,6 +153,13 @@ void ResourceCache::init() {
         *getResource<TextureResource>("BEACH_BACKGROUND_TEXTURE"),
         {{0, 0, 200, 100}},
         NATIVE_RESOLUTION.x / 200.0f
+    );
+
+    loadSpriteResource(
+        "TITLE_LOGO_SPRITE",
+        *getResource<TextureResource>("TITLE_LOGO_TEXTURE"),
+        {{0, 0, 216, 176}},
+        2.0f
     );
 
     loadSpriteResource(

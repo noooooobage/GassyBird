@@ -59,6 +59,9 @@ private:
     // super activity
     class PlayingActivity* _playingActivity;
 
+    // logo
+    sf::Sprite _logo;
+
     // buttons
     Button _playButton;
     Button _quitButton;
