@@ -88,14 +88,13 @@ void NPC::init() {
     // NPC should start out in the idle state
     toIdle();
 
+    isVisible = false;
     _initialized = true;
 }
 
 void NPC::update(const float& timeDelta) {
 
     assert(_initialized);
-
-    //TODO: Add check for if the npc has been hit and display death frame
 
     // set the sprite to the current frame
     _sprite.setTextureRect(_textureRects.at(_currentFrame));

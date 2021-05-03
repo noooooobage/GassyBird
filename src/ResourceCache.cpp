@@ -360,6 +360,18 @@ void ResourceCache::init() {
     );
 
     loadPolygonResource(
+        "SPLATTER_HITBOX",
+        {
+            { 0.4f,  0.5f},
+            {-0.4f,  0.5f},
+            {-0.5f,  0.0f},
+            {-0.4f, -0.5f},
+            { 0.4f, -0.5f},
+            { 0.5f,  0.0f},
+        }
+    );
+
+    loadPolygonResource(
         "NPC_HITBOX_BODY",
         {
             { 5.5f / 32, -23.5f / 48},

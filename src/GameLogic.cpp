@@ -26,8 +26,9 @@ GameLogic::GameLogic() :
     _initialized(false),
 
     _GRAVITY(0.0f, -25.0f),
-    _INITIAL_WORLD_SCROLL_SPEED(7.0f),
-    _worldScrollSpeed(_INITIAL_WORLD_SCROLL_SPEED),
+    _MIN_WORLD_SCROLL_SPEED(6.0f),
+    _MAX_WORLD_SCROLL_SPEED(9.0f),
+    _worldScrollSpeed(_MIN_WORLD_SCROLL_SPEED),
     _STEP_TIME(2.f),
     _ACTION_TIME(2.f),
 
@@ -48,10 +49,12 @@ GameLogic::GameLogic() :
     _lastPoop(nullptr),
 
     _NPC_WALK_SPEED(2.0f),
-    _DEFAULT_NPC_THROW_SPEED(25.0f),
+    _NPC_THROW_SPEED(23.0f),
+    _NO_THROW_ZONE_LEFT(5.0f),
+    _NO_THROW_ZONE_RIGHT(3.5f),
     _BIRD_DEATH_TIME(18.0f),
     
-    _difficulty(3)
+    _MAX_DIFFICULTY_TIME(60.0f)
 {}
 
 GameLogic::~GameLogic() {
@@ -102,9 +105,14 @@ void GameLogic::update(const float& timeDelta) {
     if (_isPaused)
         return;
 
+    _totalTimePassed += timeDelta;
+    if (_state == PLAYING)
+        _playingTimePassed += timeDelta;
+    updateDifficulty();
+
     // Ensure that scrolling actors are moving at the world scroll speed. This is necessary to do
     // every frame because sometimes varying timeDeltas affects the velocity
-    setWorldScrollSpeed(_worldScrollSpeed);
+    setWorldScrollSpeed();
 
     // perform removal and procedural generation
     removeOutOfBoundsActors();
@@ -115,14 +123,8 @@ void GameLogic::update(const float& timeDelta) {
     updatePlayableBird(timeDelta);
     updateNPCs(timeDelta);
     
-    updateDifficulty();
-    _timeSinceLastNPC += timeDelta;
-    
     // increment physics
     _world->Step(timeDelta, 8, 4);
-
-    //this is used as an approximation
-    _totalTimePassed += timeDelta;
 }
 
 void GameLogic::toDemo() {
@@ -137,18 +139,22 @@ void GameLogic::toDemo() {
     removeAllFromWorld();
     createMap();
 
-    // add the playable bird to the physical world and reset _lastPoop
-    _playableBirdBody = addToWorld(_playableBirdActor, _BIRD_DEMO_POSITION, false);
+    // playable bird should be behind all other objects
+    _playableBirdBody = addToWorld(_playableBirdActor, _BIRD_DEMO_POSITION, false, false);
     _lastPoop = nullptr;
 
     // set bird to demo state
     _playableBirdActor.stopPooping();
     _playableBirdActor.startFlying();
-    _totalTimePassed = 0.0;
-    _difficulty = 3;
 
     // turn off gravity for the bird
     _playableBirdBody->SetGravityScale(0.0f);
+
+    // reset other variables
+    _spawnPositionLastObstacle = 0.0f;
+    _totalTimePassed = 0.0;
+    _playingTimePassed = 0.0;
+    _difficulty = 0.0f;
 }
 
 void GameLogic::toPlaying() {
@@ -164,14 +170,15 @@ void GameLogic::toPlaying() {
     _playerScore = 0;
     _playableBirdActor.stopPooping();
     _playableBirdActor.stopFlying();
-    _totalTimePassed = 0.0;
-    _difficulty = 3;
-    _spawnPositionLastObstacle = 0.0f;
 
     // set initial values for bird's physical body
     _playableBirdBody->SetGravityScale(1.0f);
     _playableBirdBody->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
     _playableBirdBody->SetAwake(true);
+
+    // reset other variables
+    _playingTimePassed = 0.0;
+    _difficulty = 0.0f;
 }
 
 void GameLogic::toGameOver() {
@@ -188,37 +195,27 @@ void GameLogic::toGameOver() {
 }
 
 bool GameLogic::isPaused() const {
-
     assert(_initialized);
-
     return _isPaused;
 }
 
 void GameLogic::setDebugDrawer(DebugDrawer& debugDrawer) {
-    
     assert(_initialized);
-
     _world->SetDebugDraw(&debugDrawer);
 }
 
 void GameLogic::debugDraw() {
-
     assert(_initialized);
-
     _world->DebugDraw();
 }
 
 const std::list<PhysicalActor*>& GameLogic::getVisibleActors() const {
-
     assert(_initialized);
-
     return _visibleActors;
 }
 
 const std::list<std::shared_ptr<NPC>>& GameLogic::getNPCs() const {
-
     assert(_initialized);
-
     return _NPCs;
 }
 
@@ -238,24 +235,23 @@ b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
 }
 
 int GameLogic::getNumPoopsLeft() const {
-
     assert(_initialized);
-
     return _numPoopsLeft;
 }
 
 float GameLogic::getPoopTimeLeft() const {
-
     assert(_initialized);
-
     return 1.0f - _timeSinceLastPoop / _BIRD_DEATH_TIME;
 }
 
 int GameLogic::getPlayerScore() const {
-
     assert(_initialized);
-
     return _playerScore;
+}
+
+float GameLogic::getDifficulty() const {
+    assert(_initialized);
+    return _difficulty;
 }
 
 void GameLogic::requestBirdStartFly() {
@@ -304,19 +300,27 @@ void GameLogic::requestBirdPoop() {
 
 void GameLogic::requestNPCAction(NPC& npc, const NPC::ACTION& action, const float& delay,
             const float& duration) {
+
+    b2Body* npcBody = getBody(&npc);
+    assert(npcBody);
     
-    // do not do a throw action if the mode isn't playing
-    if (_state != PLAYING &&
-            (action == NPC::ACTION::START_THROW || action == NPC::ACTION::FINISH_THROW))
-        return;
+    // 1. Don't do any sort of throwing if the state isn't playing.
+    // 2. Don't finish a throw if the NPC is directly below the bird, cuz that's impossible to avoid
+    if (action == NPC::ACTION::START_THROW || action == NPC::ACTION::FINISH_THROW) {
+
+        if (_state != PLAYING)
+            return;
+
+        float xDiff = npcBody->GetPosition().x - _playableBirdBody->GetPosition().x;
+        if (action == NPC::ACTION::FINISH_THROW &&
+                (xDiff >= 0.0f ? xDiff <= _NO_THROW_ZONE_RIGHT : -xDiff <= _NO_THROW_ZONE_LEFT))
+            return;
+    }
 
     npc.doAction(action, delay, duration);
 
     // if the action was FINISH_THROW, then generate a rock
     if (action == NPC::ACTION::FINISH_THROW) {
-
-        b2Body* npcBody = getBody(&npc);
-        assert(npcBody);
 
         // determine spawn position of the rock and other initial variables
         b2Vec2 spawnPos = npcBody->GetPosition() + b2Vec2(0.0f, 2.5f);
@@ -324,8 +328,7 @@ void GameLogic::requestNPCAction(NPC& npc, const NPC::ACTION& action, const floa
         b2Vec2 birdVel = _playableBirdBody->GetLinearVelocity();
 
         // Determine the velocity of the rock by doing some math, also add some random jitter
-        // TODO: make throwing speed based on difficulty
-        float S = _DEFAULT_NPC_THROW_SPEED;
+        float S = _NPC_THROW_SPEED;
         float G = -_GRAVITY.y;
         float toi = b2Distance(spawnPos, birdPos) / S;
         b2Vec2 P = (birdPos + toi * birdVel) - spawnPos;
@@ -448,15 +451,15 @@ void GameLogic::createMap() {
     for (int i = 0; i < _NUM_GROUNDS; ++i) {
         _grounds.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
         addToWorld(*_grounds.back(), b2Vec2(_GROUND_WIDTH_METERS + i * _GROUND_WIDTH_METERS,
-                _GROUND_OFFSET_METERS));
+                _GROUND_OFFSET_METERS + 0.01f));
     }
     _npcGround = ObstacleFactory::makeNPCGround(_BIG_GROUND_WIDTH_METERS);
     addToWorld(*_npcGround, b2Vec2(NATIVE_RESOLUTION.x * METERS_PER_PIXEL / 2.0f,
             _GROUND_OFFSET_METERS), false);
 
-    // spawn 3 random NPEs
-    for (int i = 0; i < 3; ++i) {
-        float xPosition = i * (NATIVE_RESOLUTION.x * METERS_PER_PIXEL) / 2.0f + 4.0f;
+    // spawn 4 random NPEs
+    for (int i = 0; i < 4; ++i) {
+        float xPosition = i * (NATIVE_RESOLUTION.x * METERS_PER_PIXEL) / 4.0f + 2.0f;
         spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
     }
 }
@@ -498,7 +501,7 @@ void GameLogic::generateNewActors() {
     // TODO: This is an okay placeholder, but we might want to think about using a more
     // sophisticated method of determining when to spawn things.
     int numEntities = _obstacles.size() + _NPCs.size();
-    bool needToSpawn = numEntities < _difficulty;
+    bool needToSpawn = numEntities < 4;
     // If we do need to spawn something, then determine a random position past the right of the
     // screen and spawn an NPE there.
     float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
@@ -572,8 +575,8 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
                 bool spawnNPC = randomBool();
                 if(spawnNPC) {
                     _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
-                    addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height));
-                    _timeSinceLastNPC = 0.0f;
+                    // NPCs should get drawn behind everything
+                    addToWorld(*_NPCs.back(), b2Vec2(position.x+randomFloat(2.0f, 2.0f+width), height), true, false);
                 }
                 break;
             }
@@ -581,17 +584,18 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             {
                 float angle = randomFloat(-PI/4.0f, PI / 4.0f);
                 _obstacles.push_back(ObstacleFactory::makeUmbrella(angle));
-                addToWorld(*_obstacles.back(), position);
+                addToWorld(*_obstacles.back(), position - b2Vec2(0.0f, 0.02f));
                 break;
             }
         case 6:
             _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
             // NPCs should get drawn behind everything
             addToWorld(*_NPCs.back(), position, true, false);
-            _timeSinceLastNPC = 0.0f;
             break;
     }
-    if(obstacleType != 6 && numEntities != _obstacles.size() + _NPCs.size()) { //this is called in all cases regardless of whether an obstacle was actually spawned or not
+
+    //this is called in all cases regardless of whether an obstacle was actually spawned or not
+    if(obstacleType != 6 && numEntities != _obstacles.size() + _NPCs.size()) {
         _lastObstacleSpawned = obstacleType;
     }
 }
@@ -736,6 +740,10 @@ void GameLogic::updateNPCs(const float& timeDelta) {
         b2Body* npcBody = getBody(npc.get());
         assert(npcBody);
 
+        // set whether the NPC is on the screen or not
+        float xPos = npcBody->GetPosition().x;
+        npc->isVisible = xPos >= -0.0f && xPos <= NATIVE_RESOLUTION.x * METERS_PER_PIXEL;
+
         // if the npc is walking, then move it in the direction it's facing
         if (npc->isWalking()) {
             float xVelocity = -_worldScrollSpeed +
@@ -793,13 +801,15 @@ void GameLogic::updateGround() {
 }
 
 void GameLogic::updateDifficulty() {
-    _difficulty = (_totalTimePassed / 30) + 3;
-
+    _difficulty = clamp(_playingTimePassed / _MAX_DIFFICULTY_TIME, 0.0, 1.0);
 }
 
-void GameLogic::setWorldScrollSpeed(const float& amount) {
+void GameLogic::setWorldScrollSpeed() {
 
     assert(_initialized);
+
+    _worldScrollSpeed = clamp(lerp(_MIN_WORLD_SCROLL_SPEED, _MAX_WORLD_SCROLL_SPEED, _difficulty),
+            _MIN_WORLD_SCROLL_SPEED, _MAX_WORLD_SCROLL_SPEED);
 
     // iterate through all bodies and change their velocities
     for (auto& pair : _physicalActors) {
@@ -819,7 +829,4 @@ void GameLogic::setWorldScrollSpeed(const float& amount) {
             body->SetLinearVelocity(b2Vec2(-_worldScrollSpeed, body->GetLinearVelocity().y));
         }
     }
-
-    // update the _worldScrollSpeed variable
-    _worldScrollSpeed = amount;
 }

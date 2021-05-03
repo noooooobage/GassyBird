@@ -71,12 +71,11 @@ public:
      */
     b2Body* getBody(const PhysicalActor* actor) const;
 
-    /**
-     * Methods called by PlayingMenuActivity to update UI elements.
-     */
+    // various getters
     int getNumPoopsLeft() const;
-    float getPoopTimeLeft() const; // returns the value scales to [0, 1]
+    float getPoopTimeLeft() const; // returns the value scaled to [0, 1]
     int getPlayerScore() const;
+    float getDifficulty() const;
 
     /**
      * These methods are called by the HumanView to start and stop the bird from flying. When the
@@ -221,10 +220,9 @@ private:
     void updateDifficulty();
 
     /**
-     * Sets the world scroll speed to the specified amount. This will affect all physical actors in
-     * the world that have type GROUND, NPC, and GENERIC_OBSTACLE.
+     * Sets the world scroll speed based on the current difficulty.
      */
-    void setWorldScrollSpeed(const float& amount);
+    void setWorldScrollSpeed();
 
     bool _initialized;
 
@@ -245,7 +243,8 @@ private:
     // physical world
     std::shared_ptr<b2World> _world;
     const b2Vec2 _GRAVITY;
-    const float _INITIAL_WORLD_SCROLL_SPEED;
+    const float _MIN_WORLD_SCROLL_SPEED; // <- when the difficulty is lowest
+    const float _MAX_WORLD_SCROLL_SPEED; // <- when the difficulty is highest
     const float _STEP_TIME;
     const float _ACTION_TIME;
     float _worldScrollSpeed; // Effectively the bird's horizontal speed (meters per second) --
@@ -271,7 +270,6 @@ private:
     const int _BIRD_MAX_POOPS; // max number of poops that the bird can do in a row
     const float _POOP_DOWNWARD_VELOCITY; // a new poop will move downward away from the bird
     float _timeSinceLastPoop; // time elapsed since last poop
-    float _timeSinceLastNPC; //time elapsed since last NPX was spawned
     int _numPoopsLeft; // number of poops the bird has left
     PhysicalActor* _lastPoop; // pointer to the most recent poop that the bird made; NEVER
                               // DEREFERENCE THIS!! for comparison purposes only
@@ -279,19 +277,25 @@ private:
     // how many times the bird has successfully pooped on an NPC
     int _playerScore;
 
-    int _difficulty;
+    // difficulty goes from 0 (easiest) to 1 (hardest) as time progresses
+    float _difficulty;
+    const int _MAX_DIFFICULTY_TIME; // time at which the difficulty is maximum
 
     int _lastObstacleSpawned; //index of last obstacle spawned
 
     float _spawnPositionLastObstacle;
     double _totalTimePassed;
+    double _playingTimePassed;
+
     // list of all obstacles except for the ground
     std::list<std::shared_ptr<Obstacle>> _obstacles;
 
     // NPC stuff
     std::list<std::shared_ptr<NPC>> _NPCs;
     const float _NPC_WALK_SPEED;
-    const float _DEFAULT_NPC_THROW_SPEED;
+    const float _NPC_THROW_SPEED;
+    const float _NO_THROW_ZONE_LEFT; // <- where the npc is unable to throw relative to bird
+    const float _NO_THROW_ZONE_RIGHT;
 
     // list of all projectiles
     std::list<std::shared_ptr<Obstacle>> _projectiles;

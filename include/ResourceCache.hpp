@@ -35,7 +35,6 @@ public:
     /**
      * Stores all resources.
      */
-    // TODO: Store resources in a cleaner way; don't just cram them all in init().
     void init();
 
     /**

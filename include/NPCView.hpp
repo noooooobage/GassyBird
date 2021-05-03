@@ -28,6 +28,12 @@ private:
     bool _initialized;
 
     GameLogic* _logic;
+
+    // difficulty settings
+    const float _EASY_THROW_CHANCE;
+    const float _HARD_THROW_CHANCE;
+    const float _EASY_THROW_DURATION;
+    const float _HARD_THROW_DURATION;
 };
 
 #endif // _NPC_VIEW_HPP_

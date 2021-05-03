@@ -66,6 +66,9 @@ public:
     // only allow NPCFactory to access private constructor
     friend class NPCFactory;
 
+    // if the NPC is on the screen, this is set externally by the logic
+    bool isVisible;
+
 private:
 
     // Constructor and initializer are private so that only the NPCFactory is able to make NPCs

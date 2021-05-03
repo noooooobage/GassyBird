@@ -111,7 +111,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     // smaller vertically because these grounds are below the npcGround.
     sf::Vector2f origin(textureRect.width, 0.0f);
     b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
-    scalePolygon(hitbox, b2Vec2(1.0f, 0.98f));
+    scalePolygon(hitbox, b2Vec2(1.0f, 0.975f));
     ground->addComponent(
         textureRect,
         fixtureDef,
@@ -135,7 +135,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeNPCGround(const float& widthMeter
     
     // determine scale such that the ground's width will be correct
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
-    float scale = widthMeters / (textureRect.width * spriteResource.scaleFactor * METERS_PER_PIXEL);
+    float scale = widthMeters / (textureRect.width * METERS_PER_PIXEL);
     
     // create the obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
@@ -151,8 +151,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeNPCGround(const float& widthMeter
         GameLogic::ROCK_CATEGORY_BIT |
         GameLogic::SPLATTER_CATEGORY_BIT
     );
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.5f;
+    fixtureDef.friction = 0.0f;
 
     // ground only has one component; it's origin should be at the top middle
     sf::Vector2f origin(textureRect.width / 2.0f, 0.0f);
@@ -228,14 +227,14 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     b2FixtureDef fixtureDef;
     fixtureDef.filter.categoryBits = GameLogic::SPLATTER_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
-    fixtureDef.friction = 10.0f;
+    fixtureDef.friction = 1.0f;
     
-    // origin is in the middle toward the bottom
-    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height * 0.75f);
+    // origin is in the bottom middle
+    sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height);
     ground->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("SPLATTER_HITBOX")->polygon},
         -origin
     );
 
@@ -462,7 +461,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     fixtureDef.filter.categoryBits = GameLogic::ROCK_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 1.0f;
-    fixtureDef.restitution = 0.4f;
+    fixtureDef.restitution = 0.3f;
 
     // rock also only has one component, origin should be in the middle
     b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("OCTAGON_HITBOX")->polygon;

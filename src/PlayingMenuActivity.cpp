@@ -22,10 +22,10 @@ PlayingMenuActivity::PlayingMenuActivity() :
     _playingActivity(nullptr),
     _logic(nullptr),
 
-    _SCORE_CHANGE_TIME(0.5f),
+    _SCORE_CHANGE_TIME(0.65f),
     _SCORE_BASE_COLOR(sf::Color::Black),
-    _SCORE_CHANGE_COLOR(sf::Color::White),
-    _SCORE_CHANGE_SCALE(2.5f)
+    _SCORE_CHANGE_COLOR(sf::Color(150, 150, 150, 150)),
+    _SCORE_CHANGE_SCALE(3.0f)
 {
     _indicators = {&_bottomPoopIndicator, &_topPoopIndicator};
     _pausedButtons = {&_resumeButton, &_menuButton, &_quitButton};
