@@ -65,6 +65,15 @@ void Game::init() {
     // initialize resource cache
     resourceCache.init();
 
+    //Start the music
+    bool check = _music.openFromFile("../data/background_music1.wav");
+
+    assert(check);
+    
+    _music.setLoop(true);
+    _music.setVolume(20.f);
+    _music.play();
+    
     // init playing activity
     _playingActivity.init(*_window.get());
 

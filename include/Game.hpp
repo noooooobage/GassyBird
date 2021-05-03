@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "Activity.hpp"
 #include "PlayingActivity.hpp"
@@ -78,6 +79,9 @@ private:
 
     // game clock
     sf::Clock _clock;
+
+    // game muse
+    sf::Music _music;
 
     // time difference between the current fame and the previous frame, recalculated every frame
     float _timeDelta;
