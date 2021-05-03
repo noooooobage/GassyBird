@@ -48,7 +48,7 @@ GameLogic::GameLogic() :
 
     _NPC_WALK_SPEED(2.0f),
     _DEFAULT_NPC_THROW_SPEED(25.0f),
-    _BIRD_DEATH_TIME(15.0f),
+    _BIRD_DEATH_TIME(18.0f),
     
     _difficulty(3)
 {}
@@ -326,8 +326,6 @@ void GameLogic::requestNPCAction(NPC& npc, const NPC::ACTION& action, const floa
         _projectiles.push_back(ObstacleFactory::makeRock());
         b2Body* rockBody = addToWorld(*_projectiles.back(), spawnPos, false);
         rockBody->ApplyLinearImpulseToCenter(rockBody->GetMass() * rockVelocity, true);
-
-        // TODO: also change the npc's direction if necessary
     }
 }
 
@@ -375,9 +373,19 @@ void GameLogic::collisionHandler(const Event& event) {
 
 void GameLogic::handlePoopCollision(const CollisionEvent& e) {
     
-    // get the actor which is the poop
-    PhysicalActor* poop =
-            e.actorA->getType() == PhysicalActor::TYPE::POOP ? e.actorA : e.actorB;
+    // get the poop actor, the other actor, and what the angle of the splatter should be
+    PhysicalActor* poop;
+    PhysicalActor* other;
+    float angle;
+    if (e.actorA->getType() == PhysicalActor::TYPE::POOP) {
+        poop = e.actorA;
+        other = e.actorB;
+        angle = e.normalAngle + PI / 2.0f;
+    } else {
+        poop = e.actorB;
+        other = e.actorA;
+        angle = e.normalAngle - PI / 2.0f;
+    }
     
     // do not consider if the bird pooped on itself (lmao), or if the poop doesn't exist anymore
     if (e.involvesType(PhysicalActor::TYPE::PLAYABLE_BIRD) || getBody(poop) == nullptr)
@@ -401,7 +409,22 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
     // remove the poop from the world and add a poop splatter
     removeFromWorld(*poop);
     _obstacles.push_back(ObstacleFactory::makePoopSplatter());
-    addToWorld(*_obstacles.back(), e.position);
+    b2Body* splatterBody = addToWorld(*_obstacles.back(), e.position);
+    splatterBody->SetTransform(splatterBody->GetPosition(), angle);
+
+    // Attach the poop splatter to the other body if it was an NPC, quit it the other actor's body
+    // doesn't exist.
+    if (e.involvesType(PhysicalActor::TYPE::NPC)) {
+        b2Body* otherBody = getBody(other);
+        if (!otherBody)
+            return;
+        b2WeldJointDef jointDef;
+        jointDef.bodyA = splatterBody;
+        jointDef.bodyB = otherBody;
+        jointDef.localAnchorA = e.position - splatterBody->GetPosition();
+        jointDef.localAnchorB = e.position - otherBody->GetPosition();
+        _world->CreateJoint(&jointDef);
+    }
 }
 
 void GameLogic::handleBirdCollision(const CollisionEvent& e) {
@@ -719,7 +742,11 @@ void GameLogic::updateNPCs(const float& timeDelta) {
             float xVelocity = -_worldScrollSpeed +
                     _NPC_WALK_SPEED * (npc->isFacingLeft() ? -1.0f : 1.0f);
             npcBody->SetLinearVelocity(b2Vec2(xVelocity, npcBody->GetLinearVelocity().y));
-        
+
+            // Need to also move any bodies that are attached to the NPC via joints
+            for (b2JointEdge* j = npcBody->GetJointList(); j != nullptr; j = j->next)
+                j->other->SetLinearVelocity(npcBody->GetLinearVelocity());
+
         // if the npc is throwing, then make it always face the bird
         } else if (npc->isThrowing()) {
             bool shouldFaceLeft = _playableBirdBody->GetPosition().x < npcBody->GetPosition().x;

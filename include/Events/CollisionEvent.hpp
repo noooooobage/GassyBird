@@ -5,11 +5,13 @@
 
 #include "Event.hpp"
 #include "PhysicalActor.hpp"
+#include "Globals.hpp"
 
 /**
  * Describes a collision event between two physical actors. These actors are accessible through the
- * members actorA and actorB (in no particular order). There is also a position member which
- * describes the approximate position of the collision.
+ * members actorA and actorB (in no particular order). There is also the folliwing information:
+ *  - position: the approximate position of where the bodies contacted
+ *  - normalAngle: the normal angle of the collision, which points from actorA to actorB
  */
 class CollisionEvent: public Event {
 
@@ -18,11 +20,13 @@ public:
     CollisionEvent(
         PhysicalActor* actorA,
         PhysicalActor* actorB,
-        const b2Vec2& position
+        const b2Vec2& position,
+        const float& normalAngle
     ) :
         actorA(actorA),
         actorB(actorB),
-        position(position)
+        position(position),
+        normalAngle(normalAngle)
     {}
 
     const EventType& getType() const override { return TYPE; }
@@ -51,6 +55,7 @@ public:
     PhysicalActor* actorA;
     PhysicalActor* actorB;
     const b2Vec2 position;
+    const float normalAngle;
 };
 
 #endif // _COLLISION_EVENT_HPP_

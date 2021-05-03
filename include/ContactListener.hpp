@@ -2,6 +2,7 @@
 #define _CONTACT_LISTENER_HPP_
 
 #include <iostream>
+#include <math.h>
 
 #include <box2d/box2d.h>
 
@@ -26,12 +27,17 @@ public:
         b2WorldManifold manifold;
         contact->GetWorldManifold(&manifold);
         b2Vec2 position = manifold.points[0];
+
+        // get the normal angle
+        b2Vec2 normal = manifold.normal;
+        float normalAngle = atan2f(normal.y, normal.x);
         
         // create the collision event
         eventMessenger.queueEvent(CollisionEvent(
             (PhysicalActor*)contact->GetFixtureA()->GetBody()->GetUserData().pointer,
             (PhysicalActor*)contact->GetFixtureB()->GetBody()->GetUserData().pointer,
-            position
+            position,
+            normalAngle
         ));
     }
 };
