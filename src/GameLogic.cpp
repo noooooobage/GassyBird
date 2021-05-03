@@ -208,18 +208,33 @@ void GameLogic::debugDraw() {
     _world->DebugDraw();
 }
 
-const std::map<PhysicalActor*, b2Body*> GameLogic::getVisibleActors() const {
+const std::list<PhysicalActor*>& GameLogic::getVisibleActors() const {
 
     assert(_initialized);
 
-    return _physicalActors;
+    return _visibleActors;
 }
 
-const std::list<std::shared_ptr<NPC>> GameLogic::getNPCs() const {
+const std::list<std::shared_ptr<NPC>>& GameLogic::getNPCs() const {
 
     assert(_initialized);
 
     return _NPCs;
+}
+
+b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
+
+    assert(_initialized);
+
+    // return nullptr if actor does not have a physical body
+    PhysicalActor* actorAddress = (PhysicalActor*)actor;
+
+    if (_physicalActors.find(actorAddress) == _physicalActors.end()){
+        return nullptr;    
+    }
+    
+    // return corresponding body pointer
+    return _physicalActors.at(actorAddress);
 }
 
 int GameLogic::getNumPoopsLeft() const {
@@ -569,7 +584,8 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
             }
         case 6:
             _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
-            addToWorld(*_NPCs.back(), position);
+            // NPCs should get drawn behind everything
+            addToWorld(*_NPCs.back(), position, true, false);
             _timeSinceLastNPC = 0.0f;
             break;
     }
@@ -579,7 +595,7 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
 }
 
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position,
-        bool inheritWorldScroll) {
+        bool inheritWorldScroll, bool drawInFront) {
 
     assert(_initialized);
 
@@ -610,8 +626,13 @@ b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position
         body->CreateFixture(&fixtureDefs[i]);
     }
 
-    // add the actor and body to the body map
+    // add the actor and body to the body map, and to the visible actors list
     _physicalActors[actorAddress] = body;
+    if (drawInFront)
+        _visibleActors.push_back(actorAddress);
+    else
+        _visibleActors.push_front(actorAddress);
+
     return body;
 }
 
@@ -638,6 +659,7 @@ void GameLogic::removeFromWorld(const PhysicalActor& actor) {
     removeFromList(actor, _obstacles);
     removeFromList(actor, _NPCs);
     removeFromList(actor, _projectiles);
+    _visibleActors.remove(actorAddress);
 }
 
 void GameLogic::removeAllFromWorld() {
@@ -647,21 +669,6 @@ void GameLogic::removeAllFromWorld() {
             return;
         removeFromWorld(*i->first);
     }
-}
-
-b2Body* GameLogic::getBody(const PhysicalActor* actor) const {
-
-    assert(_initialized);
-
-    // return nullptr if actor does not have a physical body
-    PhysicalActor* actorAddress = (PhysicalActor*)actor;
-
-    if (_physicalActors.find(actorAddress) == _physicalActors.end()){
-        return nullptr;    
-    }
-    
-    // return corresponding body pointer
-    return _physicalActors.at(actorAddress);
 }
 
 void GameLogic::updatePlayableBird(const float& timeDelta) {

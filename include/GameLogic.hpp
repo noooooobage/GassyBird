@@ -2,7 +2,7 @@
 #define _GAME_LOGIC_HPP_
 
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <list>
 #include <iostream>
 
@@ -56,14 +56,20 @@ public:
     void debugDraw();
 
     /**
-     * Returns all visible actors and their corresponding bodies.
+     * Returns all visible actors, in the order they should be drawn.
      */
-    const std::map<PhysicalActor*, b2Body*> getVisibleActors() const;
+    const std::list<PhysicalActor*>& getVisibleActors() const;
 
     /**
      * Returns all NPCs.
      */
-    const std::list<std::shared_ptr<NPC>> getNPCs() const;
+    const std::list<std::shared_ptr<NPC>>& getNPCs() const;
+
+    /**
+     * Given a physical actor, return the corresponding body which exists in the physical world. If
+     * the actor does not have an associated physical body, then return nullptr.
+     */
+    b2Body* getBody(const PhysicalActor* actor) const;
 
     /**
      * Methods called by PlayingMenuActivity to update UI elements.
@@ -144,11 +150,13 @@ private:
      * @param actor the PhysicalActor to add to the world
      * @param position position at which the body is placed, defaults to (0, 0)
      * @param inheritWorldScroll whether or not to inherit the world scroll speed, defaults to true
+     * @param drawInFront the added actor will be drawn in front of all other actors if true. If
+     *                    false, then it's drawn behind. Defaults to true.
      * 
      * @return a pointer to the newly created body
      */
     b2Body* addToWorld(const PhysicalActor& actor, const b2Vec2& position = {0.0f, 0.0f},
-            bool inheritWorldScroll = true);
+            bool inheritWorldScroll = true, bool drawInFront = true);
     
     /**
      * Wipes the given actor from existence. More specifically, does the following:
@@ -187,12 +195,6 @@ private:
             }
         }
     }
-
-    /**
-     * Given a physical actor, return the corresponding body which exists in the physical world. If
-     * the actor does not have an associated physical body, then return nullptr.
-     */
-    b2Body* getBody(const PhysicalActor* actor) const;
     
     /**
      * Updates stuff about the bird, e.g. whether it's pooping, whether it's flying, etc. Also calls
@@ -293,7 +295,10 @@ private:
     std::list<std::shared_ptr<Obstacle>> _projectiles;
     
     // stores all physical actors, maps them to their physical bodies
-    std::map<PhysicalActor*, b2Body*> _physicalActors;
+    std::unordered_map<PhysicalActor*, b2Body*> _physicalActors;
+
+    // stores all visible actors -- actors appearing earlier get drawn first
+    std::list<PhysicalActor*> _visibleActors;
 };
 
 #endif // _GAME_LOGIC_HPP_

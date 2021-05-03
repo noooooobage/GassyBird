@@ -66,12 +66,10 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(_beachBackground);
 
     // draw all visible actors given by the logic
-    for (auto& pair : _logic->getVisibleActors()) {
+    for (PhysicalActor* actor : _logic->getVisibleActors()) {
 
-        const PhysicalActor* actor = pair.first;
-        const b2Body* body = pair.second;
-
-        assert(actor);
+        // get the body and make sure it's not nullptr
+        const b2Body* body = _logic->getBody(actor);
         assert(body);
 
         // Set a transform to draw the actor in the correct position and rotation graphically. This
