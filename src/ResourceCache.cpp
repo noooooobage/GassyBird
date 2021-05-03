@@ -123,6 +123,7 @@ void ResourceCache::init() {
         "UMBRELLA_STATIC_TEXTURE",
         "../data/umbrella_static_texture.png"
     );
+
     // SPRITES /////////////////////////////////////////////
 
     loadSpriteResource(
@@ -173,9 +174,16 @@ void ResourceCache::init() {
     );
 
     loadSpriteResource(
-        "TEST_GROUND_SPRITE",
+        "GROUND_SPRITE",
         *getResource<TextureResource>("GROUND_TEXTURE"),
         {{0, 0, 400, 100}},
+        1.0f
+    );
+
+    loadSpriteResource(
+        "BIG_GROUND_SPRITE",
+        *getResource<TextureResource>("BIRD_TEXTURE"),
+        {{1, 1, 1, 1}}, // grab a transparent section of the bird texture
         1.0f
     );
 

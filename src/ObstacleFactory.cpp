@@ -89,7 +89,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
 
     // get the ground's sprite resource
     const SpriteResource& spriteResource =
-            *resourceCache.getResource<SpriteResource>("TEST_GROUND_SPRITE");
+            *resourceCache.getResource<SpriteResource>("GROUND_SPRITE");
     
     // determine scale such that the ground's width will be correct
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
@@ -119,6 +119,46 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     // set the body definition
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
+    ground->setBodyDef(bodyDef);
+
+    return ground;
+}
+
+std::shared_ptr<Obstacle> ObstacleFactory::makeNPCGround(const float& widthMeters) {
+
+    // get the ground's sprite resource
+    const SpriteResource& spriteResource =
+            *resourceCache.getResource<SpriteResource>("BIG_GROUND_SPRITE");
+    
+    // determine scale such that the ground's width will be correct
+    const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
+    float scale = widthMeters / (textureRect.width * spriteResource.scaleFactor * METERS_PER_PIXEL);
+    
+    // create the obstacle
+    std::shared_ptr<Obstacle> ground(new Obstacle(
+        PhysicalActor::TYPE::GROUND,
+        *spriteResource.sprite.getTexture(),
+        scale
+    ));
+    
+    // fixture definition -- does not collide with the bird or rocks
+    b2FixtureDef fixtureDef;
+    fixtureDef.filter.maskBits &= ~(GameLogic::BIRD_CATEGORY_BIT | GameLogic::ROCK_CATEGORY_BIT);
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 0.5f;
+
+    // ground only has one component; it's origin should be at the top middle
+    sf::Vector2f origin(textureRect.width / 2.0f, 0.0f);
+    ground->addComponent(
+        textureRect,
+        fixtureDef,
+        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        -origin
+    );
+
+    // set the body definition
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_staticBody;
     ground->setBodyDef(bodyDef);
 
     return ground;
@@ -178,9 +218,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
         spriteResource.scaleFactor
     ));
 
-    // assign the poop splatter group index so that it doesn't collide with NPCs
     b2FixtureDef fixtureDef;
-    fixtureDef.filter.groupIndex = GameLogic::POOP_SPLATTER_GROUP_INDEX;
+    fixtureDef.density = 1.0f;
+    fixtureDef.friction = 10.0f;
     
     // origin is in the middle toward the bottom
     sf::Vector2f origin(textureRect.width / 2.0f, textureRect.height * 0.75f);
@@ -193,7 +233,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
 
     // set the body definition
     b2BodyDef bodyDef;
-    bodyDef.type = b2_kinematicBody;
+    bodyDef.type = b2_dynamicBody;
     ground->setBodyDef(bodyDef);
 
     return ground;
@@ -394,8 +434,9 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
         spriteResource.scaleFactor
     ));
 
-    // fixture definition to applied to all added shapes
+    // fixture definition -- the rock does not collide with the npcGround
     b2FixtureDef fixtureDef;
+    fixtureDef.filter.categoryBits = GameLogic::ROCK_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 1.0f;
     fixtureDef.restitution = 0.4f;
@@ -419,7 +460,6 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeRock(){
     rock->setBodyDef(bodyDef);
 
     return rock;
-
 }
 
 std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {

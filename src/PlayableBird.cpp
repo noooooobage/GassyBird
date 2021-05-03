@@ -8,6 +8,7 @@
 #include "PlayableBird.hpp"
 #include "Globals.hpp"
 #include "Utils.hpp"
+#include "GameLogic.hpp"
 #include "Resources/SpriteResource.hpp"
 #include "Resources/PolygonResource.hpp"
 
@@ -56,8 +57,8 @@ void PlayableBird::init() {
     fitPolygonToSprite(hitbox, _sprite);
     addShape(hitbox);
 
-    // fixture definition
     b2FixtureDef fixtureDef;
+    fixtureDef.filter.categoryBits = GameLogic::BIRD_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
     fixtureDef.restitution = 0.2f;

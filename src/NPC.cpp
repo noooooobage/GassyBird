@@ -78,11 +78,11 @@ void NPC::init() {
     fitPolygonToSprite(body, _sprite);
     addShape(body);
 
-    // fixture definition, assign the poop splatter group so it doesn't collide with splatter
+    // fixture definition -- do not allow collisions with poop splatter
     b2FixtureDef fixtureDef;
-    fixtureDef.filter.groupIndex = GameLogic::POOP_SPLATTER_GROUP_INDEX;
+    // fixture
     fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.5f;
+    fixtureDef.friction = 1.0f;
     addFixtureDef(fixtureDef);
 
     // NPC should start out in the idle state

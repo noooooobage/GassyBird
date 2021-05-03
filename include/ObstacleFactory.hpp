@@ -18,9 +18,17 @@ public:
             const bool& faceLeft);
 
     /**
-     * Creates and returns a ground obstacle whose width is the given eidth in meters.
+     * Creates and returns a ground obstacle whose width is the given width in meters. These grounds
+     * are the ones that move along the screen, and are a little below the big ground.
      */
     static std::shared_ptr<Obstacle> makeGround(const float& widthMeters);
+
+    /**
+     * Returns an npcGround, which can cover a very large area. The distinction between normal
+     * ground and npcGround exists so that the NPCs don't get caught on the places where the normal
+     * grounds meet -- they instead just rest on top of the npcGround.
+     */
+    static std::shared_ptr<Obstacle> makeNPCGround(const float& widthMeters);
 
     /**
      * Creates and returns a poop obstacle, which has the given y-velocity.

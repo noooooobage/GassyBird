@@ -92,9 +92,10 @@ public:
     void requestNPCAction(NPC& npc, const NPC::ACTION& action, const float& delay,
             const float& duration);
     
-    // Store collision group info here so other classes may access them.
-    // When the poop splatter and NPCs both have this group index, then they won't collide.
-    static const int POOP_SPLATTER_GROUP_INDEX = -1;
+    // Store collision filtering info here so other classes may access them. The bird and rock don't
+    // collide with the npcGround, but they do collide with each other.
+    static const int BIRD_CATEGORY_BIT = 0x02;
+    static const int ROCK_CATEGORY_BIT = 0x04;
 
 private:
 
@@ -250,7 +251,9 @@ private:
     const int _NUM_GROUNDS; // the overall ground is made up of mutiple ground obstacles
     const float _GROUND_WIDTH_METERS; // width of each ground obstacle in meters
     const float _GROUND_OFFSET_METERS; // amount which the ground protrudes from bottom of screen
-    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all ground obstacles
+    const float _BIG_GROUND_WIDTH_METERS;
+    std::shared_ptr<Obstacle> _npcGround; // the ground which NPCs are on
+    std::list<std::shared_ptr<Obstacle>> _grounds; // list of all non-big ground obstacles
 
     // playable bird stuff
     PlayableBird _playableBirdActor;

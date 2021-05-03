@@ -34,6 +34,7 @@ GameLogic::GameLogic() :
     _NUM_GROUNDS(5),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
     _GROUND_OFFSET_METERS(0.5f),
+    _BIG_GROUND_WIDTH_METERS(NATIVE_RESOLUTION.x * 5.0f * METERS_PER_PIXEL),
 
     _playableBirdBody(nullptr),
     _BIRD_DEMO_POSITION(b2Vec2(8.0f, 10.5f)),
@@ -59,8 +60,9 @@ GameLogic::~GameLogic() {
     eventMessenger.removeListener(GamePauseEvent::TYPE, _gamePauseListener);
     eventMessenger.removeListener(CollisionEvent::TYPE, _collisionListener);
 
-    // remove every actor
+    // remove every actor, including the big ground
     removeAllFromWorld();
+    _npcGround.reset();
 
     // free world memory
     _world.reset();
@@ -411,20 +413,6 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
     _obstacles.push_back(ObstacleFactory::makePoopSplatter());
     b2Body* splatterBody = addToWorld(*_obstacles.back(), e.position);
     splatterBody->SetTransform(splatterBody->GetPosition(), angle);
-
-    // Attach the poop splatter to the other body if it was an NPC, quit it the other actor's body
-    // doesn't exist.
-    if (e.involvesType(PhysicalActor::TYPE::NPC)) {
-        b2Body* otherBody = getBody(other);
-        if (!otherBody)
-            return;
-        b2WeldJointDef jointDef;
-        jointDef.bodyA = splatterBody;
-        jointDef.bodyB = otherBody;
-        jointDef.localAnchorA = e.position - splatterBody->GetPosition();
-        jointDef.localAnchorB = e.position - otherBody->GetPosition();
-        _world->CreateJoint(&jointDef);
-    }
 }
 
 void GameLogic::handleBirdCollision(const CollisionEvent& e) {
@@ -439,12 +427,15 @@ void GameLogic::handleBirdCollision(const CollisionEvent& e) {
 
 void GameLogic::createMap() {
 
-    // create the ground objects
+    // create the ground objects -- normal grounds go a little beneath the big ground
     for (int i = 0; i < _NUM_GROUNDS; ++i) {
         _grounds.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
         addToWorld(*_grounds.back(), b2Vec2(_GROUND_WIDTH_METERS + i * _GROUND_WIDTH_METERS,
-                _GROUND_OFFSET_METERS));
+                _GROUND_OFFSET_METERS - 0.02f));
     }
+    _npcGround = ObstacleFactory::makeNPCGround(_BIG_GROUND_WIDTH_METERS);
+    addToWorld(*_npcGround, b2Vec2(NATIVE_RESOLUTION.x * METERS_PER_PIXEL / 2.0f,
+            _GROUND_OFFSET_METERS), false);
 
     // spawn 3 random NPEs
     for (int i = 0; i < 3; ++i) {
@@ -738,14 +729,9 @@ void GameLogic::updateNPCs(const float& timeDelta) {
 
         // if the npc is walking, then move it in the direction it's facing
         if (npc->isWalking()) {
-
             float xVelocity = -_worldScrollSpeed +
                     _NPC_WALK_SPEED * (npc->isFacingLeft() ? -1.0f : 1.0f);
             npcBody->SetLinearVelocity(b2Vec2(xVelocity, npcBody->GetLinearVelocity().y));
-
-            // Need to also move any bodies that are attached to the NPC via joints
-            for (b2JointEdge* j = npcBody->GetJointList(); j != nullptr; j = j->next)
-                j->other->SetLinearVelocity(npcBody->GetLinearVelocity());
 
         // if the npc is throwing, then make it always face the bird
         } else if (npc->isThrowing()) {
