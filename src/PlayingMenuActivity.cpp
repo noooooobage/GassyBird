@@ -20,7 +20,12 @@ PlayingMenuActivity::PlayingMenuActivity() :
     _activated(false),
 
     _playingActivity(nullptr),
-    _logic(nullptr)
+    _logic(nullptr),
+
+    _SCORE_CHANGE_TIME(0.5f),
+    _SCORE_BASE_COLOR(sf::Color::Black),
+    _SCORE_CHANGE_COLOR(sf::Color::White),
+    _SCORE_CHANGE_SCALE(2.5f)
 {
     _indicators = {&_bottomPoopIndicator, &_topPoopIndicator};
     _pausedButtons = {&_resumeButton, &_menuButton, &_quitButton};
@@ -133,6 +138,9 @@ void PlayingMenuActivity::activate() {
     eventMessenger.addListener(ButtonClickEvent::TYPE, _buttonClickListener);
     eventMessenger.addListener(GamePauseEvent::TYPE, _gamePauseListener);
 
+    // reset necessary variables
+    _scoreChangeTimer = 0.0f;
+
     // activate the playing button manager
     _playingButtonManager.activate();
 
@@ -172,8 +180,27 @@ void PlayingMenuActivity::update(const float& timeDelta) {
     // fill the poop time left bar according to how much time the bird has left to poop
     _poopTimeLeftBar.setScale(1.0f, _logic->getPoopTimeLeft());
 
-    // update the score text
-    _scoreText.setString(std::to_string(_logic->getPlayerScore()));
+    // update the score text's string
+    std::string scoreString = std::to_string(_logic->getPlayerScore());
+    if (scoreString != _scoreText.getString()) {
+        _scoreText.setString(scoreString);
+        if (scoreString != "0")
+            _scoreChangeTimer = _SCORE_CHANGE_TIME;
+    }
+
+    // update the score text's animation
+    _scoreChangeTimer -= timeDelta;
+    if (_scoreChangeTimer < 0.0f)
+        _scoreChangeTimer = 0.0f;
+    float t = _scoreChangeTimer / _SCORE_CHANGE_TIME;
+    float scaleFactor = lerp(1.0f, _SCORE_CHANGE_SCALE, t);
+    _scoreText.setScale(scaleFactor, scaleFactor);
+    _scoreText.setFillColor(sf::Color(
+        clamp((int)lerp((float)_SCORE_BASE_COLOR.r, (float)_SCORE_CHANGE_COLOR.r, t), 0, 255),
+        clamp((int)lerp((float)_SCORE_BASE_COLOR.g, (float)_SCORE_CHANGE_COLOR.g, t), 0, 255),
+        clamp((int)lerp((float)_SCORE_BASE_COLOR.b, (float)_SCORE_CHANGE_COLOR.b, t), 0, 255),
+        clamp((int)lerp((float)_SCORE_BASE_COLOR.a, (float)_SCORE_CHANGE_COLOR.a, t), 0, 255)
+    ));
 
     // Update the text in the pause button to reflect the paused state of the logic -- if the game
     // is paused, then it needs to show the ">" (play symbol); else, show the "||" (pause symbol).

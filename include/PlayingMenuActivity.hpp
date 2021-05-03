@@ -85,6 +85,13 @@ private:
     sf::Text _scoreText;
     sf::Text _pausedText;
 
+    // variables for handling animation when the score changes
+    const float _SCORE_CHANGE_TIME;
+    float _scoreChangeTimer;
+    const sf::Color _SCORE_BASE_COLOR;
+    const sf::Color _SCORE_CHANGE_COLOR;
+    const float _SCORE_CHANGE_SCALE;
+
     // buttons to display all the time
     Button _pauseButton;
     ButtonManager _playingButtonManager;
