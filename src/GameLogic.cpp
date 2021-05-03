@@ -279,10 +279,10 @@ void GameLogic::requestBirdPoop() {
 
         // Make a poop obstacle and give it a vertical velocity which will make it shoot downward
         // from the bird.
-        _obstacles.push_back(ObstacleFactory::makePoop(_playableBirdBody->GetLinearVelocity().y -
+        _projectiles.push_back(ObstacleFactory::makePoop(_playableBirdBody->GetLinearVelocity().y -
                 _POOP_DOWNWARD_VELOCITY));
-        _lastPoop = _obstacles.back().get();
-        addToWorld(*_obstacles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
+        _lastPoop = _projectiles.back().get();
+        addToWorld(*_projectiles.back(), _playableBirdBody->GetPosition() - b2Vec2(0.5f, 0.5f),
                 false);
     }
 }
@@ -410,8 +410,8 @@ void GameLogic::handlePoopCollision(const CollisionEvent& e) {
 
     // remove the poop from the world and add a poop splatter
     removeFromWorld(*poop);
-    _obstacles.push_back(ObstacleFactory::makePoopSplatter());
-    b2Body* splatterBody = addToWorld(*_obstacles.back(), e.position);
+    _projectiles.push_back(ObstacleFactory::makePoopSplatter());
+    b2Body* splatterBody = addToWorld(*_projectiles.back(), e.position);
     splatterBody->SetTransform(splatterBody->GetPosition(), angle);
 }
 
@@ -427,11 +427,11 @@ void GameLogic::handleBirdCollision(const CollisionEvent& e) {
 
 void GameLogic::createMap() {
 
-    // create the ground objects -- normal grounds go a little beneath the big ground
+    // create the ground objects
     for (int i = 0; i < _NUM_GROUNDS; ++i) {
         _grounds.push_back(ObstacleFactory::makeGround(_GROUND_WIDTH_METERS));
         addToWorld(*_grounds.back(), b2Vec2(_GROUND_WIDTH_METERS + i * _GROUND_WIDTH_METERS,
-                _GROUND_OFFSET_METERS - 0.02f));
+                _GROUND_OFFSET_METERS));
     }
     _npcGround = ObstacleFactory::makeNPCGround(_BIG_GROUND_WIDTH_METERS);
     addToWorld(*_npcGround, b2Vec2(NATIVE_RESOLUTION.x * METERS_PER_PIXEL / 2.0f,

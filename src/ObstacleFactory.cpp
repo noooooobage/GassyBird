@@ -107,12 +107,15 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
 
-    // ground only has one component; it's origin should be at the top right
+    // Ground only has one component; it's origin should be at the top right. Scale the hitbox
+    // smaller vertically because these grounds are below the npcGround.
     sf::Vector2f origin(textureRect.width, 0.0f);
+    b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
+    scalePolygon(hitbox, b2Vec2(1.0f, 0.98f));
     ground->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {hitbox},
         -origin
     );
 
@@ -313,7 +316,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
     return cloud;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, const int& heightMeters) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& numCols, const int& numRows) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("DOCKS_SPRITE");
     std::shared_ptr<Obstacle> docks(new Obstacle(
@@ -331,7 +334,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
     b2FixtureDef fixtureDef;
     float width = leftBottomRect.width;
     float height = leftBottomRect.height;
-    for (int j = 0; j < heightMeters; j++) {
+    for (int j = 0; j < numRows; j++) {
         sf::Vector2f leftBottom(width / 2.0f, -height);
         docks->addComponent(
             leftBottomRect,
@@ -345,13 +348,13 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
     docks->addComponent(
         leftTopRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {},
         leftTop
     );
     width += (middleBottomRect.width / 2.0f);
     height = middleBottomRect.height;
-    for (int i = 1; i < widthMeters-1; i++) {
-        for (int j = 0; j < heightMeters; j++) {
+    for (int i = 1; i < numCols-1; i++) {
+        for (int j = 0; j < numRows; j++) {
             sf::Vector2f middleBottom(width, -height);
             docks->addComponent(
                 middleBottomRect,
@@ -366,14 +369,14 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
         docks->addComponent(
             middleTopRect,
             fixtureDef,
-            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            {},
             middleTop
         );
         width += middleBottomRect.width;
         height = middleBottomRect.height;
     }
 
-    for (int j = 0; j < heightMeters; j++) {
+    for (int j = 0; j < numRows; j++) {
         sf::Vector2f rightBottom(width, -height);
         docks->addComponent(
             rightBottomRect,
@@ -387,15 +390,30 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeDocks(const int& widthMeters, con
     docks->addComponent(
         rightTopRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {},
         rightTop
     );
     b2BodyDef bodyDef;
     bodyDef.type = b2_kinematicBody;
 
+    // make the hitbox just one big slab
+    b2PolygonShape hitbox = resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon;
+    translatePolygon(hitbox, b2Vec2(0.5f, -0.5f));
+    scalePolygon(hitbox, spriteResource.scaleFactor * METERS_PER_PIXEL * b2Vec2(
+        leftBottomRect.width + (numCols <= 2 ? 0 : (numCols - 2)) * middleBottomRect.width + rightBottomRect.width,
+        leftTopRect.height * 0.15f
+    ));
+    translatePolygon(hitbox, spriteResource.scaleFactor * METERS_PER_PIXEL * b2Vec2(
+        leftBottomRect.width / 2.0f,
+        middleBottomRect.height * numRows - 1.0f)
+    );
+
+    docks->addShape(hitbox);
+    docks->addFixtureDef(fixtureDef);
     docks->setBodyDef(bodyDef);
     return docks;
 }
+
 std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("LIFEGUARD_SPRITE");
