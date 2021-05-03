@@ -57,8 +57,10 @@ void PlayableBird::init() {
     fitPolygonToSprite(hitbox, _sprite);
     addShape(hitbox);
 
+    // does not collide with poop splatter
     b2FixtureDef fixtureDef;
     fixtureDef.filter.categoryBits = GameLogic::BIRD_CATEGORY_BIT;
+    fixtureDef.filter.maskBits &= ~GameLogic::SPLATTER_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
     fixtureDef.restitution = 0.2f;

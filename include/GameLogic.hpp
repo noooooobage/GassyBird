@@ -99,9 +99,11 @@ public:
             const float& duration);
     
     // Store collision filtering info here so other classes may access them. The bird and rock don't
-    // collide with the npcGround, but they do collide with each other.
-    static const int BIRD_CATEGORY_BIT = 0x02;
-    static const int ROCK_CATEGORY_BIT = 0x04;
+    // collide with the npcGround, but they do collide with each other. The splatter doesn't
+    // collide with the bird.
+    static const int BIRD_CATEGORY_BIT =     0x2;
+    static const int ROCK_CATEGORY_BIT =     0x4;
+    static const int SPLATTER_CATEGORY_BIT = 0x8;
 
 private:
 

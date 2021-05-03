@@ -33,7 +33,7 @@ GameLogic::GameLogic() :
 
     _NUM_GROUNDS(5),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
-    _GROUND_OFFSET_METERS(0.5f),
+    _GROUND_OFFSET_METERS(0.75f),
     _BIG_GROUND_WIDTH_METERS(NATIVE_RESOLUTION.x * 5.0f * METERS_PER_PIXEL),
 
     _playableBirdBody(nullptr),
@@ -342,6 +342,8 @@ void GameLogic::requestNPCAction(NPC& npc, const NPC::ACTION& action, const floa
         // add the rock to the world and set its physical properties
         _projectiles.push_back(ObstacleFactory::makeRock());
         b2Body* rockBody = addToWorld(*_projectiles.back(), spawnPos, false);
+        rockBody->SetTransform(rockBody->GetPosition(), randomFloat(0.0f, PI * 2.0f));
+        rockBody->SetAngularVelocity(randomFloat(-8.0f, 8.0f));
         rockBody->ApplyLinearImpulseToCenter(rockBody->GetMass() * rockVelocity, true);
     }
 }
@@ -767,7 +769,7 @@ void GameLogic::updateGround() {
         // if this ground obstacle is a little past the left edge of the screen, then need to:
         //   1. move this ground to the right of the rightmost ground
         //   2. make this ground the rightmost ground in the list
-        if (leftGroundBody->GetPosition().x <= -5.0f) {
+        if (leftGroundBody->GetPosition().x <= -4.0f) {
 
             b2Body* rightGroundBody = getBody(_grounds.back().get());
             assert(rightGroundBody);

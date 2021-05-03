@@ -18,8 +18,7 @@ public:
             const bool& faceLeft);
 
     /**
-     * Creates and returns a ground obstacle whose width is the given width in meters. These grounds
-     * are the ones that move along the screen, and are a little below the big ground.
+     * These grounds are the ones that move along the screen.
      */
     static std::shared_ptr<Obstacle> makeGround(const float& widthMeters);
 

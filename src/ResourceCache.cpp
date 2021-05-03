@@ -66,7 +66,7 @@ void ResourceCache::init() {
 
     loadTextureResource(
         "GROUND_TEXTURE",
-        "../data/simple-sand.png"
+        "../data/simple-sand2.png"
     );
 
     loadTextureResource(
@@ -176,8 +176,8 @@ void ResourceCache::init() {
     loadSpriteResource(
         "GROUND_SPRITE",
         *getResource<TextureResource>("GROUND_TEXTURE"),
-        {{0, 0, 400, 100}},
-        1.0f
+        {{0, 0, 194, 32}},
+        2.0f
     );
 
     loadSpriteResource(

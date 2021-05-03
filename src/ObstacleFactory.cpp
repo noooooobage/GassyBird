@@ -93,7 +93,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeGround(const float& widthMeters) 
     
     // determine scale such that the ground's width will be correct
     const sf::IntRect& textureRect = spriteResource.textureRects.at(0);
-    float scale = widthMeters / (textureRect.width * spriteResource.scaleFactor * METERS_PER_PIXEL);
+    float scale = widthMeters / (textureRect.width * METERS_PER_PIXEL);
     
     // create the ground obstacle
     std::shared_ptr<Obstacle> ground(new Obstacle(
@@ -144,9 +144,13 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeNPCGround(const float& widthMeter
         scale
     ));
     
-    // fixture definition -- does not collide with the bird or rocks
+    // fixture definition -- does not collide with the bird, rocks, or poop splatter
     b2FixtureDef fixtureDef;
-    fixtureDef.filter.maskBits &= ~(GameLogic::BIRD_CATEGORY_BIT | GameLogic::ROCK_CATEGORY_BIT);
+    fixtureDef.filter.maskBits &= ~(
+        GameLogic::BIRD_CATEGORY_BIT | 
+        GameLogic::ROCK_CATEGORY_BIT |
+        GameLogic::SPLATTER_CATEGORY_BIT
+    );
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.5f;
 
@@ -222,6 +226,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     ));
 
     b2FixtureDef fixtureDef;
+    fixtureDef.filter.categoryBits = GameLogic::SPLATTER_CATEGORY_BIT;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 10.0f;
     
