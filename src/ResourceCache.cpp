@@ -279,6 +279,39 @@ void ResourceCache::init() {
         }
     );
 
+    loadPolygonResource(
+        "SLANTED_HITBOX",
+        {
+            {0.5f, 0.5f},
+            {0.1f, -0.5f},
+            {-0.5f, -0.5f},
+            {-0.1f, 0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "LIFEGUARD_HITBOX",
+        {
+            { 0.0f,  0.5f},
+            {-0.5f,  0.5f},
+            {-0.5f, -0.5f},
+            { 0.5f, -0.5f},
+            { 0.5f, -0.25f},
+        }
+    );
+
+    loadPolygonResource(
+        "TREETOP_HITBOX",
+        {
+            { 0.25f,  0.5f},
+            {-0.25f,  0.5f},
+            {-0.5f, 0.25f},
+            {-0.5f, -0.25f},
+            {-0.25f, -0.5f},
+            { 0.40f, -0.5f},
+            { 0.5f, 0.0f}
+        }
+    );
     // this hitbox always encompasses the full texture rectangle in an octagon
     loadPolygonResource(
         "OCTAGON_HITBOX",
@@ -295,12 +328,13 @@ void ResourceCache::init() {
     );
 
     loadPolygonResource(
-        "HALF_HITBOX",
+        "UMBRELLA_HITBOX",
         {
-            { 0.5f, 0.5f},
-            {-0.5f, 0.5f},
-            {-0.5f, 0.0f},
-            { 0.5f, 0.0f}
+            { 0.5f, 0.3f},
+            { 0.0f, 0.5f},
+            { -0.5f, 0.3f},
+            {-0.5f, 0.1f},
+            { 0.5f, 0.1f}
         }
     );
 
