@@ -33,6 +33,7 @@ Once SFML and Box2D are installed, run the following to compile and launch the g
 git clone https://github.com/noooooobage/GassyBird.git
 cd GassyBird
 mkdir Release
+cd Release
 cmake ..
 make
 ./gassy_bird
