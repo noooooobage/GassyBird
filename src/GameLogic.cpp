@@ -56,7 +56,7 @@ GameLogic::GameLogic() :
 
     _SPAWN_LOCATION_X(NATIVE_RESOLUTION.x * METERS_PER_PIXEL + 5.0f),
     
-    _MAX_DIFFICULTY_TIME(60.0f)
+    _MAX_DIFFICULTY_TIME(50.0f)
 {}
 
 GameLogic::~GameLogic() {
@@ -523,13 +523,8 @@ void GameLogic::spawnNPE(b2Vec2 position) {
     // force the spawning of an NPC if there aren't any on screen
     if (_NPCs.size() == 0)
         obstacleType = 6;
-    
-    // TODO: remove
-    // obstacleType = 6;
 
     float heightMeters = randomFloat(4.0f, (_state == DEMO ? 9.0f : 10.0f));
-    // TODO: remove
-    // heightMeters = 10.0f;
     int numEntities = _obstacles.size() + _NPCs.size(); //used for checking whether an obstacle was actually generated or not
     bool faceLeft = randomBool();
 

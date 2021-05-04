@@ -104,9 +104,6 @@ public:
     static const int ROCK_CATEGORY_BIT =     0x4;
     static const int SPLATTER_CATEGORY_BIT = 0x8;
 
-    // TODO: remove
-    friend class HumanView;
-
 private:
 
     /**

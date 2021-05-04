@@ -390,7 +390,7 @@ void ResourceCache::init() {
     loadPolygonResource(
         "TREETOP_HITBOX",
         {
-            { 0.25f,  0.5f},
+            { 0.28f,  0.40f},
             {-0.25f,  0.5f},
             {-0.5f, 0.25f},
             {-0.5f, -0.25f},
