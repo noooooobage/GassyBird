@@ -78,6 +78,20 @@ void HumanView::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         statesCopy.transform *= physicalToGraphicalTransform(*body);
         target.draw(*actor, statesCopy);
     }
+
+    // TODO: remove
+    sf::RectangleShape rect(sf::Vector2f(2.0f, NATIVE_RESOLUTION.y));
+    rect.setPosition(_logic->_SPAWN_LOCATION_X * PIXELS_PER_METER, 0.0f);
+    rect.setFillColor(sf::Color::Green);
+    target.draw(rect);
+    rect.setSize(sf::Vector2f(2.0f, NATIVE_RESOLUTION.y));
+    rect.setPosition(_logic->_rightmostObstacleLocation * PIXELS_PER_METER, 0.0f);
+    rect.setFillColor(sf::Color::Yellow);
+    target.draw(rect);
+    rect.setSize(sf::Vector2f(2.0f, NATIVE_RESOLUTION.y));
+    rect.setPosition(-10.0f * PIXELS_PER_METER, 0.0f);
+    rect.setFillColor(sf::Color::Red);
+    target.draw(rect);
 }
 
 void HumanView::keyPressHandler(const Event& event) {

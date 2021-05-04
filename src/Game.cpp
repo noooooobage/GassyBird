@@ -62,6 +62,11 @@ void Game::init() {
     _window->setActive();
     _window->setKeyRepeatEnabled(false);
 
+    // TODO: remove
+    sf::View view;
+    view.zoom(2.5f);
+    _window->setView(view);
+
     // initialize resource cache
     resourceCache.init();
 

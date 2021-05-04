@@ -337,12 +337,77 @@ void ResourceCache::init() {
     );
 
     loadPolygonResource(
-        "HALF_HITBOX",
+        "SLANTED_HITBOX",
         {
-            { 0.5f, 0.5f},
-            {-0.5f, 0.5f},
-            {-0.5f, 0.0f},
+            {0.5f, 0.5f},
+            {0.1f, -0.5f},
+            {-0.5f, -0.5f},
+            {-0.1f, 0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "CLOUD_HITBOX",
+        {
+            {0.26f, 0.26f},
+            {0.06f, 0.23f},
+            {-0.28f, -0.01f},
+            {-0.45f, -0.5f},
+            {0.45f, -0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "LIFEGUARD_RAMP_HITBOX",
+        {
+            {(106 + 0.5f) / 109.0f - 0.5f, (57 + 0.5f) / -56.0f + 0.5f},
+            {( 59 + 0.5f) / 109.0f - 0.5f, (36 + 0.5f) / -56.0f + 0.5f},
+            {( 59 + 0.5f) / 109.0f - 0.5f, (39 + 0.5f) / -56.0f + 0.5f},
+            {(100 + 0.5f) / 109.0f - 0.5f, (57 + 0.5f) / -56.0f + 0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "LIFEGUARD_PLATFORM_HITBOX",
+        {
+            {(59 + 0.5f) / 109.0f - 0.5f, (36 + 0.5f) / -56.0f + 0.5f},
+            {( 6 + 0.5f) / 109.0f - 0.5f, (36 + 0.5f) / -56.0f + 0.5f},
+            {( 6 + 0.5f) / 109.0f - 0.5f, (39 + 0.5f) / -56.0f + 0.5f},
+            {(59 + 0.5f) / 109.0f - 0.5f, (39 + 0.5f) / -56.0f + 0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "LIFEGUARD_BUILDING_HITBOX",
+        {
+            {(50 + 0.5f) / 109.0f - 0.5f, ( 0 + 0.5f) / -56.0f + 0.5f},
+            {( 6 + 0.5f) / 109.0f - 0.5f, ( 0 + 0.5f) / -56.0f + 0.5f},
+            {( 6 + 0.5f) / 109.0f - 0.5f, (36 + 0.5f) / -56.0f + 0.5f},
+            {(41 + 0.5f) / 109.0f - 0.5f, (36 + 0.5f) / -56.0f + 0.5f}
+        }
+    );
+
+    loadPolygonResource(
+        "TREETOP_HITBOX",
+        {
+            { 0.25f,  0.5f},
+            {-0.25f,  0.5f},
+            {-0.5f, 0.25f},
+            {-0.5f, -0.25f},
+            {-0.25f, -0.5f},
+            { 0.40f, -0.5f},
             { 0.5f, 0.0f}
+        }
+    );
+
+    loadPolygonResource(
+        "UMBRELLA_HITBOX",
+        {
+            { 0.36f, 0.3f},
+            { 0.0f, 0.43f},
+            { -0.36f, 0.3f},
+            {-0.5f, 0.13f},
+            { 0.5f, 0.13f}
         }
     );
 

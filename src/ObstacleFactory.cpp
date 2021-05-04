@@ -246,13 +246,13 @@ std::shared_ptr<Obstacle> ObstacleFactory::makePoopSplatter() {
     return ground;
 }
 
-std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters) {
+std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters, const bool& faceLeft) {
     const SpriteResource& spriteResource =
             *resourceCache.getResource<SpriteResource>("TREE_SPRITE");
     std::shared_ptr<Obstacle> tree(new Obstacle(
         PhysicalActor::TYPE::GENERIC_OBSTACLE,
         *spriteResource.sprite.getTexture(),
-        spriteResource.scaleFactor
+        sf::Vector2f((faceLeft ? -1.0f : 1.0f) * spriteResource.scaleFactor, spriteResource.scaleFactor)
     ));
     const sf::IntRect& baseRect = spriteResource.textureRects.at(0);
     const sf::IntRect& shaftRect = spriteResource.textureRects.at(1);
@@ -277,16 +277,16 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeTree(const float& heightMeters) {
         tree->addComponent(
             shaftRect,
             fixtureDef,
-            {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+            {resourceCache.getResource<PolygonResource>("SLANTED_HITBOX")->polygon},
             -bodyOrigin
         );
     }
-    sf::Vector2f topOrigin(bodyOrigin.x+7, bodyOrigin.y+topRect.height-2);
+    sf::Vector2f topOrigin(bodyOrigin.x+7, bodyOrigin.y+topRect.height-3);
     
     tree->addComponent(
         topRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("TREETOP_HITBOX")->polygon},
         -topOrigin
     );
     b2BodyDef bodyDef;
@@ -310,7 +310,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeCloud() {
     cloud->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("STREETLIGHT_BASE_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("CLOUD_HITBOX")->polygon},
         -origin
     );
     b2BodyDef bodyDef;
@@ -436,7 +436,11 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeLifeguard(const bool& faceLeft) {
     lifeguard->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("FULL_HITBOX")->polygon},
+        {
+            resourceCache.getResource<PolygonResource>("LIFEGUARD_RAMP_HITBOX")->polygon,
+            resourceCache.getResource<PolygonResource>("LIFEGUARD_PLATFORM_HITBOX")->polygon,
+            resourceCache.getResource<PolygonResource>("LIFEGUARD_BUILDING_HITBOX")->polygon
+        },
         -origin
     );
 
@@ -500,7 +504,7 @@ std::shared_ptr<Obstacle> ObstacleFactory::makeUmbrella(const float angle) {
     umbrella->addComponent(
         textureRect,
         fixtureDef,
-        {resourceCache.getResource<PolygonResource>("HALF_HITBOX")->polygon},
+        {resourceCache.getResource<PolygonResource>("UMBRELLA_HITBOX")->polygon},
         -origin
     );
     b2BodyDef bodyDef;

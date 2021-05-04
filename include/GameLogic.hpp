@@ -104,6 +104,9 @@ public:
     static const int ROCK_CATEGORY_BIT =     0x4;
     static const int SPLATTER_CATEGORY_BIT = 0x8;
 
+    // TODO: remove
+    friend class HumanView;
+
 private:
 
     /**
@@ -135,13 +138,14 @@ private:
      * Procedurally generates new physical actors, e.g. Obstacles and NPCs to the right of the
      * screen.
      */
-    void generateNewActors();
+    void generateNewActors(const float& timeDelta);
 
     /**
      * Helper method to generateNewActors(). Spawns a random Non-Playable Entity (Obstacle or NPC)
-     * at the given position in the world.
+     * at the given position in the world. Also updates _rightmostObstacleLocation according to the
+     * right edge of the spawned obstacle.
      */
-    void spawnNPE(const b2Vec2& position);
+    void spawnNPE(b2Vec2 position);
 
     /**
      * Creates a b2Body from the given physical actor, and adds it to the box2d world and to the
@@ -283,7 +287,8 @@ private:
 
     int _lastObstacleSpawned; //index of last obstacle spawned
 
-    float _spawnPositionLastObstacle;
+    const float _SPAWN_LOCATION_X; // x-coordinate where things are spawned
+    float _rightmostObstacleLocation; // position after which it's safe to spawn
     double _totalTimePassed;
     double _playingTimePassed;
 

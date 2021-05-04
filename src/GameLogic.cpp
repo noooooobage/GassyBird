@@ -32,7 +32,7 @@ GameLogic::GameLogic() :
     _STEP_TIME(2.f),
     _ACTION_TIME(2.f),
 
-    _NUM_GROUNDS(5),
+    _NUM_GROUNDS(6),
     _GROUND_WIDTH_METERS(400 * METERS_PER_PIXEL),
     _GROUND_OFFSET_METERS(0.75f),
     _BIG_GROUND_WIDTH_METERS(NATIVE_RESOLUTION.x * 5.0f * METERS_PER_PIXEL),
@@ -53,6 +53,8 @@ GameLogic::GameLogic() :
     _NO_THROW_ZONE_LEFT(5.0f),
     _NO_THROW_ZONE_RIGHT(3.5f),
     _BIRD_DEATH_TIME(18.0f),
+
+    _SPAWN_LOCATION_X(NATIVE_RESOLUTION.x * METERS_PER_PIXEL + 5.0f),
     
     _MAX_DIFFICULTY_TIME(60.0f)
 {}
@@ -116,7 +118,7 @@ void GameLogic::update(const float& timeDelta) {
 
     // perform removal and procedural generation
     removeOutOfBoundsActors();
-    generateNewActors();
+    generateNewActors(timeDelta);
 
     // update actors
     updateGround();
@@ -151,7 +153,6 @@ void GameLogic::toDemo() {
     _playableBirdBody->SetGravityScale(0.0f);
 
     // reset other variables
-    _spawnPositionLastObstacle = 0.0f;
     _totalTimePassed = 0.0;
     _playingTimePassed = 0.0;
     _difficulty = 0.0f;
@@ -457,11 +458,10 @@ void GameLogic::createMap() {
     addToWorld(*_npcGround, b2Vec2(NATIVE_RESOLUTION.x * METERS_PER_PIXEL / 2.0f,
             _GROUND_OFFSET_METERS), false);
 
-    // spawn 4 random NPEs
-    for (int i = 0; i < 4; ++i) {
-        float xPosition = i * (NATIVE_RESOLUTION.x * METERS_PER_PIXEL) / 4.0f + 2.0f;
-        spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-    }
+    // populate the screen with NPEs
+    _rightmostObstacleLocation = 0.0f;
+    while (_rightmostObstacleLocation < _SPAWN_LOCATION_X)
+        spawnNPE(b2Vec2(_rightmostObstacleLocation, _GROUND_OFFSET_METERS));
 }
 
 void GameLogic::removeOutOfBoundsActors() {
@@ -493,25 +493,19 @@ void GameLogic::removeOutOfBoundsActors() {
     }
 }
 
-void GameLogic::generateNewActors() {
+void GameLogic::generateNewActors(const float& timeDelta) {
+
+    // something should be spawned if the rightmost obstalce location is to the left of the default
+    // spawn location
+    bool needToSpawn = _rightmostObstacleLocation < _SPAWN_LOCATION_X;
+    if (needToSpawn)
+        spawnNPE(b2Vec2(_SPAWN_LOCATION_X, _GROUND_OFFSET_METERS));
     
-    // The current metric for determining when to spawn actors is maintaining a minimum number of
-    // entities on screen. If this number falls below some threshold (right now is 3), then we know
-    // to spawn another one.
-    // TODO: This is an okay placeholder, but we might want to think about using a more
-    // sophisticated method of determining when to spawn things.
-    int numEntities = _obstacles.size() + _NPCs.size();
-    bool needToSpawn = numEntities < 4;
-    // If we do need to spawn something, then determine a random position past the right of the
-    // screen and spawn an NPE there.
-    float xPosition = NATIVE_RESOLUTION.x * METERS_PER_PIXEL + randomFloat(2.0f, 5.0f);
-    if (needToSpawn && _worldScrollSpeed * _totalTimePassed + xPosition > _spawnPositionLastObstacle + 5.0f) {
-        _spawnPositionLastObstacle = _worldScrollSpeed * _totalTimePassed + xPosition;
-        spawnNPE(b2Vec2(xPosition, _GROUND_OFFSET_METERS));
-    }
+    // update the rightmost obstacle location by decrementing it by amount the world has scrolled
+    _rightmostObstacleLocation -= timeDelta * _worldScrollSpeed;
 }
 
-void GameLogic::spawnNPE(const b2Vec2& position) {
+void GameLogic::spawnNPE(b2Vec2 position) {
 
     //0: Streetlight
     //1: Tree
@@ -529,8 +523,13 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
     // force the spawning of an NPC if there aren't any on screen
     if (_NPCs.size() == 0)
         obstacleType = 6;
+    
+    // TODO: remove
+    // obstacleType = 6;
 
-    float heightMeters = randomFloat(4.0f, 9.0f);
+    float heightMeters = randomFloat(4.0f, (_state == DEMO ? 9.0f : 10.0f));
+    // TODO: remove
+    // heightMeters = 10.0f;
     int numEntities = _obstacles.size() + _NPCs.size(); //used for checking whether an obstacle was actually generated or not
     bool faceLeft = randomBool();
 
@@ -538,40 +537,45 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
         case 0:
             {
                 if(_lastObstacleSpawned != 1) { //don't spawn streetlights directly after trees
+                    position.x += (faceLeft ? 2.7f : 1.0f);
                     _obstacles.push_back(ObstacleFactory::makeStreetlight(heightMeters, faceLeft));
-                    
                     addToWorld(*_obstacles.back(), position);
+                    _rightmostObstacleLocation = position.x + (faceLeft ? 1.0f : 2.7f);
                 }
                 break;
             }
         case 1:
-            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters));
-            _spawnPositionLastObstacle += 1.44f + heightMeters;
+            position.x += (faceLeft ? 1.44f + heightMeters * 0.65f : 2.5f);
+            _obstacles.push_back(ObstacleFactory::makeTree(heightMeters, faceLeft));
             addToWorld(*_obstacles.back(), position);
+            _rightmostObstacleLocation = position.x + (faceLeft ? 2.5f : 1.44f + heightMeters * 0.65f);
             break;
         case 2:
             {
-            float height = randomFloat(6.0f, 12.0f);
-            if(_state == DEMO && height == _BIRD_DEMO_POSITION.y) {
-                height = 11.0f;
-            }
-            _obstacles.push_back(ObstacleFactory::makeCloud());
-            addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
-            break;
-            }
-        case 3:
-            if(_lastObstacleSpawned != 4) { //don't spawn lifeguard towers directly after docks (doesn't make sense)
-                _obstacles.push_back(ObstacleFactory::makeLifeguard(faceLeft));
-                addToWorld(*_obstacles.back(), position);
+                float height = randomFloat(6.0f, 12.0f);
+                if (_state == DEMO)
+                    height = randomBool() ? randomFloat(6.0f, _BIRD_DEMO_POSITION.y - 1.1f) :
+                            randomFloat(_BIRD_DEMO_POSITION.y + 1.1f, 12.0f);
+                position.x += 1.0f;
+                _obstacles.push_back(ObstacleFactory::makeCloud());
+                addToWorld(*_obstacles.back(), b2Vec2(position.x, height));
+                _rightmostObstacleLocation = position.x + 1.0f;
                 break;
             }
+        case 3:
+            position.x += 2.3f;
+            _obstacles.push_back(ObstacleFactory::makeLifeguard(faceLeft));
+            addToWorld(*_obstacles.back(), position);
+            _rightmostObstacleLocation = position.x + 2.3f;
+            break;
         case 4:
             {
-                int width = randomInt(1, 5);
+                int width = randomInt(2, 5);
                 int height = randomInt(1, 5);
+                position.x -= 0.8f;
                 _obstacles.push_back(ObstacleFactory::makeDocks(width, height));
                 addToWorld(*_obstacles.back(), position);
-                _spawnPositionLastObstacle += width;
+                _rightmostObstacleLocation = position.x + 1.0f + width * 1.9f;
                 bool spawnNPC = randomBool();
                 if(spawnNPC) {
                     _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
@@ -583,21 +587,30 @@ void GameLogic::spawnNPE(const b2Vec2& position) {
         case 5:
             {
                 float angle = randomFloat(-PI/4.0f, PI / 4.0f);
+                position.x += 1.5f;
                 _obstacles.push_back(ObstacleFactory::makeUmbrella(angle));
                 addToWorld(*_obstacles.back(), position - b2Vec2(0.0f, 0.02f));
+                _rightmostObstacleLocation = position.x + 1.5f;
                 break;
             }
         case 6:
+            position.x += randomFloat(1.0f, 3.0f); // give the NPC some room to move around
             _NPCs.push_back(randomBool() ? NPCFactory::makeMale() : NPCFactory::makeFemale());
             // NPCs should get drawn behind everything
             addToWorld(*_NPCs.back(), position, true, false);
+            _rightmostObstacleLocation = position.x + 1.0f;
             break;
     }
 
-    //this is called in all cases regardless of whether an obstacle was actually spawned or not
-    if(obstacleType != 6 && numEntities != _obstacles.size() + _NPCs.size()) {
+    // give the next obstacle some breathing room
+    bool somethingWasSpawned = numEntities != _obstacles.size() + _NPCs.size();
+    if (somethingWasSpawned)
+        _rightmostObstacleLocation += randomFloat(0.0f, 4.0f);
+        
+    // set the type of the last obstacle spawned, but don't worry about it if it was an NPC
+    bool nonNPCWasSpawned = somethingWasSpawned && obstacleType != 6;
+    if (nonNPCWasSpawned)
         _lastObstacleSpawned = obstacleType;
-    }
 }
 
 b2Body* GameLogic::addToWorld(const PhysicalActor& actor, const b2Vec2& position,
