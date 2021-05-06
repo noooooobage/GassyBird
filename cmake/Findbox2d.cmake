@@ -28,6 +28,7 @@
 # list of search paths
 set(box2d_search_paths
     "C:/Program Files (x86)"
+    "C:/Program Files"
     /usr/local
     /usr
 )

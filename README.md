@@ -25,18 +25,91 @@ You can use the mouse to click on buttons. But if you're a pro keyboard gamer, t
 
 ## Installation
 
-This project utilizes [SFML](https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php) and [Box2D](https://github.com/erincatto/box2d). Follow those links to install the libraries using CMAKE.
+### Windows
 
-Once SFML and Box2D are installed, run the following to compile and launch the game:
+Start up a command promp in [administrator mode](https://www.isunshare.com/windows-10/2-ways-to-run-command-prompt-as-administrator-in-win-10.html), then do the following:
 
-```sh
-git clone https://github.com/noooooobage/GassyBird.git
-cd GassyBird
-mkdir Release
-cd Release
-cmake ..
-make
-./gassy_bird
-```
+1. Install SFML
 
-The above runs fine as long as SFML and Box2D are installed in their standard locations. If you get CMAKE errors like a package wasn't able to be found, then you may have to set some environment variables which tell CMAKE how to find your SFML and Box2D locations. The CMAKE error messages tell you which variables need to be set and to what values.
+    ```sh
+    git clone https://github.com/SFML/SFML.git
+    cd SFML
+    mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" ..
+    make install
+    ```
+
+2. Add the SFML `bin` directory to your `PATH` environment vairable ([instructions](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)). For example, if you installed SFML to `C:\Program Files (x86)\SFML`, then add `C:\Program Files (x86)\SFML\bin` to `PATH`.
+
+    You may have to restart your command prompt for this change to take effect. Remember to restart it in administrator mode!
+
+3. Install Box2D
+
+    ```sh
+    git clone https://github.com/erincatto/box2d.git
+    cd box2d
+    mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" ..
+    make install
+    ```
+
+4. Install and run Gassy Bird
+
+    ```sh
+    git clone https://github.com/noooooobage/GassyBird.git
+    cd GassyBird
+    mkdir Release
+    cd Release
+    cmake -G "MinGW Makefiles" ..
+    make
+    gassy_bird
+    ```
+
+### Linux
+
+1. Install SFML
+
+    ```sh
+    git clone https://github.com/SFML/SFML.git
+    cd SFML
+    mkdir build
+    cd build
+    cmake ..
+    sudo make install
+    ```
+
+2. Add the SFML `bin` directory to your `PATH` environment vairable ([instructions](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/)). For example, if you installed SFML to `/usr/SFML`, then add `/usr/SFML/bin` to `PATH`.
+
+3. Install Box2D
+
+    ```sh
+    git clone https://github.com/erincatto/box2d.git
+    cd box2d
+    mkdir build
+    cd build
+    cmake ..
+    sudo make install
+    ```
+
+4. Install and run Gassy Bird
+
+    ```sh
+    git clone https://github.com/noooooobage/GassyBird.git
+    cd GassyBird
+    mkdir Release
+    cd Release
+    cmake ..
+    make
+    ./gassy_bird
+    ```
+
+### Troubleshooting
+
+If you get CMAKE errors like a package wasn't able to be found, then you may have to set one or more of the following environment variables:
+
+- `BOX2DINCLUDE`: The location where the Box2D header files are located. For example, if you installed Box2D to `C:\Program Files (x86)\box2d`, then set `BOX2DINCLUDE` to `C:\Program Files (x86)\box2d\include`.
+- `BOX2DLIB`: The location where the box2d libraries are located. For example, if you installed Box2D to `C:\Program Files (x86)\box2d`, then set `BOX2DLIB` to `C:\Program Files (x86)\box2d\lib`.
+- `INCLUDE`: The location where the SFML header files are located. For example, if you installed SFML to `C:\Program Files (x86)\SFML`, then set `INCLUDE` to `C:\Program Files (x86)\SFML\include`.
+- `LIB`: The location where the SFML libraries are installed. For example, if you installed SFML to `C:\Program Files (x86)\SFML`, then set `LIB` to `C:\Program Files (x86)\SFML\lib`.
